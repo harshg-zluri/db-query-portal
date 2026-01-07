@@ -1,0 +1,317 @@
+import { Request, Response, NextFunction } from 'express';
+import { QueryRequestModel, CreateRequestData } from '../models/QueryRequest';
+import { DatabaseInstanceModel } from '../models/DatabaseInstance';
+import { PodModel } from '../models/Pod';
+import { UserRole, SubmissionType, RequestStatus } from '../types';
+import { sendSuccess, sendCreated, sendPaginated } from '../utils/responseHelper';
+import { NotFoundError, ValidationError, ForbiddenError } from '../utils/errors';
+import { CreateRequestInput, ListRequestsInput } from '../validators/request.schema';
+import { sanitizeFileName } from '../utils/sanitizer';
+import { logger, AuditCategory, AuditAction } from '../utils/logger';
+
+/**
+ * Get client IP address from request
+ */
+function getClientIp(req: Request): string {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (typeof forwarded === 'string') {
+        return forwarded.split(',')[0].trim();
+    }
+    if (Array.isArray(forwarded)) {
+        return forwarded[0];
+    }
+    return req.socket.remoteAddress || 'unknown';
+}
+
+/**
+ * Request Controller
+ * Handles query request submission and listing
+ */
+export class RequestController {
+    /**
+     * POST /api/requests
+     * Submit new query/script request
+     */
+    static async create(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const user = req.user!;
+        const ipAddress = getClientIp(req);
+
+        try {
+            const input = req.body as CreateRequestInput;
+
+            // Validate instance exists
+            const instance = await DatabaseInstanceModel.findById(input.instanceId);
+            if (!instance) {
+                throw new NotFoundError('Database instance');
+            }
+
+            // Validate database type matches
+            if (instance.type !== input.databaseType) {
+                throw new ValidationError('Database type mismatch with selected instance');
+            }
+
+            // Validate database exists in instance
+            if (!instance.databases.includes(input.databaseName)) {
+                throw new ValidationError('Database not found in selected instance');
+            }
+
+            // Validate POD exists
+            const pod = await PodModel.findById(input.podId);
+            if (!pod) {
+                throw new NotFoundError('POD');
+            }
+
+            // Handle script file if present
+            let scriptContent: string | undefined;
+            let scriptFileName: string | undefined;
+
+            if (input.submissionType === SubmissionType.SCRIPT) {
+                if (!req.file) {
+                    throw new ValidationError('Script file is required for script submissions');
+                }
+
+                scriptFileName = sanitizeFileName(req.file.originalname);
+                scriptContent = req.file.buffer.toString('utf-8');
+            }
+
+            // Create request data
+            const requestData: CreateRequestData = {
+                userId: user.userId,
+                userEmail: user.email,
+                databaseType: input.databaseType,
+                instanceId: input.instanceId,
+                instanceName: instance.name,
+                databaseName: input.databaseName,
+                submissionType: input.submissionType,
+                query: input.query,
+                scriptFileName,
+                scriptContent,
+                comments: input.comments,
+                podId: input.podId,
+                podName: pod.name
+            };
+
+            const request = await QueryRequestModel.create(requestData);
+
+            // Audit log: request created
+            logger.audit({
+                category: AuditCategory.REQUEST,
+                action: AuditAction.REQUEST_CREATED,
+                message: `New ${input.submissionType} request created`,
+                userId: user.userId,
+                userEmail: user.email,
+                ipAddress,
+                userAgent: req.headers['user-agent'],
+                requestId: req.requestId,
+                resourceId: request.id,
+                resourceType: 'QueryRequest',
+                outcome: 'SUCCESS',
+                details: {
+                    databaseType: input.databaseType,
+                    instanceId: input.instanceId,
+                    instanceName: instance.name,
+                    databaseName: input.databaseName,
+                    submissionType: input.submissionType,
+                    podId: input.podId,
+                    podName: pod.name,
+                    hasScript: !!scriptFileName,
+                    scriptFileName,
+                    queryPreview: input.query?.substring(0, 100)
+                }
+            });
+
+            // TODO: Send Slack notification (Week 2)
+
+            sendCreated(res, request, 'Request submitted successfully');
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * GET /api/requests
+     * List requests (filtered by role/POD access)
+     */
+    static async list(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const query = req.query as unknown as ListRequestsInput;
+            const user = req.user!;
+
+            // Build filters based on user role
+            const filters: {
+                status?: RequestStatus;
+                podId?: string;
+                approverEmail?: string;
+                dateFrom?: Date;
+                dateTo?: Date;
+                allowedPodIds?: string[];
+            } = {
+                status: query.status as RequestStatus,
+                podId: query.podId,
+                approverEmail: query.approverEmail,
+                dateFrom: query.dateFrom,
+                dateTo: query.dateTo
+            };
+
+            // Managers can only see requests for their PODs
+            if (user.role === UserRole.MANAGER) {
+                filters.allowedPodIds = user.managedPodIds;
+            }
+
+            // Developers shouldn't access this endpoint (they use /my)
+            if (user.role === UserRole.DEVELOPER) {
+                // Audit log: forbidden access
+                logger.audit({
+                    category: AuditCategory.ACCESS,
+                    action: AuditAction.FORBIDDEN_ACCESS,
+                    message: `Developer attempted to access manager/admin request list`,
+                    userId: user.userId,
+                    userEmail: user.email,
+                    ipAddress: getClientIp(req),
+                    requestId: req.requestId,
+                    outcome: 'FAILURE',
+                    details: { role: user.role }
+                });
+                throw new ForbiddenError('Use /api/requests/my to view your submissions');
+            }
+
+            const { requests, total } = await QueryRequestModel.findWithFilters(
+                filters,
+                query.page,
+                query.limit
+            );
+
+            // Audit log: request list viewed
+            logger.audit({
+                category: AuditCategory.REQUEST,
+                action: AuditAction.REQUEST_LIST_VIEWED,
+                message: `Viewed request list`,
+                userId: user.userId,
+                userEmail: user.email,
+                ipAddress: getClientIp(req),
+                requestId: req.requestId,
+                outcome: 'SUCCESS',
+                details: {
+                    filters: {
+                        status: filters.status,
+                        podId: filters.podId
+                    },
+                    page: query.page,
+                    limit: query.limit,
+                    totalResults: total
+                }
+            });
+
+            sendPaginated(res, requests, query.page, query.limit, total);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * GET /api/requests/my
+     * Get current user's submissions
+     */
+    static async getMyRequests(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const user = req.user!;
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 20;
+
+            const { requests, total } = await QueryRequestModel.findByUserId(
+                user.userId,
+                page,
+                limit
+            );
+
+            // Audit log: my requests viewed
+            logger.audit({
+                category: AuditCategory.REQUEST,
+                action: AuditAction.REQUEST_LIST_VIEWED,
+                message: `User viewed their own requests`,
+                userId: user.userId,
+                userEmail: user.email,
+                ipAddress: getClientIp(req),
+                requestId: req.requestId,
+                outcome: 'SUCCESS',
+                details: {
+                    page,
+                    limit,
+                    totalResults: total
+                }
+            });
+
+            sendPaginated(res, requests, page, limit, total);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * GET /api/requests/:id
+     * Get request details
+     */
+    static async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { id } = req.params;
+        const user = req.user!;
+
+        try {
+            const request = await QueryRequestModel.findById(id);
+
+            if (!request) {
+                throw new NotFoundError('Request');
+            }
+
+            // Check access: Owner, POD manager, or admin
+            const hasAccess =
+                request.userId === user.userId ||
+                user.role === UserRole.ADMIN ||
+                (user.role === UserRole.MANAGER && user.managedPodIds.includes(request.podId));
+
+            if (!hasAccess) {
+                // Audit log: forbidden access
+                logger.audit({
+                    category: AuditCategory.ACCESS,
+                    action: AuditAction.FORBIDDEN_ACCESS,
+                    message: `User attempted to access request they don't have permission for`,
+                    userId: user.userId,
+                    userEmail: user.email,
+                    ipAddress: getClientIp(req),
+                    requestId: req.requestId,
+                    resourceId: id,
+                    resourceType: 'QueryRequest',
+                    outcome: 'FAILURE',
+                    details: {
+                        userRole: user.role,
+                        requestOwner: request.userEmail,
+                        requestPod: request.podId
+                    }
+                });
+                throw new ForbiddenError('You do not have access to this request');
+            }
+
+            // Audit log: request viewed
+            logger.audit({
+                category: AuditCategory.REQUEST,
+                action: AuditAction.REQUEST_VIEWED,
+                message: `Request details viewed`,
+                userId: user.userId,
+                userEmail: user.email,
+                ipAddress: getClientIp(req),
+                requestId: req.requestId,
+                resourceId: id,
+                resourceType: 'QueryRequest',
+                outcome: 'SUCCESS',
+                details: {
+                    requestStatus: request.status,
+                    requestOwner: request.userEmail,
+                    databaseType: request.databaseType
+                }
+            });
+
+            sendSuccess(res, request);
+        } catch (error) {
+            next(error);
+        }
+    }
+}

@@ -1,0 +1,86 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import { config, validateConfig } from './config/environment';
+import routes from './routes';
+import { apiLimiter } from './middleware/rateLimiter.middleware';
+import { requestLogger } from './middleware/requestLogger.middleware';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware';
+import { logger, AuditCategory, AuditAction } from './utils/logger';
+import { closePool } from './config/database';
+import { ExecutionService } from './services/execution.service';
+
+// Validate config on startup
+validateConfig();
+
+// Create Express app
+const app = express();
+
+// Security middleware
+app.use(helmet());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || '*',
+    credentials: true
+}));
+
+// Rate limiting
+app.use('/api', apiLimiter);
+
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request logging (before routes)
+app.use(requestLogger);
+
+// Health check
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// API routes
+app.use('/api', routes);
+
+
+// 404 handler
+app.use(notFoundHandler);
+
+// Global error handler
+app.use(errorHandler);
+
+// Graceful shutdown
+async function shutdown(): Promise<void> {
+    logger.info('Shutting down...');
+
+    await Promise.all([
+        closePool(),
+        ExecutionService.cleanup()
+    ]);
+
+    logger.info('Cleanup complete');
+    process.exit(0);
+}
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+// Start server
+if (require.main === module) {
+    app.listen(config.port, () => {
+        logger.audit({
+            category: AuditCategory.SYSTEM,
+            action: AuditAction.SERVER_STARTED,
+            message: `Server started successfully on port ${config.port}`,
+            outcome: 'SUCCESS',
+            details: {
+                port: config.port,
+                environment: config.nodeEnv
+            }
+        });
+        logger.info(`Server running on port ${config.port}`, {
+            env: config.nodeEnv
+        });
+    });
+}
+
+export default app;

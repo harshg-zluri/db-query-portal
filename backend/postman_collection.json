@@ -1,0 +1,660 @@
+{
+    "info": {
+        "_postman_id": "db-query-portal-collection",
+        "name": "DB Query Portal API",
+        "description": "Complete API collection for the Database Query Execution Portal. This collection includes authentication, database management, POD management, request submission, and approval workflows.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000/api",
+            "type": "string"
+        },
+        {
+            "key": "accessToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "refreshToken",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{accessToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "description": "Authentication endpoints for login, logout, token refresh, and profile",
+            "item": [
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.accessToken) {",
+                                    "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                                    "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"Admin123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Authenticate user with email and password. Returns access and refresh tokens.\n\n**Test Users:**\n- Admin: admin@example.com / Admin123!\n- Manager: manager@example.com / Manager123!\n- Developer: dev@example.com / Dev123!"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "logout"
+                            ]
+                        },
+                        "description": "Logout the current user. Client should discard tokens after this call."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Refresh Token",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.accessToken) {",
+                                    "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                                    "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/refresh",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "refresh"
+                            ]
+                        },
+                        "description": "Refresh the access token using a valid refresh token."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "me"
+                            ]
+                        },
+                        "description": "Get the current authenticated user's profile information."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Databases",
+            "description": "Database management endpoints for types, instances, and databases",
+            "item": [
+                {
+                    "name": "Get Database Types",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/databases/types",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "databases",
+                                "types"
+                            ]
+                        },
+                        "description": "Get list of available database types (PostgreSQL, MongoDB)."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Database Instances",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/databases/instances",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "databases",
+                                "instances"
+                            ]
+                        },
+                        "description": "Get list of all database instances."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Database Instances (Filtered by Type)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/databases/instances?type=postgresql",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "databases",
+                                "instances"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "postgresql",
+                                    "description": "Filter by database type: postgresql or mongodb"
+                                }
+                            ]
+                        },
+                        "description": "Get list of database instances filtered by type."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Databases for Instance",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/databases/:instanceId/databases",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "databases",
+                                ":instanceId",
+                                "databases"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "instanceId",
+                                    "value": "pg-prod-1",
+                                    "description": "Database instance ID"
+                                }
+                            ]
+                        },
+                        "description": "Get list of databases for a specific instance."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Instance Details (Admin Only)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/databases/:instanceId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "databases",
+                                ":instanceId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "instanceId",
+                                    "value": "pg-prod-1",
+                                    "description": "Database instance ID"
+                                }
+                            ]
+                        },
+                        "description": "Get detailed information about a database instance. **Admin only.**"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "PODs",
+            "description": "POD (team) management endpoints",
+            "item": [
+                {
+                    "name": "Get All PODs",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/pods",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "pods"
+                            ]
+                        },
+                        "description": "Get list of all PODs (teams)."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get POD by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/pods/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "pods",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "pod-backend",
+                                    "description": "POD ID"
+                                }
+                            ]
+                        },
+                        "description": "Get details of a specific POD by ID."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Requests",
+            "description": "Query/script request submission and management",
+            "item": [
+                {
+                    "name": "Create Request (SQL Query)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"databaseType\": \"postgresql\",\n    \"instanceId\": \"pg-prod-1\",\n    \"databaseName\": \"users_db\",\n    \"submissionType\": \"query\",\n    \"query\": \"SELECT * FROM users LIMIT 10;\",\n    \"podId\": \"pod-backend\",\n    \"comments\": \"Fetching user data for analysis\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/requests",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests"
+                            ]
+                        },
+                        "description": "Submit a new SQL query request for approval.\n\n**Fields:**\n- databaseType: postgresql or mongodb\n- instanceId: Target database instance\n- databaseName: Target database\n- submissionType: query or script\n- query: SQL/MongoDB query (for query type)\n- podId: Team/POD ID\n- comments: Optional comments"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Request (MongoDB Query)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"databaseType\": \"mongodb\",\n    \"instanceId\": \"mongo-prod-1\",\n    \"databaseName\": \"analytics\",\n    \"submissionType\": \"query\",\n    \"query\": \"db.events.find({}).limit(10)\",\n    \"podId\": \"pod-backend\",\n    \"comments\": \"Fetching analytics events\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/requests",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests"
+                            ]
+                        },
+                        "description": "Submit a new MongoDB query request for approval."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Request (Script Upload)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "databaseType",
+                                    "value": "postgresql",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "instanceId",
+                                    "value": "pg-prod-1",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "databaseName",
+                                    "value": "users_db",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "submissionType",
+                                    "value": "script",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "podId",
+                                    "value": "pod-backend",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "comments",
+                                    "value": "Data migration script",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "script",
+                                    "type": "file",
+                                    "src": "",
+                                    "description": "Select a .js script file"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/requests",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests"
+                            ]
+                        },
+                        "description": "Submit a new script request for approval. Upload a .js file.\n\n**Note:** Set submissionType to 'script' and attach a .js file to the 'script' field."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get My Requests",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/requests/my?page=1&limit=20",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests",
+                                "my"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        },
+                        "description": "Get the current user's submitted requests with pagination."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get All Requests (Manager/Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/requests?page=1&limit=20",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "pending",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "podId",
+                                    "value": "pod-backend",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Get all requests. **Manager/Admin only.**\n\n**Optional filters:**\n- status: pending, approved, rejected, completed, failed\n- podId: Filter by POD\n- dateFrom: Start date filter\n- dateTo: End date filter"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Pending Requests (Manager/Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/requests/pending?page=1&limit=20",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests",
+                                "pending"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        },
+                        "description": "Get all pending requests awaiting approval. **Manager/Admin only.**"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Request by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/requests/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "request-id-here",
+                                    "description": "Request ID"
+                                }
+                            ]
+                        },
+                        "description": "Get details of a specific request. Access depends on ownership or role."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Approvals",
+            "description": "Request approval and rejection workflows",
+            "item": [
+                {
+                    "name": "Approve Request",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/requests/:id/approve",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests",
+                                ":id",
+                                "approve"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "request-id-here",
+                                    "description": "Request ID to approve"
+                                }
+                            ]
+                        },
+                        "description": "Approve a pending request and trigger execution. **Manager/Admin only.**\n\nThe query/script will be executed immediately after approval."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Reject Request",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"reason\": \"Query is too broad. Please add more specific filters.\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/requests/:id/reject",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests",
+                                ":id",
+                                "reject"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "request-id-here",
+                                    "description": "Request ID to reject"
+                                }
+                            ]
+                        },
+                        "description": "Reject a pending request with an optional reason. **Manager/Admin only.**"
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ]
+}

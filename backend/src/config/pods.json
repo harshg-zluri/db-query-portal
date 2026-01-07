@@ -1,0 +1,19 @@
+{
+    "pods": [
+        {
+            "id": "pod-1",
+            "name": "Pod 1",
+            "managerEmail": "manager1@zluri.com"
+        },
+        {
+            "id": "de",
+            "name": "DE",
+            "managerEmail": "de-lead@zluri.com"
+        },
+        {
+            "id": "db",
+            "name": "DB",
+            "managerEmail": "db-admin@zluri.com"
+        }
+    ]
+}
