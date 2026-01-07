@@ -62,21 +62,24 @@ export async function query<T = unknown>(
 }
 
 // Transaction helper
+// Transaction helper type
+export type TransactionQuery = <R = unknown>(text: string, params?: unknown[]) => Promise<{ rows: R[]; rowCount: number }>;
+
 export async function withTransaction<T>(
-    callback: (query: typeof transactionQuery) => Promise<T>
+    callback: (query: TransactionQuery) => Promise<T>
 ): Promise<T> {
     const client = await getPool().connect();
 
-    async function transactionQuery<R = unknown>(
+    const transactionQuery: TransactionQuery = async <R = unknown>(
         text: string,
         params?: unknown[]
-    ): Promise<{ rows: R[]; rowCount: number }> {
+    ): Promise<{ rows: R[]; rowCount: number }> => {
         const result = await client.query(text, params);
         return {
             rows: result.rows as R[],
             rowCount: result.rowCount || 0
         };
-    }
+    };
 
     try {
         await client.query('BEGIN');
