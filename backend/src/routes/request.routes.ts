@@ -4,7 +4,7 @@ import { authenticate } from '../middleware/auth.middleware';
 import { requireMinRole } from '../middleware/rbac.middleware';
 import { validate } from '../middleware/validation.middleware';
 import { upload } from '../middleware/upload.middleware';
-import { createRequestSchema, listRequestsSchema } from '../validators/request.schema';
+import { createRequestSchema, listRequestsSchema, myRequestsSchema } from '../validators/request.schema';
 import { paginationSchema } from '../validators/common.schema';
 import { UserRole } from '../types';
 
@@ -21,7 +21,7 @@ router.post(
 router.get(
     '/my',
     authenticate,
-    validate(paginationSchema, 'query'),
+    validate(myRequestsSchema, 'query'),
     RequestController.getMyRequests
 );
 
@@ -37,6 +37,13 @@ router.get(
     '/:id',
     authenticate,
     RequestController.getById
+);
+
+// Withdraw a pending request (owner only)
+router.post(
+    '/:id/withdraw',
+    authenticate,
+    RequestController.withdraw
 );
 
 export default router;

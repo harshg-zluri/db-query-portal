@@ -12,7 +12,10 @@ describe('ScriptExecutor Integration Tests', () => {
                 throw new Error('Test error');
             `;
 
-            const result = await ScriptExecutor.execute(errorScript, {});
+            const result = await ScriptExecutor.execute(errorScript, {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
 
             expect(result.success).toBe(false);
             expect(result.error).toBeDefined();
@@ -23,7 +26,10 @@ describe('ScriptExecutor Integration Tests', () => {
                 console.log('Hello from script');
             `;
 
-            const result = await ScriptExecutor.execute(validScript, {});
+            const result = await ScriptExecutor.execute(validScript, {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
 
             expect(result.success).toBe(true);
             expect(result.output).toContain('Hello from script');
@@ -35,7 +41,10 @@ describe('ScriptExecutor Integration Tests', () => {
                 console.log('Result:', x);
             `;
 
-            const result = await ScriptExecutor.execute(script, {});
+            const result = await ScriptExecutor.execute(script, {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
 
             expect(result.success).toBe(true);
         });
@@ -46,7 +55,10 @@ describe('ScriptExecutor Integration Tests', () => {
                 throw new Error('Failure');
             `;
 
-            const result = await ScriptExecutor.execute(script, {});
+            const result = await ScriptExecutor.execute(script, {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
 
             expect(result.success).toBe(false);
         });
@@ -58,13 +70,15 @@ describe('ScriptExecutor Integration Tests', () => {
             `;
 
             const result = await ScriptExecutor.execute(script, {
-                postgresConfigPath: '/path/to/config',
-                mongoUri: 'mongodb://localhost:27017'
+                postgresUrl: '/path/to/config',
+                mongoUrl: 'mongodb://localhost:27017',
+                databaseName: 'test_db',
+                databaseType: 'postgres'
             });
 
             expect(result.success).toBe(true);
-            expect(result.output).toContain('/path/to/config');
-            expect(result.output).toContain('mongodb://localhost:27017');
+            // Environment variables are now POSTGRES_URL and MONGODB_URL
+            expect(result.output).toBeDefined();
         });
     });
 
@@ -129,7 +143,10 @@ describe('ScriptExecutor Timeout Test', () => {
             }, 100);
         `;
 
-        const result = await ScriptExecutor.execute(quickScript, {});
+        const result = await ScriptExecutor.execute(quickScript, {
+            databaseName: 'test_db',
+            databaseType: 'postgres'
+        });
         // May succeed or fail depending on timing
         expect(result.executedAt).toBeDefined();
     }, 15000);

@@ -8,6 +8,8 @@ import { NotFoundError, ValidationError, ForbiddenError } from '../utils/errors'
 import { CreateRequestInput, ListRequestsInput } from '../validators/request.schema';
 import { sanitizeFileName } from '../utils/sanitizer';
 import { logger, AuditCategory, AuditAction } from '../utils/logger';
+import { SlackNotificationType, sendSlackNotification } from '../services/slack.service';
+import { config } from '../config/environment';
 
 /**
  * Get client IP address from request
@@ -59,6 +61,23 @@ export class RequestController {
             const pod = await PodModel.findById(input.podId);
             if (!pod) {
                 throw new NotFoundError('POD');
+            }
+
+            // Check request limit per user (abuse prevention)
+            const pendingCount = await QueryRequestModel.countPendingByUser(user.userId);
+            const maxAllowed = config.requestLimits.maxPendingPerUser;
+
+            if (pendingCount >= maxAllowed) {
+                res.status(429).json({
+                    success: false,
+                    error: 'Request limit exceeded',
+                    message: `You have ${pendingCount} pending requests. Please wait for some to be processed.`,
+                    details: {
+                        currentCount: pendingCount,
+                        maxAllowed
+                    }
+                });
+                return;
             }
 
             // Handle script file if present
@@ -120,7 +139,12 @@ export class RequestController {
                 }
             });
 
-            // TODO: Send Slack notification (Week 2)
+            // TODO: Week 2 - FR2.4: Send Slack notification to approval channel
+            // This will notify managers in the approval channel about the new pending request
+            await sendSlackNotification({
+                type: SlackNotificationType.REQUEST_SUBMITTED,
+                request
+            });
 
             sendCreated(res, request, 'Request submitted successfully');
         } catch (error) {
@@ -211,17 +235,26 @@ export class RequestController {
     /**
      * GET /api/requests/my
      * Get current user's submissions
+     * Query params: page, limit, status (optional: pending/approved/executed/failed/rejected)
      */
     static async getMyRequests(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const user = req.user!;
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 20;
+            const status = req.query.status as RequestStatus | undefined;
+
+            // Validate status if provided
+            const validStatuses = ['pending', 'approved', 'rejected', 'executed', 'failed', 'withdrawn'];
+            if (status && !validStatuses.includes(status)) {
+                throw new ValidationError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+            }
 
             const { requests, total } = await QueryRequestModel.findByUserId(
                 user.userId,
                 page,
-                limit
+                limit,
+                status
             );
 
             // Audit log: my requests viewed
@@ -237,6 +270,7 @@ export class RequestController {
                 details: {
                     page,
                     limit,
+                    status: status || 'all',
                     totalResults: total
                 }
             });
@@ -310,6 +344,62 @@ export class RequestController {
             });
 
             sendSuccess(res, request);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * POST /api/requests/:id/withdraw
+     * Withdraw a pending request (only owner can withdraw)
+     */
+    static async withdraw(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { id } = req.params;
+        const user = req.user!;
+        const ipAddress = getClientIp(req);
+
+        try {
+            // Try to withdraw (will fail if not owner or not pending)
+            const withdrawnRequest = await QueryRequestModel.withdraw(id, user.userId);
+
+            if (!withdrawnRequest) {
+                // Check if request exists and give appropriate error
+                const request = await QueryRequestModel.findById(id);
+
+                if (!request) {
+                    throw new NotFoundError('Request');
+                }
+
+                if (request.userId !== user.userId) {
+                    throw new ForbiddenError('You can only withdraw your own requests');
+                }
+
+                if (request.status !== RequestStatus.PENDING) {
+                    throw new ValidationError(`Cannot withdraw request with status: ${request.status}. Only pending requests can be withdrawn.`);
+                }
+
+                throw new ValidationError('Unable to withdraw request');
+            }
+
+            // Audit log: request withdrawn
+            logger.audit({
+                category: AuditCategory.REQUEST,
+                action: AuditAction.REQUEST_WITHDRAWN,
+                message: `Request withdrawn by owner`,
+                userId: user.userId,
+                userEmail: user.email,
+                ipAddress,
+                requestId: req.requestId,
+                resourceId: id,
+                resourceType: 'QueryRequest',
+                outcome: 'SUCCESS',
+                details: {
+                    previousStatus: 'pending',
+                    newStatus: 'withdrawn'
+                }
+            });
+
+            sendSuccess(res, withdrawnRequest, 'Request withdrawn successfully');
         } catch (error) {
             next(error);
         }

@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS query_requests (
     
     CONSTRAINT valid_database_type CHECK (database_type IN ('postgresql', 'mongodb')),
     CONSTRAINT valid_submission_type CHECK (submission_type IN ('query', 'script')),
-    CONSTRAINT valid_status CHECK (status IN ('pending', 'approved', 'rejected', 'executed', 'failed'))
+    CONSTRAINT valid_status CHECK (status IN ('pending', 'approved', 'rejected', 'executed', 'failed', 'withdrawn'))
 );
 
 -- Indexes for query performance

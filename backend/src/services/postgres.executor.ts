@@ -16,12 +16,15 @@ export class PostgresExecutor {
         database: string;
         user: string;
         password: string;
+        ssl?: boolean;
     }) {
         this.config = {
             ...config,
             max: 5,
             idleTimeoutMillis: 30000,
-            connectionTimeoutMillis: 10000
+            connectionTimeoutMillis: 10000,
+            // Enable SSL for cloud databases (required for Aiven)
+            ssl: config.ssl !== false ? { rejectUnauthorized: false } : undefined
         };
     }
 
@@ -47,8 +50,10 @@ export class PostgresExecutor {
     /**
      * Execute a SQL query
      * Note: This executes raw SQL - ensure validation was done before calling
+     * @param sql - The SQL query to execute
+     * @param schemaName - Optional schema name to set search_path before executing
      */
-    async execute(sql: string): Promise<ExecutionResult> {
+    async execute(sql: string, schemaName?: string): Promise<ExecutionResult> {
         const startTime = Date.now();
 
         try {
@@ -59,6 +64,11 @@ export class PostgresExecutor {
             const client = await this.pool!.connect();
 
             try {
+                // Set search_path if schemaName is provided
+                if (schemaName) {
+                    await client.query(`SET search_path TO ${schemaName}, public`);
+                }
+
                 const result = await client.query(sql);
                 const duration = Date.now() - startTime;
 
@@ -70,10 +80,13 @@ export class PostgresExecutor {
                 // Format output
                 let output: string;
 
-                if (result.rows.length > 0) {
+                // Handle case where rows might be undefined (e.g., for SET commands)
+                const rows = result.rows || [];
+
+                if (rows.length > 0) {
                     // For SELECT queries, format as JSON array
-                    output = JSON.stringify(result.rows, null, 2);
-                } else if (result.rowCount !== null) {
+                    output = JSON.stringify(rows, null, 2);
+                } else if (result.rowCount !== null && result.rowCount !== undefined) {
                     // For INSERT/UPDATE/DELETE, show affected rows
                     output = `${result.rowCount} row(s) affected`;
                 } else {
@@ -126,18 +139,21 @@ export class PostgresExecutor {
  * Create PostgreSQL executor from connection string
  */
 export function createPostgresExecutor(connectionString: string): PostgresExecutor {
-    const regex = /postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/;
+    // Support both postgres:// and postgresql:// and handle query params
+    const regex = /postgres(?:ql)?:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)(?:\?(.*))?/;
     const match = connectionString.match(regex);
 
     if (!match) {
         throw new Error('Invalid PostgreSQL connection string');
     }
 
-    return new PostgresExecutor({
+    const executor = new PostgresExecutor({
         user: match[1],
         password: match[2],
         host: match[3],
         port: parseInt(match[4], 10),
         database: match[5]
     });
+
+    return executor;
 }

@@ -93,25 +93,23 @@ export class ExecutionService {
         query: string
     ): Promise<ExecutionResult> {
         // Connection key for caching
-        const connKey = `${instance.id}:${databaseName}`;
+        const connKey = `postgres:${databaseName}`;
 
-        // Get or create executor
+        // Get or create executor using target connection string
         let executor = postgresConnections.get(connKey);
 
         if (!executor) {
-            // In production, credentials would come from secure storage
-            // For now, use environment-configured credentials
-            executor = new PostgresExecutor({
-                host: instance.host,
-                port: instance.port,
-                database: databaseName,
-                user: process.env.PG_USER || 'postgres',
-                password: process.env.PG_PASSWORD || 'password'
-            });
+            const targetUrl = process.env.TARGET_POSTGRES_URL;
+            if (!targetUrl) {
+                throw new ValidationError('TARGET_POSTGRES_URL is not configured');
+            }
+
+            executor = createPostgresExecutor(targetUrl);
             postgresConnections.set(connKey, executor);
         }
 
-        return executor.execute(query);
+        // Execute query with schema name - the executor will SET search_path first
+        return executor.execute(query, databaseName);
     }
 
     /**
@@ -123,15 +121,18 @@ export class ExecutionService {
         query: string
     ): Promise<ExecutionResult> {
         // Connection key for caching
-        const connKey = `${instance.id}:${databaseName}`;
+        const connKey = `mongo:${databaseName}`;
 
-        // Get or create executor
+        // Get or create executor using target connection string
         let executor = mongoConnections.get(connKey);
 
         if (!executor) {
-            // Build MongoDB URI
-            const uri = `mongodb://${instance.host}:${instance.port}`;
-            executor = createMongoExecutor(uri, databaseName);
+            const targetUrl = process.env.TARGET_MONGODB_URL;
+            if (!targetUrl) {
+                throw new ValidationError('TARGET_MONGODB_URL is not configured');
+            }
+
+            executor = createMongoExecutor(targetUrl, databaseName);
             mongoConnections.set(connKey, executor);
         }
 
@@ -156,27 +157,29 @@ export class ExecutionService {
             };
         }
 
-        // Get instance details
-        const instance = await DatabaseInstanceModel.findById(request.instanceId);
-        if (!instance) {
-            throw new NotFoundError('Database instance');
-        }
-
-        // Prepare database config for script
-        const dbConfig: { postgresConfigPath?: string; mongoUri?: string } = {};
+        // Prepare database config for script based on database type
+        const dbConfig: {
+            postgresUrl?: string;
+            mongoUrl?: string;
+            databaseName: string;
+            databaseType: string;
+        } = {
+            databaseName: request.databaseName,
+            databaseType: request.databaseType
+        };
 
         if (request.databaseType === DatabaseType.POSTGRESQL) {
-            // PostgreSQL config would be written to temp file
-            // For now, pass connection details via env
-            dbConfig.postgresConfigPath = JSON.stringify({
-                host: instance.host,
-                port: instance.port,
-                database: request.databaseName,
-                user: process.env.PG_USER || 'postgres',
-                password: process.env.PG_PASSWORD || 'password'
-            });
+            const targetUrl = process.env.TARGET_POSTGRES_URL;
+            if (!targetUrl) {
+                throw new ValidationError('TARGET_POSTGRES_URL is not configured');
+            }
+            dbConfig.postgresUrl = targetUrl;
         } else {
-            dbConfig.mongoUri = `mongodb://${instance.host}:${instance.port}/${request.databaseName}`;
+            const targetUrl = process.env.TARGET_MONGODB_URL;
+            if (!targetUrl) {
+                throw new ValidationError('TARGET_MONGODB_URL is not configured');
+            }
+            dbConfig.mongoUrl = targetUrl;
         }
 
         return ScriptExecutor.execute(request.scriptContent, dbConfig);

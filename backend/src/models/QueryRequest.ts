@@ -22,8 +22,17 @@ const SQL = {
     ORDER BY created_at DESC
     LIMIT $2 OFFSET $3
   `,
+    findByUserIdWithStatus: `
+    SELECT * FROM query_requests 
+    WHERE user_id = $1 AND status = $2
+    ORDER BY created_at DESC
+    LIMIT $3 OFFSET $4
+  `,
     countByUserId: `
     SELECT COUNT(*) as total FROM query_requests WHERE user_id = $1
+  `,
+    countByUserIdWithStatus: `
+    SELECT COUNT(*) as total FROM query_requests WHERE user_id = $1 AND status = $2
   `,
     findPending: `
     SELECT * FROM query_requests 
@@ -44,6 +53,10 @@ const SQL = {
     SELECT COUNT(*) as total FROM query_requests 
     WHERE status = 'pending' AND pod_id = ANY($1::text[])
   `,
+    countPendingByUser: `
+    SELECT COUNT(*) as total FROM query_requests 
+    WHERE user_id = $1 AND status IN ('pending', 'approved')
+  `,
     updateStatus: `
     UPDATE query_requests 
     SET status = $2, approver_email = $3, updated_at = $4
@@ -54,6 +67,12 @@ const SQL = {
     UPDATE query_requests 
     SET status = 'rejected', approver_email = $2, rejection_reason = $3, updated_at = $4
     WHERE id = $1
+    RETURNING *
+  `,
+    withdraw: `
+    UPDATE query_requests 
+    SET status = 'withdrawn', updated_at = $2
+    WHERE id = $1 AND user_id = $3 AND status = 'pending'
     RETURNING *
   `,
     setExecutionResult: `
@@ -181,24 +200,45 @@ export class QueryRequestModel {
     }
 
     /**
-     * Find requests by user ID with pagination
+     * Find requests by user ID with pagination and optional status filter
      */
     static async findByUserId(
         userId: string,
         page: number = 1,
-        limit: number = 20
+        limit: number = 20,
+        status?: RequestStatus
     ): Promise<{ requests: QueryRequest[]; total: number }> {
         const offset = (page - 1) * limit;
 
-        const [requestsResult, countResult] = await Promise.all([
-            query<Record<string, unknown>>(SQL.findByUserId, [userId, limit, offset]),
-            query<{ total: string }>(SQL.countByUserId, [userId])
-        ]);
+        let requestsResult;
+        let countResult;
+
+        if (status) {
+            // Filter by status
+            [requestsResult, countResult] = await Promise.all([
+                query<Record<string, unknown>>(SQL.findByUserIdWithStatus, [userId, status, limit, offset]),
+                query<{ total: string }>(SQL.countByUserIdWithStatus, [userId, status])
+            ]);
+        } else {
+            // No status filter
+            [requestsResult, countResult] = await Promise.all([
+                query<Record<string, unknown>>(SQL.findByUserId, [userId, limit, offset]),
+                query<{ total: string }>(SQL.countByUserId, [userId])
+            ]);
+        }
 
         return {
             requests: requestsResult.rows.map(rowToRequest),
             total: parseInt(countResult.rows[0].total, 10)
         };
+    }
+
+    /**
+     * Count pending + approved requests for a user (for abuse prevention)
+     */
+    static async countPendingByUser(userId: string): Promise<number> {
+        const result = await query<{ total: string }>(SQL.countPendingByUser, [userId]);
+        return parseInt(result.rows[0].total, 10);
     }
 
     /**
@@ -265,6 +305,25 @@ export class QueryRequestModel {
             approverEmail,
             reason || null,
             new Date()
+        ]);
+
+        if (result.rows.length === 0) {
+            return null;
+        }
+        return rowToRequest(result.rows[0]);
+    }
+
+    /**
+     * Withdraw request (only owner can withdraw their own pending request)
+     */
+    static async withdraw(
+        id: string,
+        userId: string
+    ): Promise<QueryRequest | null> {
+        const result = await query<Record<string, unknown>>(SQL.withdraw, [
+            id,
+            new Date(),
+            userId
         ]);
 
         if (result.rows.length === 0) {

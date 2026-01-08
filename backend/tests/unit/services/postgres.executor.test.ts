@@ -119,12 +119,35 @@ describe('PostgresExecutor', () => {
             expect(result.error).toBe('Syntax error');
         });
 
+        it('should set search path when schema provided', async () => {
+            mockClient.query.mockResolvedValue({
+                rows: [],
+                rowCount: 0
+            });
+
+            await executor.execute('SELECT * FROM users', 'my_schema');
+
+            expect(mockClient.query).toHaveBeenCalledWith('SET search_path TO my_schema, public');
+            expect(mockClient.query).toHaveBeenCalledWith('SELECT * FROM users');
+        });
+
         it('should release client after execution', async () => {
             mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
 
             await executor.execute('SELECT 1');
 
             expect(mockClient.release).toHaveBeenCalled();
+        });
+        it('should handle undefined rows gracefully', async () => {
+            mockClient.query.mockResolvedValue({
+                rowCount: 1,
+                // rows undefined
+            });
+
+            const result = await executor.execute('INSERT INTO users ...');
+
+            expect(result.success).toBe(true);
+            expect(result.output).toBe('1 row(s) affected');
         });
     });
 
@@ -157,6 +180,26 @@ describe('PostgresExecutor', () => {
         it('should throw for invalid connection string', () => {
             expect(() => createPostgresExecutor('invalid'))
                 .toThrow('Invalid PostgreSQL connection string');
+        });
+    });
+
+    describe('constructor', () => {
+        it('should configure ssl by default', () => {
+            const executor = new PostgresExecutor({ user: 'u', database: 'd', password: 'p', host: 'h', port: 5432 });
+            const config = (executor as any).config;
+            expect(config.ssl).toEqual({ rejectUnauthorized: false });
+        });
+
+        it('should disable ssl when explicitly set to false', () => {
+            const executor = new PostgresExecutor({ user: 'u', database: 'd', password: 'p', host: 'h', port: 5432, ssl: false });
+            const config = (executor as any).config;
+            expect(config.ssl).toBeUndefined();
+        });
+
+        it('should enable ssl by default', () => {
+            const executor = new PostgresExecutor({ user: 'u', database: 'd', password: 'p', host: 'h', port: 5432 });
+            const config = (executor as any).config;
+            expect(config.ssl).toEqual({ rejectUnauthorized: false });
         });
     });
 });

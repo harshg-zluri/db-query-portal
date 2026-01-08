@@ -6,6 +6,7 @@ import { sendSuccess } from '../utils/responseHelper';
 import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors';
 import { RejectRequestInput } from '../validators/request.schema';
 import { logger, AuditCategory, AuditAction } from '../utils/logger';
+import { SlackService, SlackNotificationType, sendSlackNotification } from '../services/slack.service';
 
 /**
  * Get client IP address from request
@@ -130,7 +131,22 @@ export class ApprovalController {
             // Get updated request with execution result
             const finalRequest = await QueryRequestModel.findById(id);
 
-            // TODO: Send Slack notifications (Week 2)
+            // TODO: Week 2 - FR4.1: Send Slack notifications on approval
+            // - DM to requester with execution results
+            // - Message to approval channel with results
+            await sendSlackNotification({
+                type: executionResult.success
+                    ? SlackNotificationType.EXECUTION_SUCCESS
+                    : SlackNotificationType.EXECUTION_FAILED,
+                request: approvedRequest,
+                approverEmail: user.email,
+                executionResult: {
+                    success: executionResult.success,
+                    rowCount: executionResult.rowCount,
+                    output: executionResult.output,
+                    error: executionResult.error
+                }
+            });
 
             sendSuccess(res, {
                 request: finalRequest,
@@ -217,7 +233,15 @@ export class ApprovalController {
                 }
             });
 
-            // TODO: Send Slack notification to requester (Week 2)
+            // TODO: Week 2 - FR4.2: Send Slack DM to requester on rejection
+            // - Rejection notification with original query/script details
+            // - Include rejection reason if provided
+            await sendSlackNotification({
+                type: SlackNotificationType.REQUEST_REJECTED,
+                request: rejectedRequest,
+                approverEmail: user.email,
+                rejectionReason: reason
+            });
 
             sendSuccess(res, rejectedRequest, 'Request rejected successfully');
         } catch (error) {

@@ -37,6 +37,27 @@ export const config = {
     // Bcrypt
     bcrypt: {
         saltRounds: 12
+    },
+
+    // Target Databases (for query execution)
+    targetDatabases: {
+        postgresUrl: process.env.TARGET_POSTGRES_URL || '',
+        mongodbUrl: process.env.TARGET_MONGODB_URL || ''
+    },
+
+    // Queue & Worker Configuration
+    queue: {
+        name: process.env.QUEUE_NAME || 'query_execution',
+        workerConcurrency: parseInt(process.env.WORKER_CONCURRENCY || '4', 10),
+        lockTtlMs: parseInt(process.env.LOCK_TTL_MS || '300000', 10), // 5 minutes
+        maxRetries: parseInt(process.env.MAX_JOB_RETRIES || '3', 10),
+        retryBackoffMs: (process.env.RETRY_BACKOFF_MS || '1000,3000,10000').split(',').map(Number),
+        jobTimeoutMs: parseInt(process.env.JOB_TIMEOUT_MS || '60000', 10) // 1 minute
+    },
+
+    // Request Limits (abuse prevention)
+    requestLimits: {
+        maxPendingPerUser: parseInt(process.env.MAX_PENDING_PER_USER || '10', 10)
     }
 };
 

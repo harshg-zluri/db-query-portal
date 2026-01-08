@@ -14,6 +14,11 @@
             "id": "db",
             "name": "DB",
             "managerEmail": "db-admin@zluri.com"
+        },
+        {
+            "id": "analytics",
+            "name": "Analytics",
+            "managerEmail": "analytics-lead@zluri.com"
         }
     ]
 }

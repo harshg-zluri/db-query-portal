@@ -13,6 +13,26 @@ jest.mock('fs/promises', () => ({
     rm: jest.fn().mockResolvedValue(undefined)
 }));
 
+// Mock fs/promises
+jest.mock('fs/promises', () => ({
+    writeFile: jest.fn().mockResolvedValue(undefined),
+    unlink: jest.fn().mockResolvedValue(undefined),
+    mkdtemp: jest.fn().mockResolvedValue('/tmp/test-script'),
+    rm: jest.fn().mockResolvedValue(undefined)
+}));
+
+// Mock config
+jest.mock('../../../src/config/environment', () => ({
+    config: {
+        scriptExecution: {
+            timeoutMs: 50, // Short timeout for testing
+            maxMemoryMb: 128
+        },
+        // We need other config parts if accessed, but ScriptExecutor only uses scriptExecution
+        requestLimits: { maxPendingPerUser: 5 }
+    }
+}));
+
 import { spawn } from 'child_process';
 import { writeFile, mkdtemp, rm } from 'fs/promises';
 
@@ -122,7 +142,10 @@ describe('ScriptExecutor', () => {
 
             (spawn as jest.Mock).mockReturnValue(mockProcess);
 
-            const result = await ScriptExecutor.execute('console.log("test")', {});
+            const result = await ScriptExecutor.execute('console.log("test")', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
 
             expect(result.success).toBe(true);
             expect(result.output).toBe('Script output');
@@ -149,7 +172,10 @@ describe('ScriptExecutor', () => {
 
             (spawn as jest.Mock).mockReturnValue(mockProcess);
 
-            const result = await ScriptExecutor.execute('throw new Error()', {});
+            const result = await ScriptExecutor.execute('throw new Error()', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
 
             expect(result.success).toBe(false);
             expect(result.error).toBe('Error occurred');
@@ -168,7 +194,10 @@ describe('ScriptExecutor', () => {
 
             (spawn as jest.Mock).mockReturnValue(mockProcess);
 
-            const result = await ScriptExecutor.execute('console.log()', {});
+            const result = await ScriptExecutor.execute('console.log()', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
 
             expect(result.success).toBe(false);
             expect(result.error).toBe('Spawn failed');
@@ -186,8 +215,10 @@ describe('ScriptExecutor', () => {
             (spawn as jest.Mock).mockReturnValue(mockProcess);
 
             await ScriptExecutor.execute('script', {
-                postgresConfigPath: '/path/config.json',
-                mongoUri: 'mongodb://localhost:27017'
+                postgresUrl: 'postgresql://localhost:5432/test',
+                mongoUrl: 'mongodb://localhost:27017',
+                databaseName: 'test_db',
+                databaseType: 'postgres'
             });
 
             expect(spawn).toHaveBeenCalled();
@@ -198,10 +229,76 @@ describe('ScriptExecutor', () => {
         it('should cleanup temp directory on error', async () => {
             (mkdtemp as jest.Mock).mockRejectedValue(new Error('Failed to create temp'));
 
-            const result = await ScriptExecutor.execute('script', {});
+            const result = await ScriptExecutor.execute('script', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
+
+            expect(result.error).toBe('Failed to create temp');
+        });
+
+        it('should capture stderr when script succeeds but logs errors', async () => {
+            (mkdtemp as jest.Mock).mockResolvedValue('/tmp/test-script-valid');
+
+            const mockProcess = {
+                stdout: {
+                    on: jest.fn((event, cb) => {
+                        if (event === 'data') cb('Success output');
+                    })
+                },
+                stderr: {
+                    on: jest.fn((event, cb) => {
+                        if (event === 'data') cb('Warning message');
+                    })
+                },
+                on: jest.fn((event, cb) => {
+                    if (event === 'close') setTimeout(() => cb(0), 10);
+                }),
+                killed: false,
+                kill: jest.fn()
+            };
+
+            (spawn as jest.Mock).mockReturnValue(mockProcess);
+
+            const result = await ScriptExecutor.execute('console.log("test")', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
+
+            if (!result.success) {
+                console.error('Test failed with error:', result.error);
+            }
+            expect(result.success).toBe(true);
+            expect(result.output).toContain('Success output');
+            expect(result.output).toContain('--- STDERR ---');
+            expect(result.output).toContain('Warning message');
+        });
+
+        it('should kill process on timeout', async () => {
+            const mockKill = jest.fn();
+            const mockProcess = {
+                stdout: { on: jest.fn() },
+                stderr: { on: jest.fn() },
+                on: jest.fn(), // Never calls close
+                killed: false,
+                kill: mockKill
+            };
+
+            (spawn as jest.Mock).mockReturnValue(mockProcess);
+
+            const executionPromise = ScriptExecutor.execute('while(true);', {
+                databaseName: 'test',
+                databaseType: 'postgres'
+            });
+
+            // Wait for timeout (50ms configured + buffer)
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const result = await executionPromise;
 
             expect(result.success).toBe(false);
-            expect(result.error).toBe('Failed to create temp');
+            expect(result.error).toContain('timed out');
+            expect(mockKill).toHaveBeenCalledWith('SIGTERM');
         });
     });
 });

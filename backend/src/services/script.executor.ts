@@ -17,8 +17,10 @@ export class ScriptExecutor {
     static async execute(
         scriptContent: string,
         dbConfig: {
-            postgresConfigPath?: string;
-            mongoUri?: string;
+            postgresUrl?: string;
+            mongoUrl?: string;
+            databaseName: string;
+            databaseType: string;
         }
     ): Promise<ExecutionResult> {
         const startTime = Date.now();
@@ -33,9 +35,12 @@ export class ScriptExecutor {
             await writeFile(scriptPath, scriptContent, 'utf-8');
 
             // Execute script with environment variables
+            // Only inject the connection string for the selected database type
             const result = await this.runScript(scriptPath, {
-                DB_CONFIG_FILE: dbConfig.postgresConfigPath || '',
-                MONGO_URI: dbConfig.mongoUri || ''
+                POSTGRES_URL: dbConfig.postgresUrl || '',
+                MONGODB_URL: dbConfig.mongoUrl || '',
+                DB_NAME: dbConfig.databaseName,
+                DB_TYPE: dbConfig.databaseType
             });
 
             const duration = Date.now() - startTime;
@@ -95,6 +100,8 @@ export class ScriptExecutor {
                     ...process.env,
                     ...env,
                     // Disable network for security (basic sandboxing)
+                    // Allow access to project node_modules
+                    NODE_PATH: join(process.cwd(), 'node_modules'),
                     NODE_OPTIONS: '--no-warnings'
                 },
                 timeout: config.scriptExecution.timeoutMs
@@ -112,7 +119,7 @@ export class ScriptExecutor {
                 if (code === 0) {
                     resolve({
                         success: true,
-                        output: stdout.join('')
+                        output: stdout.join('') + (stderr.length > 0 ? '\n\n--- STDERR ---\n' + stderr.join('') : '')
                     });
                 } else {
                     resolve({

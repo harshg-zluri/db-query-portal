@@ -17,7 +17,8 @@ export enum RequestStatus {
     APPROVED = 'approved',
     REJECTED = 'rejected',
     EXECUTED = 'executed',
-    FAILED = 'failed'
+    FAILED = 'failed',
+    WITHDRAWN = 'withdrawn'
 }
 
 // Submission type

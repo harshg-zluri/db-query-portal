@@ -7,7 +7,10 @@ jest.mock('../../../src/services/postgres.executor', () => ({
         execute: jest.fn().mockResolvedValue({ success: true, output: '[]', rowCount: 0, executedAt: new Date() }),
         close: jest.fn().mockResolvedValue(undefined)
     })),
-    createPostgresExecutor: jest.fn()
+    createPostgresExecutor: jest.fn(() => ({
+        execute: jest.fn().mockResolvedValue({ success: true, output: '[]', rowCount: 0, executedAt: new Date() }),
+        close: jest.fn().mockResolvedValue(undefined)
+    }))
 }));
 
 jest.mock('../../../src/services/mongo.executor', () => ({
@@ -49,6 +52,10 @@ jest.mock('../../../src/utils/logger', () => ({
     }
 }));
 
+// Set env variables for tests
+process.env.TARGET_POSTGRES_URL = 'postgresql://localhost:5432/test';
+process.env.TARGET_MONGODB_URL = 'mongodb://localhost:27017/test';
+
 import { ScriptExecutor } from '../../../src/services/script.executor';
 import { DatabaseInstanceModel } from '../../../src/models/DatabaseInstance';
 import { QueryRequestModel } from '../../../src/models/QueryRequest';
@@ -56,8 +63,16 @@ import { PostgresExecutor } from '../../../src/services/postgres.executor';
 import { createMongoExecutor } from '../../../src/services/mongo.executor';
 
 describe('ExecutionService', () => {
-    beforeEach(() => {
+    let originalEnv: NodeJS.ProcessEnv;
+
+    beforeEach(async () => {
         jest.clearAllMocks();
+        originalEnv = { ...process.env };
+        await ExecutionService.cleanup();
+    });
+
+    afterEach(() => {
+        process.env = originalEnv;
     });
 
     const mockDatabaseInstance = {
@@ -195,6 +210,38 @@ describe('ExecutionService', () => {
             // PostgresExecutor should reuse connection from previous call
             expect(DatabaseInstanceModel.findById).toHaveBeenCalledTimes(2);
         });
+
+        it('should throw when TARGET_POSTGRES_URL is not configured', async () => {
+            const request = createMockRequest({
+                submissionType: SubmissionType.QUERY,
+                databaseType: DatabaseType.POSTGRESQL,
+                instanceId: 'db-no-pg-url-query'
+            });
+            const mockInstance = { ...mockDatabaseInstance, id: 'db-no-pg-url-query' };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+
+            process.env.TARGET_POSTGRES_URL = "";
+
+            const result = await ExecutionService.executeRequest(request);
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('TARGET_POSTGRES_URL is not configured');
+        });
+
+        it('should throw when TARGET_MONGODB_URL is not configured', async () => {
+            const request = createMockRequest({
+                submissionType: SubmissionType.QUERY,
+                databaseType: DatabaseType.MONGODB,
+                instanceId: 'db-no-mongo-url-query'
+            });
+            const mockInstance = { ...mockDatabaseInstance, id: 'db-no-mongo-url-query' };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+
+            process.env.TARGET_MONGODB_URL = "";
+
+            const result = await ExecutionService.executeRequest(request);
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('TARGET_MONGODB_URL is not configured');
+        });
     });
 
     describe('executeScript (via executeRequest)', () => {
@@ -228,20 +275,45 @@ describe('ExecutionService', () => {
             expect(result.error).toContain('Script validation failed');
         });
 
-        it('should reject when instance not found for script', async () => {
+        it('should throw when TARGET_POSTGRES_URL is not configured for script', async () => {
             const request = createMockRequest({
                 submissionType: SubmissionType.SCRIPT,
-                query: undefined,
-                scriptContent: 'console.log(1)'
+                scriptContent: 'console.log(1)',
+                databaseType: DatabaseType.POSTGRESQL,
+                instanceId: 'db-no-pg-url-script'
             });
+            const mockInstance = { ...mockDatabaseInstance, id: 'db-no-pg-url-script' };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
             (ScriptExecutor.validate as jest.Mock).mockReturnValue({ valid: true, errors: [] });
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(null);
+
+            process.env.TARGET_POSTGRES_URL = "";
 
             const result = await ExecutionService.executeRequest(request);
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('not found');
+            expect(result.error).toContain('TARGET_POSTGRES_URL is not configured');
         });
+
+        it('should throw when TARGET_MONGODB_URL is not configured for script', async () => {
+            const request = createMockRequest({
+                submissionType: SubmissionType.SCRIPT,
+                scriptContent: 'console.log(1)',
+                databaseType: DatabaseType.MONGODB,
+                instanceId: 'db-no-mongo-url-script'
+            });
+            const mockInstance = { ...mockDatabaseInstance, id: 'db-no-mongo-url-script' };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (ScriptExecutor.validate as jest.Mock).mockReturnValue({ valid: true, errors: [] });
+
+            process.env.TARGET_MONGODB_URL = "";
+
+            const result = await ExecutionService.executeRequest(request);
+
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('TARGET_MONGODB_URL is not configured');
+        });
+
+
 
         it('should execute script with PostgreSQL config', async () => {
             const request = createMockRequest({
@@ -258,7 +330,11 @@ describe('ExecutionService', () => {
             expect(result.success).toBe(true);
             expect(ScriptExecutor.execute).toHaveBeenCalledWith(
                 'console.log(1)',
-                expect.objectContaining({ postgresConfigPath: expect.any(String) })
+                expect.objectContaining({
+                    postgresUrl: expect.any(String),
+                    databaseName: 'test_db',
+                    databaseType: 'postgresql'
+                })
             );
         });
 
@@ -278,7 +354,11 @@ describe('ExecutionService', () => {
             expect(result.success).toBe(true);
             expect(ScriptExecutor.execute).toHaveBeenCalledWith(
                 'console.log(1)',
-                expect.objectContaining({ mongoUri: expect.stringContaining('mongodb://') })
+                expect.objectContaining({
+                    mongoUrl: expect.stringContaining('mongodb://'),
+                    databaseName: 'test_db',
+                    databaseType: 'mongodb'
+                })
             );
         });
     });

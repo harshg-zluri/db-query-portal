@@ -140,6 +140,18 @@ describe('QueryRequestModel', () => {
             expect(result.requests).toHaveLength(0);
             expect(result.total).toBe(0);
         });
+
+        it('should filter by status', async () => {
+            (query as jest.Mock)
+                .mockResolvedValueOnce({ rows: [mockRequestRow] })
+                .mockResolvedValueOnce({ rows: [{ total: '1' }] });
+
+            const result = await QueryRequestModel.findByUserId('user-1', 1, 10, RequestStatus.PENDING);
+
+            expect(result.requests).toHaveLength(1);
+            expect(result.total).toBe(1);
+            expect(query).toHaveBeenCalledWith(expect.stringContaining('WHERE'), expect.any(Array));
+        });
     });
 
     describe('findWithFilters', () => {
@@ -261,6 +273,36 @@ describe('QueryRequestModel', () => {
             const result = await QueryRequestModel.setExecutionResult('nonexistent', true);
 
             expect(result).toBeNull();
+        });
+    });
+
+    describe('withdraw', () => {
+        it('should withdraw request', async () => {
+            const withdrawnRow = { ...mockRequestRow, status: 'withdrawn' };
+            (query as jest.Mock).mockResolvedValue({ rows: [withdrawnRow] });
+
+            const result = await QueryRequestModel.withdraw('req-1', 'user-1');
+
+            expect(result).not.toBeNull();
+            expect(result?.status).toBe('withdrawn');
+        });
+
+        it('should return null when request not found or not owned by user', async () => {
+            (query as jest.Mock).mockResolvedValue({ rows: [] });
+
+            const result = await QueryRequestModel.withdraw('nonexistent', 'user-1');
+
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('countPendingByUser', () => {
+        it('should return pending count', async () => {
+            (query as jest.Mock).mockResolvedValue({ rows: [{ total: '5' }] });
+
+            const count = await QueryRequestModel.countPendingByUser('user-1');
+
+            expect(count).toBe(5);
         });
     });
 });

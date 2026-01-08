@@ -3,14 +3,15 @@ import { config } from './environment';
 
 // Parse DATABASE_URL into pool config
 function parseConnectionString(url: string): PoolConfig {
-    const regex = /postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/;
+    // Support both postgres:// and postgresql:// and handle query params
+    const regex = /postgres(?:ql)?:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)(?:\?(.*))?/;
     const match = url.match(regex);
 
     if (!match) {
         throw new Error('Invalid DATABASE_URL format');
     }
 
-    return {
+    const poolConfig: PoolConfig = {
         user: match[1],
         password: match[2],
         host: match[3],
@@ -18,8 +19,16 @@ function parseConnectionString(url: string): PoolConfig {
         database: match[5],
         max: 20,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000
+        connectionTimeoutMillis: 5000
     };
+
+    // Handle SSL mode from query params
+    const queryParams = match[6];
+    if (queryParams && queryParams.includes('sslmode=require')) {
+        poolConfig.ssl = { rejectUnauthorized: false };
+    }
+
+    return poolConfig;
 }
 
 // Connection pool for portal database

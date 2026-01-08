@@ -2,7 +2,7 @@
     "info": {
         "_postman_id": "db-query-portal-collection",
         "name": "DB Query Portal API",
-        "description": "Complete API collection for the Database Query Execution Portal. This collection includes authentication, database management, POD management, request submission, and approval workflows.",
+        "description": "Complete API collection for the Database Query Execution Portal.\n\nFor detailed system architecture and setup, refer to `docs/ARCHITECTURE.md` and `docs/SETUP.md` in the repository.\n\nThis collection includes:\n- Authentication\n- Database Discovery\n- POD Management\n- Request Submission (Query & Script)\n- Approval Workflows",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
@@ -373,7 +373,7 @@
                                 "requests"
                             ]
                         },
-                        "description": "Submit a new SQL query request for approval.\n\n**Fields:**\n- databaseType: postgresql or mongodb\n- instanceId: Target database instance\n- databaseName: Target database\n- submissionType: query or script\n- query: SQL/MongoDB query (for query type)\n- podId: Team/POD ID\n- comments: Optional comments"
+                        "description": "**Role:** Developer+\\n\\nSubmit a new SQL query request for approval.\\n\\n**Fields:**\\n- databaseType: postgresql or mongodb\\n- instanceId: Target database instance\\n- databaseName: Target database\\n- submissionType: query or script\\n- query: SQL/MongoDB query (for query type)\\n- podId: Team/POD ID\\n- comments: Optional comments"
                     },
                     "response": []
                 },
@@ -400,7 +400,7 @@
                                 "requests"
                             ]
                         },
-                        "description": "Submit a new MongoDB query request for approval."
+                        "description": "**Role:** Developer+\\n\\nSubmit a new MongoDB query request for approval."
                     },
                     "response": []
                 },
@@ -459,7 +459,7 @@
                                 "requests"
                             ]
                         },
-                        "description": "Submit a new script request for approval. Upload a .js file.\n\n**Note:** Set submissionType to 'script' and attach a .js file to the 'script' field."
+                        "description": "**Role:** Developer+\\n\\nSubmit a new script request for approval. Upload a .js file.\\n\\n**Note:** Set submissionType to 'script' and attach a .js file to the 'script' field."
                     },
                     "response": []
                 },
@@ -485,10 +485,36 @@
                                 {
                                     "key": "limit",
                                     "value": "20"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "pending",
+                                    "description": "Filter by status: pending, approved, executed, failed, rejected, withdrawn",
+                                    "disabled": true
                                 }
                             ]
                         },
-                        "description": "Get the current user's submitted requests with pagination."
+                        "description": "**Role:** Authenticated User\\n\\nGet the current user's submitted requests with pagination.\\n\\n**Query Parameters:**\\n- page: Page number (default 1)\\n- limit: Items per page (default 20)\\n- status: Filter by status (pending/approved/executed/failed/rejected/withdrawn)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Withdraw Request",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/requests/{{requestId}}/withdraw",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests",
+                                "{{requestId}}",
+                                "withdraw"
+                            ]
+                        },
+                        "description": "**Role:** Request Owner\\n\\nWithdraw a pending request. Only the request owner can withdraw.\\n\\n**Use case:** When you've reached your pending request limit (10) and need to free up a slot."
                     },
                     "response": []
                 },

@@ -265,7 +265,10 @@ describe('Coverage Gap Fill Tests', () => {
             };
             spawnMock.mockReturnValue(mockChild);
 
-            const execPromise = ScriptExecutor.execute('console.log("hi")', {});
+            const execPromise = ScriptExecutor.execute('console.log("hi")', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
 
             // Wait for globally mocked timeout (100ms)
             const result = await execPromise;
@@ -294,7 +297,10 @@ describe('Coverage Gap Fill Tests', () => {
             };
             spawnMock.mockReturnValue(mockChild);
 
-            const result = await ScriptExecutor.execute('code', {});
+            const result = await ScriptExecutor.execute('code', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
             expect(result.success).toBe(false);
             expect(result.error).toBe('Process exited with code 1');
         });
@@ -403,7 +409,10 @@ describe('Script Executor - Error Handling', () => {
             throw "String error";
         });
 
-        const result = await ScriptExecutor.execute('code', {});
+        const result = await ScriptExecutor.execute('code', {
+            databaseName: 'test_db',
+            databaseType: 'postgres'
+        });
         expect(result.success).toBe(false);
         expect(result.error).toBe('Unknown error');
     });

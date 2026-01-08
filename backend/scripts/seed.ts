@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Sample users with hashed passwords
 // Password for all: "password123"
-const PASSWORD_HASH = '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.SaW0RdT3gVk6Ti';
+const PASSWORD_HASH = '$2b$12$tPfQesqK8tDf..4A.ay2fux2zBhDsCilgpfTVtxqoY.TqcTGHJrZG';
 
 export const seedUsers = [
     {
