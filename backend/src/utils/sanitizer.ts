@@ -69,6 +69,16 @@ export function isDangerousDDL(input: string): boolean {
 }
 
 /**
+ * Detect dangerous MongoDB methods in scripts (drop, dropDatabase)
+ */
+export function isDangerousMongoMethod(input: string): boolean {
+    // Matches .drop(), .dropDatabase(), .remove()
+    // Note: This is a basic check and can be bypassed with obfuscation
+    const mongoDestructivePattern = /\.(drop|dropDatabase|remove)\s*\(/;
+    return mongoDestructivePattern.test(input);
+}
+
+/**
  * Sanitize string for safe display (prevent XSS)
  */
 export function sanitizeForDisplay(input: string): string {

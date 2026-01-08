@@ -5,6 +5,7 @@ import { tmpdir } from 'os';
 import { ExecutionResult } from '../types';
 import { config } from '../config/environment';
 import { logger } from '../utils/logger';
+import { isDangerousDDL, isDangerousMongoMethod } from '../utils/sanitizer';
 
 /**
  * JavaScript Script Executor
@@ -170,6 +171,16 @@ export class ScriptExecutor {
             if (pattern.test(scriptContent)) {
                 errors.push(message);
             }
+        }
+
+        // Check for dangerous DDL statements
+        if (isDangerousDDL(scriptContent)) {
+            errors.push('Script contains dangerous DDL statements (DROP, TRUNCATE, ALTER, CREATE)');
+        }
+
+        // Check for dangerous MongoDB methods
+        if (isDangerousMongoMethod(scriptContent)) {
+            errors.push('Script contains dangerous MongoDB methods (.drop, .dropDatabase, .remove)');
         }
 
         return {

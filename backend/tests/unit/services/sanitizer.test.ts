@@ -4,7 +4,8 @@ import {
     sanitizeForDisplay,
     sanitizeFileName,
     truncate,
-    isDangerousDDL
+    isDangerousDDL,
+    isDangerousMongoMethod
 } from '../../../src/utils/sanitizer';
 
 describe('Sanitizer Utils', () => {
@@ -113,6 +114,28 @@ describe('isDangerousDDL', () => {
 
     it('should allow INSERT (DML)', () => {
         expect(isDangerousDDL('INSERT INTO users VALUES (1)')).toBe(false);
+    });
+});
+
+describe('isDangerousMongoMethod', () => {
+    it('should detect .drop()', () => {
+        expect(isDangerousMongoMethod('db.collection("users").drop()')).toBe(true);
+    });
+
+    it('should detect .dropDatabase()', () => {
+        expect(isDangerousMongoMethod('db.dropDatabase()')).toBe(true);
+    });
+
+    it('should detect .remove()', () => {
+        expect(isDangerousMongoMethod('db.users.remove({})')).toBe(true);
+    });
+
+    it('should allow .find()', () => {
+        expect(isDangerousMongoMethod('db.users.find({})')).toBe(false);
+    });
+
+    it('should allow .insertOne()', () => {
+        expect(isDangerousMongoMethod('db.users.insertOne({})')).toBe(false);
     });
 });
 

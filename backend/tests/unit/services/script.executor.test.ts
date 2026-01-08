@@ -108,6 +108,29 @@ describe('ScriptExecutor', () => {
             expect(result.errors).toContain('Direct fs module usage is restricted');
         });
 
+        it('should reject dangerous DDL statements', () => {
+            const script = `
+                const d = "DROP";
+                await client.query('DROP TABLE users');
+            `;
+
+            const result = ScriptExecutor.validate(script);
+
+            expect(result.valid).toBe(false);
+            expect(result.errors).toContain('Script contains dangerous DDL statements (DROP, TRUNCATE, ALTER, CREATE)');
+        });
+
+        it('should reject dangerous MongoDB methods', () => {
+            const script = `
+                await db.collection('users').drop();
+            `;
+
+            const result = ScriptExecutor.validate(script);
+
+            expect(result.valid).toBe(false);
+            expect(result.errors).toContain('Script contains dangerous MongoDB methods (.drop, .dropDatabase, .remove)');
+        });
+
         it('should collect multiple errors', () => {
             const script = `
         const exec = require('child_process');
