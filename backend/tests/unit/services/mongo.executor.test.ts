@@ -103,8 +103,24 @@ describe('MongoExecutor', () => {
     });
 
     describe('execute', () => {
-        it('should execute find query', async () => {
+        it('should execute find query (bracket notation)', async () => {
             const result = await executor.execute('db["users"].find({})');
+
+            expect(result.success).toBe(true);
+            expect(mockCollection.find).toHaveBeenCalledWith({});
+        });
+
+        it('should execute find query (dot notation)', async () => {
+            // Covers regex group `dotName`
+            const result = await executor.execute('db.users.find({})');
+
+            expect(result.success).toBe(true);
+            expect(mockCollection.find).toHaveBeenCalledWith({});
+        });
+
+        it('should execute find query (single quote bracket)', async () => {
+            // Covers regex group `bracketName` with single quotes
+            const result = await executor.execute("db['users'].find({})");
 
             expect(result.success).toBe(true);
             expect(mockCollection.find).toHaveBeenCalledWith({});
@@ -226,6 +242,85 @@ describe('MongoExecutor', () => {
 
             expect(result.success).toBe(false);
             expect(result.error).toContain('Invalid query arguments');
+        });
+
+        it('should execute find query with empty args', async () => {
+            // Covers default args branch `|| {}`
+            const result = await executor.execute('db.users.find()');
+            expect(result.success).toBe(true);
+            expect(mockCollection.find).toHaveBeenCalledWith({});
+        });
+
+        it('should execute aggregate with empty args', async () => {
+            // Covers default args branch `|| []`
+            const result = await executor.execute('db.users.aggregate()');
+            expect(result.success).toBe(true);
+            expect(mockCollection.aggregate).toHaveBeenCalledWith([]);
+        });
+
+        it('should execute countDocuments with empty args', async () => {
+            // Covers default args branch `|| {}`
+            const result = await executor.execute('db.users.countDocuments()');
+            expect(result.success).toBe(true);
+            expect(mockCollection.countDocuments).toHaveBeenCalledWith({});
+        });
+
+        it('should require documents for insertMany', async () => {
+            const result = await executor.execute('db.users.insertMany()');
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('insertMany requires documents array');
+        });
+
+        it('should require filter and update for updateOne', async () => {
+            const result = await executor.execute('db.users.updateOne({})');
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('updateOne requires filter and update');
+        });
+
+        it('should require filter and update for updateMany', async () => {
+            const result = await executor.execute('db.users.updateMany({})');
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('updateMany requires filter and update');
+        });
+
+        it('should require filter for deleteMany', async () => {
+            const result = await executor.execute('db.users.deleteMany()');
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('deleteMany requires a filter');
+        });
+
+        it('should fail if getDb called without connection', async () => {
+            // Spy on connect to simulate successful return but no client outcome
+            jest.spyOn(executor, 'connect').mockResolvedValueOnce(undefined);
+            (executor as any).client = null;
+
+            const result = await executor.execute('db.users.find({})');
+
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('Not connected to MongoDB');
+
+            // Restore implementation is not strictly needed as it was mockResolvedValueOnce
+            // But good practice
+            jest.restoreAllMocks();
+        });
+
+        it('should execute findOne with empty args', async () => {
+            // Covers default args branch `|| {}` for findOne
+            const result = await executor.execute('db.users.findOne()');
+            expect(result.success).toBe(true);
+            expect(mockCollection.findOne).toHaveBeenCalledWith({});
+        });
+
+        it('should handle non-Error exceptions', async () => {
+            // Mock sanitize to throw a string (non-Error)
+            (sanitizeMongoInput as jest.Mock).mockImplementationOnce(() => {
+                throw 'Critical Failure';
+            });
+
+            const result = await executor.execute('db.users.find({})');
+
+            expect(result.success).toBe(false);
+            expect(result.error).toBe('Unknown error');
         });
     });
 

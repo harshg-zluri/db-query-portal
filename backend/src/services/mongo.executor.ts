@@ -105,14 +105,16 @@ export class MongoExecutor {
      */
     private async executeQuery(db: Db, queryString: string): Promise<unknown> {
         // Parse query format: db.collection.method({...})
-        const queryRegex = /db\["?([^\]"]+)"?\]\.(\w+)\((.*)?\)$/s;
+        // Parse query format: db.collection.method({...}) or db['collection'].method({...})
+        const queryRegex = /^db(?:\[["'](?<bracketName>[^\]"']+)["']\]|\.(?<dotName>[^.(]+))\.(?<method>\w+)\((?<args>.*)\)$/s;
         const match = queryString.trim().match(queryRegex);
 
-        if (!match) {
-            throw new Error('Invalid MongoDB query format. Expected: db["collection"].method({...})');
+        if (!match || !match.groups) {
+            throw new Error('Invalid MongoDB query format. Expected: db.collection.method({...}) or db["collection"].method({...})');
         }
 
-        const [, collectionName, method, argsString] = match;
+        const collectionName = match.groups.bracketName || match.groups.dotName;
+        const { method, args: argsString } = match.groups;
         const collection = db.collection(collectionName);
 
         // Parse arguments (handle empty args)
