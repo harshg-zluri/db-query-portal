@@ -3,7 +3,8 @@ import {
     detectSqlInjection,
     sanitizeForDisplay,
     sanitizeFileName,
-    truncate
+    truncate,
+    isDangerousDDL
 } from '../../../src/utils/sanitizer';
 
 describe('Sanitizer Utils', () => {
@@ -81,80 +82,111 @@ describe('Sanitizer Utils', () => {
         it('should detect block comment', () => {
             expect(detectSqlInjection("admin/*comment*/")).toBe(true);
         });
+        expect(detectSqlInjection("admin/*comment*/")).toBe(true);
+    });
+});
+
+describe('isDangerousDDL', () => {
+    it('should detect DROP TABLE', () => {
+        expect(isDangerousDDL('DROP TABLE users')).toBe(true);
     });
 
-    describe('sanitizeForDisplay', () => {
-        it('should escape HTML entities', () => {
-            expect(sanitizeForDisplay('<script>alert("xss")</script>'))
-                .toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
-        });
-
-        it('should escape ampersand', () => {
-            expect(sanitizeForDisplay('foo & bar')).toBe('foo &amp; bar');
-        });
-
-        it('should escape single quotes', () => {
-            expect(sanitizeForDisplay("it's")).toBe('it&#x27;s');
-        });
-
-        it('should handle normal text', () => {
-            expect(sanitizeForDisplay('Hello World')).toBe('Hello World');
-        });
+    it('should detect TRUNCATE TABLE', () => {
+        expect(isDangerousDDL('TRUNCATE TABLE users')).toBe(true);
     });
 
-    describe('sanitizeFileName', () => {
-        it('should pass valid filename', () => {
-            expect(sanitizeFileName('script.js')).toBe('script.js');
-        });
-
-        it('should allow underscores and hyphens', () => {
-            expect(sanitizeFileName('my-script_v2.js')).toBe('my-script_v2.js');
-        });
-
-        it('should remove path traversal', () => {
-            expect(sanitizeFileName('../../../etc/passwd.js')).toBe('etcpasswd.js');
-        });
-
-        it('should remove slashes', () => {
-            expect(sanitizeFileName('path/to/script.js')).toBe('pathtoscript.js');
-        });
-
-        it('should replace invalid characters', () => {
-            expect(sanitizeFileName('script@test!.js')).toBe('script_test_.js');
-        });
-
-        it('should reject non-js files', () => {
-            expect(() => sanitizeFileName('script.py'))
-                .toThrow('Only .js files are allowed');
-        });
-
-        it('should reject files without extension', () => {
-            expect(() => sanitizeFileName('script'))
-                .toThrow('Only .js files are allowed');
-        });
+    it('should detect ALTER TABLE', () => {
+        expect(isDangerousDDL('ALTER TABLE users ADD COLUMN foo int')).toBe(true);
     });
 
-    describe('truncate', () => {
-        it('should not truncate short strings', () => {
-            expect(truncate('Hello', 500)).toBe('Hello');
-        });
+    it('should detect CREATE VIEW', () => {
+        expect(isDangerousDDL('CREATE VIEW my_view AS SELECT * FROM users')).toBe(true);
+    });
 
-        it('should truncate long strings', () => {
-            const longString = 'a'.repeat(600);
-            const result = truncate(longString, 500);
-            expect(result.length).toBe(503); // 500 + "..."
-            expect(result.endsWith('...')).toBe(true);
-        });
+    it('should allow SELECT', () => {
+        expect(isDangerousDDL('SELECT * FROM users')).toBe(false);
+    });
 
-        it('should use default max length', () => {
-            const longString = 'a'.repeat(600);
-            const result = truncate(longString);
-            expect(result.length).toBe(503);
-        });
+    it('should allow DELETE (DML)', () => {
+        expect(isDangerousDDL('DELETE FROM users WHERE id = 1')).toBe(false);
+    });
 
-        it('should handle exact length', () => {
-            const exactString = 'a'.repeat(500);
-            expect(truncate(exactString, 500)).toBe(exactString);
-        });
+    it('should allow INSERT (DML)', () => {
+        expect(isDangerousDDL('INSERT INTO users VALUES (1)')).toBe(false);
+    });
+});
+
+describe('sanitizeForDisplay', () => {
+    it('should escape HTML entities', () => {
+        expect(sanitizeForDisplay('<script>alert("xss")</script>'))
+            .toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+    });
+
+    it('should escape ampersand', () => {
+        expect(sanitizeForDisplay('foo & bar')).toBe('foo &amp; bar');
+    });
+
+    it('should escape single quotes', () => {
+        expect(sanitizeForDisplay("it's")).toBe('it&#x27;s');
+    });
+
+    it('should handle normal text', () => {
+        expect(sanitizeForDisplay('Hello World')).toBe('Hello World');
+    });
+});
+
+describe('sanitizeFileName', () => {
+    it('should pass valid filename', () => {
+        expect(sanitizeFileName('script.js')).toBe('script.js');
+    });
+
+    it('should allow underscores and hyphens', () => {
+        expect(sanitizeFileName('my-script_v2.js')).toBe('my-script_v2.js');
+    });
+
+    it('should remove path traversal', () => {
+        expect(sanitizeFileName('../../../etc/passwd.js')).toBe('etcpasswd.js');
+    });
+
+    it('should remove slashes', () => {
+        expect(sanitizeFileName('path/to/script.js')).toBe('pathtoscript.js');
+    });
+
+    it('should replace invalid characters', () => {
+        expect(sanitizeFileName('script@test!.js')).toBe('script_test_.js');
+    });
+
+    it('should reject non-js files', () => {
+        expect(() => sanitizeFileName('script.py'))
+            .toThrow('Only .js files are allowed');
+    });
+
+    it('should reject files without extension', () => {
+        expect(() => sanitizeFileName('script'))
+            .toThrow('Only .js files are allowed');
+    });
+});
+
+describe('truncate', () => {
+    it('should not truncate short strings', () => {
+        expect(truncate('Hello', 500)).toBe('Hello');
+    });
+
+    it('should truncate long strings', () => {
+        const longString = 'a'.repeat(600);
+        const result = truncate(longString, 500);
+        expect(result.length).toBe(503); // 500 + "..."
+        expect(result.endsWith('...')).toBe(true);
+    });
+
+    it('should use default max length', () => {
+        const longString = 'a'.repeat(600);
+        const result = truncate(longString);
+        expect(result.length).toBe(503);
+    });
+
+    it('should handle exact length', () => {
+        const exactString = 'a'.repeat(500);
+        expect(truncate(exactString, 500)).toBe(exactString);
     });
 });

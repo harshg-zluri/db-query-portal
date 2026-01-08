@@ -60,6 +60,15 @@ export function detectSqlInjection(input: string): boolean {
 }
 
 /**
+ * Detect dangerous DDL statements (DROP, TRUNCATE, ALTER, CREATE)
+ * Used to prevent schema modification via the query portal
+ */
+export function isDangerousDDL(input: string): boolean {
+    const ddlPattern = /\b(DROP|TRUNCATE|ALTER|CREATE)\s+(TABLE|DATABASE|SCHEMA|INDEX|VIEW|FUNCTION|PROCEDURE|TRIGGER)\b/i;
+    return ddlPattern.test(input);
+}
+
+/**
  * Sanitize string for safe display (prevent XSS)
  */
 export function sanitizeForDisplay(input: string): string {

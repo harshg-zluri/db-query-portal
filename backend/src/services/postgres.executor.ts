@@ -1,6 +1,7 @@
 import { Pool, PoolConfig } from 'pg';
 import { ExecutionResult, DatabaseType } from '../types';
 import { logger } from '../utils/logger';
+import { isDangerousDDL } from '../utils/sanitizer';
 
 /**
  * PostgreSQL Query Executor
@@ -55,6 +56,15 @@ export class PostgresExecutor {
      */
     async execute(sql: string, schemaName?: string): Promise<ExecutionResult> {
         const startTime = Date.now();
+
+        // Check for dangerous DDL
+        if (isDangerousDDL(sql)) {
+            return {
+                success: false,
+                error: 'Dangerous DDL statement not allowed (DROP, ALTER, etc.)',
+                executedAt: new Date()
+            };
+        }
 
         try {
             if (!this.pool) {

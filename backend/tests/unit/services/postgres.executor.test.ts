@@ -104,10 +104,38 @@ describe('PostgresExecutor', () => {
                 rowCount: null
             });
 
-            const result = await executor.execute('CREATE TABLE test');
+            const result = await executor.execute('SET timezone = "UTC"');
 
             expect(result.success).toBe(true);
             expect(result.output).toBe('Query executed successfully');
+        });
+
+        it('should block dangerous DDL statements', async () => {
+            const blockedQueries = [
+                'DROP TABLE users',
+                'TRUNCATE TABLE logs',
+                'ALTER TABLE users ADD COLUMN hacks text',
+                'CREATE TABLE malware (id int)'
+            ];
+
+            for (const query of blockedQueries) {
+                const result = await executor.execute(query);
+                expect(result.success).toBe(false);
+                expect(result.error).toContain('Dangerous DDL statement not allowed');
+                expect(mockClient.query).not.toHaveBeenCalled();
+            }
+        });
+
+        it('should execute valid DELETE queries (DML)', async () => {
+            mockClient.query.mockResolvedValue({
+                rows: [],
+                rowCount: 1
+            });
+
+            const result = await executor.execute('DELETE FROM users WHERE id = 1');
+
+            expect(result.success).toBe(true);
+            expect(result.output).toBe('1 row(s) affected');
         });
 
         it('should handle query error', async () => {
