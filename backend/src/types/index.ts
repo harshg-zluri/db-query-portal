@@ -85,6 +85,7 @@ export interface QueryRequest {
     createdAt: Date;
     updatedAt: Date;
     executedAt?: Date;
+    warnings?: string[];
 }
 
 // JWT payload

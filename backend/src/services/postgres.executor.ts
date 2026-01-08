@@ -1,7 +1,6 @@
 import { Pool, PoolConfig } from 'pg';
 import { ExecutionResult, DatabaseType } from '../types';
 import { logger } from '../utils/logger';
-import { isDangerousDDL } from '../utils/sanitizer';
 
 /**
  * PostgreSQL Query Executor
@@ -57,14 +56,8 @@ export class PostgresExecutor {
     async execute(sql: string, schemaName?: string): Promise<ExecutionResult> {
         const startTime = Date.now();
 
-        // Check for dangerous DDL
-        if (isDangerousDDL(sql)) {
-            return {
-                success: false,
-                error: 'Dangerous DDL statement not allowed (DROP, ALTER, etc.)',
-                executedAt: new Date()
-            };
-        }
+        // Note: Security warnings are now generated at submission time, not at execution
+        // The manager must approve dangerous queries before they reach this point
 
         try {
             if (!this.pool) {

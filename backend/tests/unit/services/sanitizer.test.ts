@@ -5,7 +5,8 @@ import {
     sanitizeFileName,
     truncate,
     isDangerousDDL,
-    isDangerousMongoMethod
+    isDangerousMongoMethod,
+    getSecurityWarnings
 } from '../../../src/utils/sanitizer';
 
 describe('Sanitizer Utils', () => {
@@ -136,6 +137,45 @@ describe('isDangerousMongoMethod', () => {
 
     it('should allow .insertOne()', () => {
         expect(isDangerousMongoMethod('db.users.insertOne({})')).toBe(false);
+    });
+});
+
+describe('getSecurityWarnings', () => {
+    it('should return empty array for safe queries', () => {
+        expect(getSecurityWarnings('SELECT * FROM users WHERE id = 1')).toEqual([]);
+    });
+
+    it('should warn about DROP TABLE', () => {
+        const warnings = getSecurityWarnings('DROP TABLE users');
+        expect(warnings.length).toBe(1);
+        expect(warnings[0]).toContain('DDL statement');
+    });
+
+    it('should warn about MongoDB drop', () => {
+        const warnings = getSecurityWarnings('db.users.drop()');
+        expect(warnings.length).toBe(1);
+        expect(warnings[0]).toContain('MongoDB method');
+    });
+
+    it('should warn about DELETE without WHERE', () => {
+        const warnings = getSecurityWarnings('DELETE FROM users;');
+        expect(warnings.length).toBe(1);
+        expect(warnings[0]).toContain('DELETE without WHERE');
+    });
+
+    it('should warn about UPDATE without WHERE', () => {
+        const warnings = getSecurityWarnings('UPDATE users SET active = true');
+        expect(warnings.length).toBe(1);
+        expect(warnings[0]).toContain('UPDATE without WHERE');
+    });
+
+    it('should not warn about DELETE with WHERE', () => {
+        expect(getSecurityWarnings('DELETE FROM users WHERE id = 1')).toEqual([]);
+    });
+
+    it('should return multiple warnings', () => {
+        const warnings = getSecurityWarnings('DROP TABLE test; db.users.drop()');
+        expect(warnings.length).toBe(2);
     });
 });
 

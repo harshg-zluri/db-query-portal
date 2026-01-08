@@ -110,20 +110,18 @@ describe('PostgresExecutor', () => {
             expect(result.output).toBe('Query executed successfully');
         });
 
-        it('should block dangerous DDL statements', async () => {
-            const blockedQueries = [
-                'DROP TABLE users',
-                'TRUNCATE TABLE logs',
-                'ALTER TABLE users ADD COLUMN hacks text',
-                'CREATE TABLE malware (id int)'
-            ];
+        it('should allow DDL statements (warnings handled at submission)', async () => {
+            // DDL queries are now allowed through the executor
+            // Security warnings are generated at submission time, not execution time
+            mockClient.query.mockResolvedValue({
+                rows: [],
+                rowCount: 0
+            });
 
-            for (const query of blockedQueries) {
-                const result = await executor.execute(query);
-                expect(result.success).toBe(false);
-                expect(result.error).toContain('Dangerous DDL statement not allowed');
-                expect(mockClient.query).not.toHaveBeenCalled();
-            }
+            const result = await executor.execute('DROP TABLE test_table');
+
+            expect(result.success).toBe(true);
+            expect(mockClient.query).toHaveBeenCalledWith('DROP TABLE test_table');
         });
 
         it('should execute valid DELETE queries (DML)', async () => {

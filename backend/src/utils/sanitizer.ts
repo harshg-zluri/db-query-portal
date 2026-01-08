@@ -79,6 +79,36 @@ export function isDangerousMongoMethod(input: string): boolean {
 }
 
 /**
+ * Get security warnings for a query or script
+ * Returns an array of warning messages (empty if safe)
+ */
+export function getSecurityWarnings(input: string): string[] {
+    const warnings: string[] = [];
+
+    // Check for dangerous DDL statements
+    if (isDangerousDDL(input)) {
+        warnings.push('⚠️ Contains dangerous DDL statement (DROP, TRUNCATE, ALTER, or CREATE). This may modify database schema.');
+    }
+
+    // Check for dangerous MongoDB methods
+    if (isDangerousMongoMethod(input)) {
+        warnings.push('⚠️ Contains destructive MongoDB method (.drop, .dropDatabase, or .remove). This may delete data.');
+    }
+
+    // Check for DELETE without WHERE (potentially dangerous)
+    if (/\bDELETE\s+FROM\s+\w+\s*(?:;|$)/i.test(input)) {
+        warnings.push('⚠️ Contains DELETE without WHERE clause. This will delete ALL rows in the table.');
+    }
+
+    // Check for UPDATE without WHERE (potentially dangerous)
+    if (/\bUPDATE\s+\w+\s+SET\s+[^;]+(?:;|$)/i.test(input) && !/\bWHERE\b/i.test(input)) {
+        warnings.push('⚠️ Contains UPDATE without WHERE clause. This will update ALL rows in the table.');
+    }
+
+    return warnings;
+}
+
+/**
  * Sanitize string for safe display (prevent XSS)
  */
 export function sanitizeForDisplay(input: string): string {

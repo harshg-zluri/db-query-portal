@@ -6,7 +6,7 @@ import { UserRole, SubmissionType, RequestStatus } from '../types';
 import { sendSuccess, sendCreated, sendPaginated } from '../utils/responseHelper';
 import { NotFoundError, ValidationError, ForbiddenError } from '../utils/errors';
 import { CreateRequestInput, ListRequestsInput } from '../validators/request.schema';
-import { sanitizeFileName } from '../utils/sanitizer';
+import { sanitizeFileName, getSecurityWarnings } from '../utils/sanitizer';
 import { logger, AuditCategory, AuditAction } from '../utils/logger';
 import { SlackNotificationType, sendSlackNotification } from '../services/slack.service';
 import { config } from '../config/environment';
@@ -93,6 +93,10 @@ export class RequestController {
                 scriptContent = req.file.buffer.toString('utf-8');
             }
 
+            // Generate security warnings for the query/script content
+            const contentToCheck = input.query || scriptContent || '';
+            const warnings = getSecurityWarnings(contentToCheck);
+
             // Create request data
             const requestData: CreateRequestData = {
                 userId: user.userId,
@@ -107,7 +111,8 @@ export class RequestController {
                 scriptContent,
                 comments: input.comments,
                 podId: input.podId,
-                podName: pod.name
+                podName: pod.name,
+                warnings: warnings.length > 0 ? warnings : undefined
             };
 
             const request = await QueryRequestModel.create(requestData);

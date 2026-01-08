@@ -8,9 +8,9 @@ const SQL = {
     INSERT INTO query_requests (
       id, user_id, user_email, database_type, instance_id, instance_name,
       database_name, submission_type, query, script_file_name, script_content,
-      comments, pod_id, pod_name, status, created_at, updated_at
+      comments, pod_id, pod_name, status, warnings, created_at, updated_at
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $16)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $17)
     RETURNING *
   `,
     findById: `
@@ -129,7 +129,8 @@ function rowToRequest(row: Record<string, unknown>): QueryRequest {
         executionError: row.execution_error as string | undefined,
         createdAt: new Date(row.created_at as string),
         updatedAt: new Date(row.updated_at as string),
-        executedAt: row.executed_at ? new Date(row.executed_at as string) : undefined
+        executedAt: row.executed_at ? new Date(row.executed_at as string) : undefined,
+        warnings: row.warnings as string[] | undefined
     };
 }
 
@@ -147,6 +148,7 @@ export interface CreateRequestData {
     comments: string;
     podId: string;
     podName: string;
+    warnings?: string[];
 }
 
 export interface ListRequestsFilters {
@@ -182,6 +184,7 @@ export class QueryRequestModel {
             data.podId,
             data.podName,
             RequestStatus.PENDING,
+            data.warnings || null,
             now
         ]);
 

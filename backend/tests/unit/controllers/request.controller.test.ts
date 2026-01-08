@@ -168,6 +168,52 @@ describe('RequestController', () => {
                 scriptContent: 'console.log'
             }));
         });
+
+        it('should generate warnings for dangerous SQL queries', async () => {
+            req.body = { ...validBody, query: 'DROP TABLE users' };
+
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (PodModel.findById as jest.Mock).mockResolvedValue(mockPod);
+            (QueryRequestModel.countPendingByUser as jest.Mock).mockResolvedValue(0);
+            (QueryRequestModel.create as jest.Mock).mockResolvedValue({ id: 'req-1' });
+
+            await RequestController.create(req as Request, res as Response, next);
+
+            expect(QueryRequestModel.create).toHaveBeenCalledWith(expect.objectContaining({
+                warnings: expect.arrayContaining([expect.stringContaining('DDL statement')])
+            }));
+        });
+
+        it('should generate warnings for dangerous script content', async () => {
+            req.body = { ...validBody, submissionType: SubmissionType.SCRIPT, query: undefined };
+            req.file = { originalname: 'test.js', buffer: Buffer.from('db.users.drop()') } as any;
+
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (PodModel.findById as jest.Mock).mockResolvedValue(mockPod);
+            (QueryRequestModel.countPendingByUser as jest.Mock).mockResolvedValue(0);
+            (QueryRequestModel.create as jest.Mock).mockResolvedValue({ id: 'req-1' });
+
+            await RequestController.create(req as Request, res as Response, next);
+
+            expect(QueryRequestModel.create).toHaveBeenCalledWith(expect.objectContaining({
+                warnings: expect.arrayContaining([expect.stringContaining('MongoDB method')])
+            }));
+        });
+
+        it('should not set warnings for safe queries', async () => {
+            req.body = { ...validBody, query: 'SELECT * FROM users WHERE id = 1' };
+
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (PodModel.findById as jest.Mock).mockResolvedValue(mockPod);
+            (QueryRequestModel.countPendingByUser as jest.Mock).mockResolvedValue(0);
+            (QueryRequestModel.create as jest.Mock).mockResolvedValue({ id: 'req-1' });
+
+            await RequestController.create(req as Request, res as Response, next);
+
+            expect(QueryRequestModel.create).toHaveBeenCalledWith(expect.objectContaining({
+                warnings: undefined
+            }));
+        });
         it('should handle X-Forwarded-For header', async () => {
             req.headers!['x-forwarded-for'] = '10.0.0.1, 10.0.0.2';
             req.body = validBody;

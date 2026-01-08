@@ -108,27 +108,28 @@ describe('ScriptExecutor', () => {
             expect(result.errors).toContain('Direct fs module usage is restricted');
         });
 
-        it('should reject dangerous DDL statements', () => {
+        it('should allow DDL statements (warnings handled at submission)', () => {
+            // DDL statements are now allowed through validation
+            // Warnings are generated at request submission time, not script validation
             const script = `
-                const d = "DROP";
                 await client.query('DROP TABLE users');
             `;
 
             const result = ScriptExecutor.validate(script);
 
-            expect(result.valid).toBe(false);
-            expect(result.errors).toContain('Script contains dangerous DDL statements (DROP, TRUNCATE, ALTER, CREATE)');
+            expect(result.valid).toBe(true);
         });
 
-        it('should reject dangerous MongoDB methods', () => {
+        it('should allow MongoDB methods (warnings handled at submission)', () => {
+            // MongoDB destructive methods are now allowed through validation
+            // Warnings are generated at request submission time
             const script = `
                 await db.collection('users').drop();
             `;
 
             const result = ScriptExecutor.validate(script);
 
-            expect(result.valid).toBe(false);
-            expect(result.errors).toContain('Script contains dangerous MongoDB methods (.drop, .dropDatabase, .remove)');
+            expect(result.valid).toBe(true);
         });
 
         it('should collect multiple errors', () => {
