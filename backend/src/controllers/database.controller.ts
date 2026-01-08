@@ -68,13 +68,8 @@ export class DatabaseController {
                 throw new NotFoundError('Database instance');
             }
 
-            // Return list of databases as simple array for dropdown
-            const databases = instance.databases.map(name => ({
-                name,
-                instanceId: instance.id
-            }));
-
-            sendSuccess(res, databases);
+            // Return list of databases as simple string array for dropdown
+            sendSuccess(res, instance.databases);
         } catch (error) {
             next(error);
         }
