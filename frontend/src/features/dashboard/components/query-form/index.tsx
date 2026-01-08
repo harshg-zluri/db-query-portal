@@ -75,10 +75,15 @@ export function QueryEditor({
                 {/* Syntax highlighted overlay */}
                 <pre
                     ref={highlightRef}
-                    className="absolute inset-0 p-4 m-0 overflow-auto pointer-events-none font-mono text-sm leading-relaxed"
+                    className="absolute inset-0 p-0 m-0 overflow-auto pointer-events-none font-mono text-sm leading-6 whitespace-pre-wrap break-words"
                     aria-hidden="true"
                 >
-                    <code className={`language-${language}`}>{value || ' '}</code>
+                    <code
+                        className={`language-${language} whitespace-pre-wrap break-words`}
+                        style={{ fontFamily: 'inherit', fontSize: 'inherit', padding: 0, margin: 0, border: 0, background: 'transparent' }}
+                    >
+                        {value || ' '}
+                    </code>
                 </pre>
 
                 {/* Actual textarea */}
@@ -92,7 +97,7 @@ export function QueryEditor({
                     placeholder={getPlaceholder()}
                     className={cn(
                         'relative w-full h-48 p-4 bg-transparent text-transparent caret-zinc-100',
-                        'font-mono text-sm leading-relaxed resize-none',
+                        'font-mono text-sm leading-6 resize-none',
                         'focus:outline-none',
                         'placeholder:text-zinc-600'
                     )}

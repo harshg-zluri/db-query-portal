@@ -56,6 +56,7 @@ export function DashboardPage() {
         watch,
         setValue,
         reset,
+        clearErrors,
         formState: { errors },
     } = useForm<FormData>({
         resolver: zodResolver(formSchema),
@@ -134,10 +135,16 @@ export function DashboardPage() {
                             databaseType={databaseType || ''}
                             instanceId={instanceId}
                             databaseName={databaseName}
-                            onDatabaseTypeChange={(type) => setValue('databaseType', type as typeof databaseType, { shouldValidate: true })}
+                            onDatabaseTypeChange={(type) => {
+                                setValue('databaseType', type as typeof databaseType, { shouldValidate: true });
+                                setValue('instanceId', '', { shouldValidate: false });
+                                setValue('databaseName', '', { shouldValidate: false });
+                                clearErrors(['instanceId', 'databaseName']);
+                            }}
                             onInstanceChange={(id) => {
                                 setValue('instanceId', id, { shouldValidate: true });
-                                setValue('databaseName', '');
+                                setValue('databaseName', '', { shouldValidate: false });
+                                clearErrors('databaseName');
                             }}
                             onDatabaseChange={(name) => setValue('databaseName', name, { shouldValidate: true })}
                             errors={{

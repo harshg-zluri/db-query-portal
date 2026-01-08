@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { QueryRequestModel } from '../models/QueryRequest';
 import { ExecutionService } from '../services/execution.service';
 import { UserRole, RequestStatus } from '../types';
-import { sendSuccess } from '../utils/responseHelper';
+import { sendSuccess, sendPaginated } from '../utils/responseHelper';
 import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors';
 import { RejectRequestInput } from '../validators/request.schema';
 import { logger, AuditCategory, AuditAction } from '../utils/logger';
@@ -293,15 +293,7 @@ export class ApprovalController {
                 }
             });
 
-            sendSuccess(res, {
-                requests,
-                pagination: {
-                    page,
-                    limit,
-                    total,
-                    totalPages: Math.ceil(total / limit)
-                }
-            });
+            sendPaginated(res, requests, page, limit, total);
         } catch (error) {
             next(error);
         }

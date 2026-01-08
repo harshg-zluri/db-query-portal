@@ -49,15 +49,10 @@ export function DatabaseSelector({
     const handleDatabaseTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newType = e.target.value as DatabaseType;
         onDatabaseTypeChange(newType);
-        // Reset dependent fields
-        onInstanceChange('');
-        onDatabaseChange('');
     };
 
     const handleInstanceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         onInstanceChange(e.target.value);
-        // Reset database
-        onDatabaseChange('');
     };
 
     return (
