@@ -268,21 +268,28 @@ export class SlackService {
                 fields: [
                     {
                         type: 'mrkdwn',
-                        text: `*Requester:*\n${request.userEmail}`
-                    },
-                    {
-                        type: 'mrkdwn',
-                        text: `*POD:*\n${request.podName}`
-                    },
-                    {
-                        type: 'mrkdwn',
-                        text: `*Database:*\n${request.databaseType.toUpperCase()}`
+                        text: `*Database Type:*\n${request.databaseType}`
                     },
                     {
                         type: 'mrkdwn',
                         text: `*Instance:*\n${request.instanceName}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*Database:*\n${request.databaseName || 'N/A'}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*POD:*\n${request.podName}`
                     }
                 ]
+            },
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `*Requester:*\n${request.userEmail}`
+                }
             },
             {
                 type: 'section',
