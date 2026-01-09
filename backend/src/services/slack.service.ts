@@ -1,7 +1,6 @@
 /**
  * Slack Notification Service
  * 
- * TODO: Week 2 Implementation
  * This service handles all Slack notifications for the DB Query Portal.
  * 
  * Requirements:
@@ -10,11 +9,9 @@
  * - FR4.2: Send DM to requester on rejection (with reason)
  */
 
+import { WebClient, KnownBlock } from '@slack/web-api';
 import { logger } from '../utils/logger';
 import { QueryRequest } from '../types';
-
-// TODO: Add Slack SDK import when implementing
-// import { WebClient } from '@slack/web-api';
 
 /**
  * Slack notification types for type safety
@@ -46,226 +43,437 @@ export interface SlackNotificationPayload {
 
 /**
  * Slack Service Class
- * 
- * TODO: Week 2 - Implement the following:
- * 1. Initialize Slack WebClient with bot token (SLACK_BOT_TOKEN env var)
- * 2. Store approval channel ID (SLACK_APPROVAL_CHANNEL env var)
- * 3. Implement user email to Slack user ID lookup
- * 4. Create rich block-kit formatted messages
+ * Handles all Slack API interactions for notifications
  */
 export class SlackService {
-    // TODO: private static client: WebClient;
-    // TODO: private static approvalChannelId: string;
+    private static client: WebClient | null = null;
+    private static approvalChannelId: string = '';
+    private static isEnabled: boolean = false;
 
     /**
      * Initialize Slack client
-     * TODO: Week 2 - Implement initialization
      */
-    static async initialize(): Promise<void> {
-        // TODO: Week 2 Implementation
-        // this.client = new WebClient(process.env.SLACK_BOT_TOKEN);
-        // this.approvalChannelId = process.env.SLACK_APPROVAL_CHANNEL || '';
-        logger.info('[SLACK] TODO: Initialize Slack client with bot token');
+    static initialize(): void {
+        const botToken = process.env.SLACK_BOT_TOKEN;
+        const channelId = process.env.SLACK_APPROVAL_CHANNEL;
+
+        if (!botToken) {
+            logger.warn('[SLACK] SLACK_BOT_TOKEN not configured - Slack notifications disabled');
+            this.isEnabled = false;
+            return;
+        }
+
+        this.client = new WebClient(botToken);
+        this.approvalChannelId = channelId || '';
+        this.isEnabled = true;
+
+        logger.info('[SLACK] Slack client initialized', {
+            hasApprovalChannel: !!channelId
+        });
+    }
+
+    /**
+     * Check if Slack is enabled
+     */
+    private static ensureEnabled(): boolean {
+        if (!this.isEnabled || !this.client) {
+            logger.debug('[SLACK] Slack notifications disabled - skipping');
+            return false;
+        }
+        return true;
     }
 
     /**
      * FR2.4: Send notification to approval channel when a new request is submitted
-     * 
-     * Message should include:
-     * - Requester info
-     * - Request type (query/script)
-     * - Database info (type, instance, database name)
-     * - POD name
-     * - Quick preview of query/script
-     * - Approve/Reject action buttons (if using interactive messages)
      */
     static async notifyNewRequest(request: QueryRequest): Promise<void> {
-        // TODO: Week 2 Implementation
-        logger.info('[SLACK] TODO: Send new request notification to approval channel', {
-            requestId: request.id,
-            requester: request.userEmail,
-            podName: request.podName,
-            databaseType: request.databaseType,
-            submissionType: request.submissionType
-        });
+        if (!this.ensureEnabled() || !this.approvalChannelId) {
+            logger.debug('[SLACK] Skipping new request notification - no approval channel configured');
+            return;
+        }
 
-        // TODO: Implementation outline:
-        // const blocks = this.buildNewRequestBlocks(request);
-        // await this.client.chat.postMessage({
-        //     channel: this.approvalChannelId,
-        //     text: `New ${request.submissionType} request from ${request.userEmail}`,
-        //     blocks
-        // });
+        try {
+            const blocks = this.buildNewRequestBlocks(request);
+            await this.client!.chat.postMessage({
+                channel: this.approvalChannelId,
+                text: `New ${request.submissionType} request from ${request.userEmail}`,
+                blocks
+            });
+
+            logger.info('[SLACK] New request notification sent', {
+                requestId: request.id,
+                requester: request.userEmail,
+                channel: this.approvalChannelId
+            });
+        } catch (error) {
+            logger.error('[SLACK] Failed to send new request notification', {
+                requestId: request.id,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
     }
 
     /**
      * FR4.1: Send DM to requester with execution results
-     * 
-     * Message should include:
-     * - Approval confirmation
-     * - Approver info
-     * - Execution status (success/failure)
-     * - Results summary or error details
-     * - Link to view full results (if applicable)
      */
     static async notifyRequesterApproved(
         request: QueryRequest,
         approverEmail: string,
         executionResult: { success: boolean; rowCount?: number; data?: unknown; error?: string }
     ): Promise<void> {
-        // TODO: Week 2 Implementation
-        logger.info('[SLACK] TODO: Send approval DM to requester', {
-            requestId: request.id,
-            requester: request.userEmail,
-            approver: approverEmail,
-            executionSuccess: executionResult.success,
-            rowCount: executionResult.rowCount
-        });
+        if (!this.ensureEnabled()) return;
 
-        // TODO: Implementation outline:
-        // const recipientSlackId = await this.lookupSlackUserId(request.userEmail);
-        // const blocks = this.buildApprovalResultBlocks(request, approverEmail, executionResult);
-        // await this.client.chat.postMessage({
-        //     channel: recipientSlackId,
-        //     text: executionResult.success 
-        //         ? `Your request was approved and executed successfully!`
-        //         : `Your request was approved but execution failed.`,
-        //     blocks
-        // });
+        try {
+            const recipientSlackId = await this.lookupSlackUserId(request.userEmail);
+            if (!recipientSlackId) {
+                logger.warn('[SLACK] Could not find Slack user for DM', { email: request.userEmail });
+                return;
+            }
+
+            const blocks = this.buildApprovalResultBlocks(request, approverEmail, executionResult);
+            await this.client!.chat.postMessage({
+                channel: recipientSlackId,
+                text: executionResult.success
+                    ? `Your request was approved and executed successfully!`
+                    : `Your request was approved but execution failed.`,
+                blocks
+            });
+
+            logger.info('[SLACK] Approval DM sent to requester', {
+                requestId: request.id,
+                requester: request.userEmail,
+                approver: approverEmail,
+                success: executionResult.success
+            });
+        } catch (error) {
+            logger.error('[SLACK] Failed to send approval DM', {
+                requestId: request.id,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
     }
 
     /**
      * FR4.1: Send execution results to approval channel
-     * 
-     * Message should include:
-     * - Original request reference
-     * - Approver info
-     * - Execution status
-     * - Results summary or error details
      */
     static async notifyChannelExecutionResult(
         request: QueryRequest,
         approverEmail: string,
         executionResult: { success: boolean; rowCount?: number; error?: string }
     ): Promise<void> {
-        // TODO: Week 2 Implementation
-        logger.info('[SLACK] TODO: Send execution result to approval channel', {
-            requestId: request.id,
-            approver: approverEmail,
-            executionSuccess: executionResult.success,
-            rowCount: executionResult.rowCount,
-            error: executionResult.error
-        });
+        if (!this.ensureEnabled() || !this.approvalChannelId) return;
 
-        // TODO: Implementation outline:
-        // const blocks = this.buildChannelExecutionResultBlocks(request, approverEmail, executionResult);
-        // await this.client.chat.postMessage({
-        //     channel: this.approvalChannelId,
-        //     text: executionResult.success
-        //         ? `Request ${request.id} executed successfully`
-        //         : `Request ${request.id} execution failed`,
-        //     blocks
-        // });
+        try {
+            const blocks = this.buildChannelExecutionResultBlocks(request, approverEmail, executionResult);
+            await this.client!.chat.postMessage({
+                channel: this.approvalChannelId,
+                text: executionResult.success
+                    ? `Request ${request.id.slice(0, 8)} executed successfully`
+                    : `Request ${request.id.slice(0, 8)} execution failed`,
+                blocks
+            });
+
+            logger.info('[SLACK] Execution result posted to channel', {
+                requestId: request.id,
+                channel: this.approvalChannelId,
+                success: executionResult.success
+            });
+        } catch (error) {
+            logger.error('[SLACK] Failed to post execution result to channel', {
+                requestId: request.id,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
     }
 
     /**
      * FR4.2: Send DM to requester on rejection
-     * 
-     * Message should include:
-     * - Rejection notification
-     * - Rejector info
-     * - Original query/script details
-     * - Rejection reason (if provided)
      */
     static async notifyRequesterRejected(
         request: QueryRequest,
         rejectorEmail: string,
         reason?: string
     ): Promise<void> {
-        // TODO: Week 2 Implementation
-        logger.info('[SLACK] TODO: Send rejection DM to requester', {
-            requestId: request.id,
-            requester: request.userEmail,
-            rejector: rejectorEmail,
-            reason: reason || 'No reason provided'
-        });
+        if (!this.ensureEnabled()) return;
 
-        // TODO: Implementation outline:
-        // const recipientSlackId = await this.lookupSlackUserId(request.userEmail);
-        // const blocks = this.buildRejectionBlocks(request, rejectorEmail, reason);
-        // await this.client.chat.postMessage({
-        //     channel: recipientSlackId,
-        //     text: `Your request was rejected`,
-        //     blocks
-        // });
+        try {
+            const recipientSlackId = await this.lookupSlackUserId(request.userEmail);
+            if (!recipientSlackId) {
+                logger.warn('[SLACK] Could not find Slack user for rejection DM', { email: request.userEmail });
+                return;
+            }
+
+            const blocks = this.buildRejectionBlocks(request, rejectorEmail, reason);
+            await this.client!.chat.postMessage({
+                channel: recipientSlackId,
+                text: `Your request was rejected`,
+                blocks
+            });
+
+            logger.info('[SLACK] Rejection DM sent to requester', {
+                requestId: request.id,
+                requester: request.userEmail,
+                rejector: rejectorEmail,
+                hasReason: !!reason
+            });
+        } catch (error) {
+            logger.error('[SLACK] Failed to send rejection DM', {
+                requestId: request.id,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
     }
 
     /**
      * Lookup Slack user ID by email
-     * TODO: Week 2 - Implement email to Slack ID lookup
      */
-    /* istanbul ignore next */
     private static async lookupSlackUserId(email: string): Promise<string | null> {
-        // TODO: Week 2 Implementation
-        logger.debug('[SLACK] TODO: Lookup Slack user ID for email', { email });
+        if (!this.client) return null;
 
-        // TODO: Implementation outline:
-        // const result = await this.client.users.lookupByEmail({ email });
-        // return result.user?.id || null;
-        return null;
+        try {
+            const result = await this.client.users.lookupByEmail({ email });
+            return result.user?.id || null;
+        } catch (error) {
+            logger.debug('[SLACK] User lookup failed', {
+                email,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+            return null;
+        }
     }
 
     // ==========================================================================
-    // Block Builder Methods - TODO: Week 2
+    // Block Builder Methods
     // ==========================================================================
 
     /**
      * Build Block Kit blocks for new request notification
      */
-    /* istanbul ignore next */
-    private static buildNewRequestBlocks(request: QueryRequest): unknown[] {
-        // TODO: Week 2 - Return Slack Block Kit formatted blocks
-        // See: https://api.slack.com/block-kit
-        return [];
+    private static buildNewRequestBlocks(request: QueryRequest): KnownBlock[] {
+        const queryPreview = request.query
+            ? request.query.substring(0, 200) + (request.query.length > 200 ? '...' : '')
+            : request.scriptContent?.substring(0, 200) + (request.scriptContent && request.scriptContent.length > 200 ? '...' : '');
+
+        return [
+            {
+                type: 'header',
+                text: {
+                    type: 'plain_text',
+                    text: `🆕 New ${request.submissionType.toUpperCase()} Request`,
+                    emoji: true
+                }
+            },
+            {
+                type: 'section',
+                fields: [
+                    {
+                        type: 'mrkdwn',
+                        text: `*Requester:*\n${request.userEmail}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*POD:*\n${request.podName}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*Database:*\n${request.databaseType.toUpperCase()}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*Instance:*\n${request.instanceName}`
+                    }
+                ]
+            },
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `*Query Preview:*\n\`\`\`${queryPreview}\`\`\``
+                }
+            },
+            {
+                type: 'context',
+                elements: [
+                    {
+                        type: 'mrkdwn',
+                        text: `Request ID: \`${request.id.slice(0, 8)}\` | Submitted: ${new Date(request.createdAt).toLocaleString()}`
+                    }
+                ]
+            },
+            {
+                type: 'divider'
+            }
+        ];
     }
 
     /**
      * Build Block Kit blocks for approval result DM
      */
-    /* istanbul ignore next */
     private static buildApprovalResultBlocks(
         request: QueryRequest,
         approverEmail: string,
         executionResult: { success: boolean; rowCount?: number; data?: unknown; error?: string }
-    ): unknown[] {
-        // TODO: Week 2 - Return Slack Block Kit formatted blocks
-        return [];
+    ): KnownBlock[] {
+        const statusEmoji = executionResult.success ? '✅' : '❌';
+        const statusText = executionResult.success ? 'Executed Successfully' : 'Execution Failed';
+
+        const blocks: KnownBlock[] = [
+            {
+                type: 'header',
+                text: {
+                    type: 'plain_text',
+                    text: `${statusEmoji} Request ${statusText}`,
+                    emoji: true
+                }
+            },
+            {
+                type: 'section',
+                fields: [
+                    {
+                        type: 'mrkdwn',
+                        text: `*Approved by:*\n${approverEmail}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*Database:*\n${request.instanceName}`
+                    }
+                ]
+            }
+        ];
+
+        if (executionResult.success && executionResult.rowCount !== undefined) {
+            blocks.push({
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `*Rows affected:* ${executionResult.rowCount}`
+                }
+            });
+        }
+
+        if (!executionResult.success && executionResult.error) {
+            blocks.push({
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `*Error:*\n\`\`\`${executionResult.error.substring(0, 500)}\`\`\``
+                }
+            });
+        }
+
+        blocks.push({
+            type: 'context',
+            elements: [
+                {
+                    type: 'mrkdwn',
+                    text: `Request ID: \`${request.id.slice(0, 8)}\``
+                }
+            ]
+        });
+
+        return blocks;
     }
 
     /**
      * Build Block Kit blocks for channel execution result
      */
-    /* istanbul ignore next */
     private static buildChannelExecutionResultBlocks(
         request: QueryRequest,
         approverEmail: string,
         executionResult: { success: boolean; rowCount?: number; error?: string }
-    ): unknown[] {
-        // TODO: Week 2 - Return Slack Block Kit formatted blocks
-        return [];
+    ): KnownBlock[] {
+        const statusEmoji = executionResult.success ? '✅' : '❌';
+        const statusText = executionResult.success ? 'Executed Successfully' : 'Execution Failed';
+
+        return [
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `${statusEmoji} *Request ${request.id.slice(0, 8)} ${statusText}*`
+                }
+            },
+            {
+                type: 'section',
+                fields: [
+                    {
+                        type: 'mrkdwn',
+                        text: `*Requester:* ${request.userEmail}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*Approved by:* ${approverEmail}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*Rows:* ${executionResult.rowCount ?? 'N/A'}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*Database:* ${request.instanceName}`
+                    }
+                ]
+            },
+            ...(executionResult.error ? [{
+                type: 'section' as const,
+                text: {
+                    type: 'mrkdwn' as const,
+                    text: `*Error:* ${executionResult.error.substring(0, 200)}`
+                }
+            }] : []),
+            {
+                type: 'divider' as const
+            }
+        ];
     }
 
     /**
      * Build Block Kit blocks for rejection DM
      */
-    /* istanbul ignore next */
     private static buildRejectionBlocks(
         request: QueryRequest,
         rejectorEmail: string,
         reason?: string
-    ): unknown[] {
-        // TODO: Week 2 - Return Slack Block Kit formatted blocks
-        return [];
+    ): KnownBlock[] {
+        return [
+            {
+                type: 'header',
+                text: {
+                    type: 'plain_text',
+                    text: '❌ Request Rejected',
+                    emoji: true
+                }
+            },
+            {
+                type: 'section',
+                fields: [
+                    {
+                        type: 'mrkdwn',
+                        text: `*Rejected by:*\n${rejectorEmail}`
+                    },
+                    {
+                        type: 'mrkdwn',
+                        text: `*Database:*\n${request.instanceName}`
+                    }
+                ]
+            },
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `*Reason:*\n${reason || 'No reason provided'}`
+                }
+            },
+            {
+                type: 'context',
+                elements: [
+                    {
+                        type: 'mrkdwn',
+                        text: `Request ID: \`${request.id.slice(0, 8)}\` | You can modify and resubmit your request.`
+                    }
+                ]
+            }
+        ];
     }
 }
 

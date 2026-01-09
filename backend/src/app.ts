@@ -12,6 +12,7 @@ import { ExecutionService } from './services/execution.service';
 import { QueueService } from './services/queue.service';
 import { WorkerService } from './services/worker.service';
 import { LockService } from './services/lock.service';
+import { SlackService } from './services/slack.service';
 
 // Validate config on startup
 validateConfig();
@@ -84,6 +85,9 @@ if (require.main === module) {
             // Initialize lock service with database pool
             const pool = getPool();
             LockService.initialize(pool);
+
+            // Initialize Slack service
+            SlackService.initialize();
 
             // Initialize queue service
             await QueueService.initialize();
