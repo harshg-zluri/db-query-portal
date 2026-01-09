@@ -9,32 +9,32 @@ export interface StatusBadgeProps {
 const statusConfig: Record<RequestStatus, { label: string; className: string; icon: string }> = {
     [RequestStatus.PENDING]: {
         label: 'Pending',
-        className: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+        className: 'bg-[#FEF3C7] text-[#92400E] border-[#F59E0B]',
         icon: '⏳',
     },
     [RequestStatus.APPROVED]: {
         label: 'Approved',
-        className: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+        className: 'bg-[#DBEAFE] text-[#1E40AF] border-[#3B82F6]',
         icon: '✓',
     },
     [RequestStatus.REJECTED]: {
         label: 'Rejected',
-        className: 'bg-red-500/10 text-red-500 border-red-500/20',
+        className: 'bg-[#FEE2E2] text-[#991B1B] border-[#EF4444]',
         icon: '✗',
     },
     [RequestStatus.EXECUTED]: {
         label: 'Executed',
-        className: 'bg-green-500/10 text-green-500 border-green-500/20',
+        className: 'bg-[#DCFCE7] text-[#166534] border-[#22C55E]',
         icon: '✓',
     },
     [RequestStatus.FAILED]: {
         label: 'Failed',
-        className: 'bg-red-500/10 text-red-500 border-red-500/20',
+        className: 'bg-[#FEE2E2] text-[#991B1B] border-[#EF4444]',
         icon: '⚠',
     },
     [RequestStatus.WITHDRAWN]: {
         label: 'Withdrawn',
-        className: 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20',
+        className: 'bg-[#F3F4F6] text-[#374151] border-[#6B7280]',
         icon: '↩',
     },
 };
@@ -45,7 +45,9 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     return (
         <span
             className={cn(
-                'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border',
+                'inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold uppercase tracking-wide',
+                'rounded-md border-2 shadow-[2px_2px_0_#000]',
+                'transition-all duration-150 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0_#000]',
                 config.className,
                 className
             )}

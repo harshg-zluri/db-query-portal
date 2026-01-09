@@ -73,9 +73,9 @@ export function ApprovalActions({
                 size="sm"
             >
                 <div className="space-y-4">
-                    <div className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <div className="flex items-start gap-3 p-4 bg-[#FEF3C7] border-2 border-[#F59E0B] rounded-md shadow-[2px_2px_0_#000]">
                         <svg
-                            className="w-6 h-6 text-amber-500 flex-shrink-0"
+                            className="w-6 h-6 text-[#92400E] flex-shrink-0"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -88,8 +88,8 @@ export function ApprovalActions({
                             />
                         </svg>
                         <div>
-                            <p className="text-sm font-medium text-amber-500">Warning</p>
-                            <p className="text-sm text-amber-200/80 mt-1">
+                            <p className="text-sm font-bold text-[#92400E] uppercase">Warning</p>
+                            <p className="text-sm text-[#92400E] mt-1">
                                 This request has security warnings. Are you sure you want to approve it?
                             </p>
                         </div>
@@ -115,14 +115,14 @@ export function ApprovalActions({
             >
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-zinc-300 mb-2">
+                        <label className="block text-sm font-bold text-black uppercase tracking-wide mb-2">
                             Rejection Reason (optional)
                         </label>
                         <textarea
                             value={rejectReason}
                             onChange={(e) => setRejectReason(e.target.value)}
                             placeholder="Provide a reason for rejection..."
-                            className="w-full px-3 py-2 bg-[#111113] border border-[#27272a] rounded-lg text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-24"
+                            className="w-full px-3 py-2.5 bg-white border-2 border-black rounded-md text-black placeholder-[#6B6B6B] focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1 resize-none h-24 hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000] transition-all duration-150"
                         />
                     </div>
 

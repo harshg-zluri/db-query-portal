@@ -12,13 +12,13 @@ export function AuthPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center p-4">
-            <div className="w-full max-w-md">
+        <div className="min-h-screen bg-[#F3F0E6] bg-grid flex items-center justify-center p-4">
+            <div className="w-full max-w-md animate-slide-up">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-xl mb-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#FEF34B] border-3 border-black rounded-md shadow-[4px_4px_0_#000] mb-4" style={{ borderWidth: '3px' }}>
                         <svg
-                            className="w-10 h-10 text-white"
+                            className="w-10 h-10 text-black"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -31,17 +31,19 @@ export function AuthPage() {
                             />
                         </svg>
                     </div>
-                    <h1 className="text-2xl font-bold text-zinc-100">Database Query Portal</h1>
-                    <p className="text-zinc-500 mt-2">Sign in to access the portal</p>
+                    <h1 className="text-3xl font-bold text-black uppercase tracking-tight">
+                        Database Query Portal
+                    </h1>
+                    <p className="text-[#6B6B6B] mt-2 font-medium">Sign in to access the portal</p>
                 </div>
 
                 {/* Login Card */}
-                <div className="bg-[#111113] border border-[#27272a] rounded-xl p-6 shadow-xl">
+                <div className="bg-white border-3 border-black rounded-md p-6 shadow-[6px_6px_0_#000]" style={{ borderWidth: '3px' }}>
                     <LoginForm />
                 </div>
 
                 {/* Footer */}
-                <p className="text-center text-xs text-zinc-600 mt-6">
+                <p className="text-center text-xs text-[#6B6B6B] mt-6 font-medium uppercase tracking-wide">
                     Secure database query execution portal
                 </p>
             </div>

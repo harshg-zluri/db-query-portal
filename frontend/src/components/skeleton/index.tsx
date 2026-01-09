@@ -18,7 +18,7 @@ export function Skeleton({
 
     const variantStyles = {
         text: 'h-4 rounded',
-        rectangular: 'rounded-lg',
+        rectangular: 'rounded-md',
         circular: 'rounded-full',
     };
 
@@ -51,10 +51,10 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
 
 export function SkeletonTableRow({ columns = 5 }: { columns?: number }) {
     return (
-        <tr className="border-b border-[#27272a]">
+        <tr className="border-b-2 border-black">
             {Array.from({ length: columns }).map((_, i) => (
                 <td key={i} className="px-4 py-3">
-                    <Skeleton variant="text" width={i === 0 ? '40px' : '80%'} />
+                    <Skeleton variant="text" width={i === 0 ? '50px' : '80%'} height={24} />
                 </td>
             ))}
         </tr>
@@ -65,10 +65,10 @@ export function SkeletonTable({ rows = 5, columns = 5 }: { rows?: number; column
     return (
         <table className="w-full">
             <thead>
-                <tr className="border-b border-[#27272a]">
+                <tr className="border-b-2 border-black bg-[#FAF9F6]">
                     {Array.from({ length: columns }).map((_, i) => (
                         <th key={i} className="px-4 py-3 text-left">
-                            <Skeleton variant="text" width="60%" height={14} />
+                            <Skeleton variant="text" width="60%" height={24} />
                         </th>
                     ))}
                 </tr>
@@ -84,7 +84,7 @@ export function SkeletonTable({ rows = 5, columns = 5 }: { rows?: number; column
 
 export function SkeletonCard() {
     return (
-        <div className="bg-[#111113] border border-[#27272a] rounded-lg p-4 space-y-4">
+        <div className="bg-white border-2 border-black rounded-md p-4 space-y-4 shadow-[4px_4px_0_#000]">
             <div className="flex items-center gap-3">
                 <Skeleton variant="circular" width={40} height={40} />
                 <div className="flex-1 space-y-2">

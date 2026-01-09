@@ -19,14 +19,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
         return (
-            <div className="space-y-1.5">
+            <div className="space-y-2">
                 {label && (
                     <label
                         htmlFor={selectId}
-                        className="block text-sm font-medium text-zinc-300"
+                        className="block text-sm font-semibold text-black uppercase tracking-wide"
                     >
                         {label}
-                        {props.required && <span className="text-red-500 ml-1">*</span>}
+                        {props.required && <span className="text-[#ef4444] ml-1">*</span>}
                     </label>
                 )}
                 <div className="relative">
@@ -34,11 +34,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                         ref={ref}
                         id={selectId}
                         className={cn(
-                            'w-full px-3 py-2 bg-[#111113] border rounded-lg text-zinc-100 appearance-none',
-                            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                            'disabled:opacity-50 disabled:cursor-not-allowed',
-                            'transition-all duration-200',
-                            error ? 'border-red-500' : 'border-[#27272a] hover:border-[#3f3f46]',
+                            'w-full px-3 py-2.5 bg-white border-2 rounded-md text-black appearance-none',
+                            'focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1',
+                            'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[#FAF9F6]',
+                            'transition-all duration-150',
+                            'hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000]',
+                            'cursor-pointer',
+                            error ? 'border-[#ef4444]' : 'border-black',
                             className
                         )}
                         disabled={isLoading || props.disabled}
@@ -58,7 +60,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                         {isLoading ? (
                             <svg
-                                className="animate-spin h-4 w-4 text-zinc-500"
+                                className="animate-spin h-4 w-4 text-black"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
@@ -79,7 +81,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                             </svg>
                         ) : (
                             <svg
-                                className="h-4 w-4 text-zinc-500"
+                                className="h-4 w-4 text-black"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -94,7 +96,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                         )}
                     </div>
                 </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
+                {error && <p className="text-sm text-[#ef4444] font-medium">{error}</p>}
             </div>
         );
     }

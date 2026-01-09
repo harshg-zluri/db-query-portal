@@ -9,13 +9,22 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant = 'primary', size = 'md', isLoading, disabled, children, ...props }, ref) => {
-        const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0a0a0b] disabled:opacity-50 disabled:cursor-not-allowed';
+        const baseStyles = cn(
+            'inline-flex items-center justify-center font-semibold rounded-md',
+            'border-2 border-black',
+            'shadow-[4px_4px_0_#000] hover:shadow-none',
+            'hover:translate-x-[2px] hover:translate-y-[2px]',
+            'active:translate-x-[4px] active:translate-y-[4px]',
+            'transition-all duration-150 ease-out',
+            'focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-2',
+            'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0_#000]'
+        );
 
         const variants = {
-            primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-            secondary: 'bg-[#1a1a1d] text-zinc-100 border border-[#27272a] hover:bg-[#222225] hover:border-[#3f3f46] focus:ring-zinc-500',
-            danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-            ghost: 'bg-transparent text-zinc-400 hover:text-zinc-100 hover:bg-[#1a1a1d] focus:ring-zinc-500',
+            primary: 'bg-[#FEF34B] text-black hover:bg-[#FDE500]',
+            secondary: 'bg-white text-black hover:bg-[#FAF9F6]',
+            danger: 'bg-[#ef4444] text-white hover:bg-[#dc2626] border-black',
+            ghost: 'bg-transparent text-black border-transparent shadow-none hover:bg-[#FAF9F6] hover:border-black hover:shadow-[4px_4px_0_#000]',
         };
 
         const sizes = {

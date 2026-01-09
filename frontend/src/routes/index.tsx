@@ -5,6 +5,7 @@ import { AuthPage } from '@features/auth';
 import { DashboardPage } from '@features/dashboard';
 import { SubmissionsPage } from '@features/submissions';
 import { ApprovalsPage } from '@features/approvals';
+import { AdminPage } from '@features/admin';
 import { ROUTES } from '@constants/routes';
 import { UserRole } from '@/types';
 
@@ -38,6 +39,14 @@ export const router = createBrowserRouter([
                 element: (
                     <AuthWrapper requiredRole={UserRole.MANAGER}>
                         <ApprovalsPage />
+                    </AuthWrapper>
+                ),
+            },
+            {
+                path: 'admin',
+                element: (
+                    <AuthWrapper requiredRole={UserRole.ADMIN}>
+                        <AdminPage />
                     </AuthWrapper>
                 ),
             },

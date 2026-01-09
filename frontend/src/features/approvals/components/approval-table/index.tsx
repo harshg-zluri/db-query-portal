@@ -6,7 +6,7 @@ import { NoPendingRequestsEmpty } from '@components/empty-state';
 import { CodeViewer } from '@components/code-viewer';
 import { WarningsDisplay } from '../warnings-display';
 import { ApprovalActions } from '../approval-actions';
-import { formatDateShort } from '@utils/format-date';
+import { formatDate, formatDateShort } from '@utils/format-date';
 import { cn } from '@utils/cn';
 
 interface ApprovalTableProps {
@@ -30,7 +30,7 @@ export function ApprovalTable({
 
     if (isLoading) {
         return (
-            <div className="bg-[#111113] border border-[#27272a] rounded-lg overflow-hidden">
+            <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000] overflow-hidden">
                 <SkeletonTable rows={5} columns={7} />
             </div>
         );
@@ -38,7 +38,7 @@ export function ApprovalTable({
 
     if (requests.length === 0) {
         return (
-            <div className="bg-[#111113] border border-[#27272a] rounded-lg">
+            <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000]">
                 <NoPendingRequestsEmpty />
             </div>
         );
@@ -58,49 +58,50 @@ export function ApprovalTable({
     };
 
     return (
-        <div className="bg-[#111113] border border-[#27272a] rounded-lg overflow-hidden">
+        <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000] overflow-hidden">
             <table className="w-full">
                 <thead>
-                    <tr className="border-b border-[#27272a] bg-[#0a0a0b]">
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider w-8">
+                    <tr className="border-b-2 border-black bg-[#FAF9F6]">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider w-8">
 
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             Database
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             ID
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             Query/Script
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             User
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             POD
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             Comments
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             Actions
                         </th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-[#27272a]">
-                    {requests.map((request) => (
+                <tbody className="divide-y-2 divide-black">
+                    {requests.map((request, index) => (
                         <>
                             <tr
                                 key={request.id}
                                 className={cn(
-                                    'hover:bg-[#1a1a1d]/50 transition-colors cursor-pointer',
-                                    expandedId === request.id && 'bg-[#1a1a1d]/50',
-                                    request.warnings && request.warnings.length > 0 && 'border-l-2 border-l-amber-500'
+                                    'hover:bg-[#FEF34B]/20 transition-colors cursor-pointer animate-fade-in',
+                                    expandedId === request.id && 'bg-[#FEF34B]/10',
+                                    request.warnings && request.warnings.length > 0 && 'border-l-4 border-l-[#F59E0B]'
                                 )}
+                                style={{ animationDelay: `${index * 50}ms` }}
                                 onClick={() => setExpandedId(expandedId === request.id ? null : request.id)}
                             >
-                                <td className="px-4 py-3 text-zinc-400">
+                                <td className="px-4 py-3 text-black">
                                     <svg
                                         className={cn(
                                             'w-4 h-4 transition-transform',
@@ -119,31 +120,31 @@ export function ApprovalTable({
                                     </svg>
                                 </td>
                                 <td className="px-4 py-3">
-                                    <div className="text-sm text-zinc-100">{request.instanceName}</div>
-                                    <div className="text-xs text-zinc-500">{request.databaseName}</div>
+                                    <div className="text-sm font-semibold text-black">{request.instanceName}</div>
+                                    <div className="text-xs text-[#6B6B6B]">{request.databaseName}</div>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-zinc-400 font-mono">
+                                <td className="px-4 py-3 text-sm text-[#6B6B6B] font-mono">
                                     {request.id.slice(0, 8)}
                                 </td>
                                 <td className="px-4 py-3">
                                     <div className="flex items-center gap-2">
                                         {request.warnings && request.warnings.length > 0 && (
-                                            <span className="text-amber-500" title="Has security warnings">
+                                            <span className="text-[#F59E0B]" title="Has security warnings">
                                                 ⚠️
                                             </span>
                                         )}
-                                        <span className="text-sm text-zinc-300 font-mono truncate max-w-[180px]">
+                                        <span className="text-sm text-black font-mono truncate max-w-[180px]">
                                             {getQueryPreview(request)}
                                         </span>
                                     </div>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-zinc-300">
+                                <td className="px-4 py-3 text-sm text-black">
                                     {request.userEmail}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-zinc-400">
+                                <td className="px-4 py-3 text-sm text-[#6B6B6B]">
                                     {request.podName}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-zinc-400 max-w-[150px] truncate">
+                                <td className="px-4 py-3 text-sm text-[#6B6B6B] max-w-[150px] truncate">
                                     {request.comments}
                                 </td>
                                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -160,7 +161,7 @@ export function ApprovalTable({
 
                             {/* Expanded Row */}
                             {expandedId === request.id && (
-                                <tr className="bg-[#0a0a0b]">
+                                <tr className="bg-[#FAF9F6] border-t-2 border-black">
                                     <td colSpan={8} className="px-4 py-4">
                                         <div className="space-y-4">
                                             {/* Warnings */}
@@ -170,7 +171,7 @@ export function ApprovalTable({
 
                                             {/* Query/Script Content */}
                                             <div>
-                                                <p className="text-xs text-zinc-500 uppercase tracking-wide mb-2">
+                                                <p className="text-xs text-black font-bold uppercase tracking-wide mb-2">
                                                     {request.submissionType === SubmissionType.SCRIPT
                                                         ? `Script: ${request.scriptFileName}`
                                                         : 'Query'}
@@ -188,10 +189,10 @@ export function ApprovalTable({
 
                                             {/* Full Comments */}
                                             <div>
-                                                <p className="text-xs text-zinc-500 uppercase tracking-wide mb-2">
+                                                <p className="text-xs text-black font-bold uppercase tracking-wide mb-2">
                                                     Full Comments
                                                 </p>
-                                                <p className="text-sm text-zinc-300 bg-[#111113] p-3 rounded-lg">
+                                                <p className="text-sm text-black bg-white border-2 border-black p-3 rounded-md shadow-[2px_2px_0_#000]">
                                                     {request.comments}
                                                 </p>
                                             </div>
@@ -199,16 +200,16 @@ export function ApprovalTable({
                                             {/* Metadata */}
                                             <div className="flex gap-6 text-sm">
                                                 <div>
-                                                    <span className="text-zinc-500">Submitted:</span>{' '}
-                                                    <span className="text-zinc-300">{formatDateShort(request.createdAt)}</span>
+                                                    <span className="text-[#6B6B6B] font-semibold">Submitted:</span>{' '}
+                                                    <span className="text-black">{formatDate(request.createdAt)}</span>
                                                 </div>
                                                 <div>
-                                                    <span className="text-zinc-500">Type:</span>{' '}
-                                                    <span className="text-zinc-300">{request.databaseType}</span>
+                                                    <span className="text-[#6B6B6B] font-semibold">Type:</span>{' '}
+                                                    <span className="text-black">{request.databaseType}</span>
                                                 </div>
                                                 <div>
-                                                    <span className="text-zinc-500">Submission:</span>{' '}
-                                                    <span className="text-zinc-300">{request.submissionType}</span>
+                                                    <span className="text-[#6B6B6B] font-semibold">Submission:</span>{' '}
+                                                    <span className="text-black">{request.submissionType}</span>
                                                 </div>
                                             </div>
                                         </div>

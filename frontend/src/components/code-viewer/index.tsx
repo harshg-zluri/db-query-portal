@@ -3,7 +3,7 @@ import hljs from 'highlight.js/lib/core';
 import sql from 'highlight.js/lib/languages/sql';
 import javascript from 'highlight.js/lib/languages/javascript';
 import json from 'highlight.js/lib/languages/json';
-import 'highlight.js/styles/atom-one-dark.css';
+import 'highlight.js/styles/github.css';
 import { cn } from '@utils/cn';
 
 // Register languages
@@ -45,7 +45,7 @@ export function CodeViewer({
     return (
         <div
             className={cn(
-                'relative bg-[#111113] border border-[#27272a] rounded-lg overflow-hidden',
+                'relative bg-white border-2 border-black rounded-md overflow-hidden shadow-[2px_2px_0_#000]',
                 className
             )}
         >
@@ -57,11 +57,11 @@ export function CodeViewer({
                     <table className="w-full border-collapse">
                         <tbody>
                             {lines.map((line, index) => (
-                                <tr key={index} className="hover:bg-[#1a1a1d]/50">
-                                    <td className="select-none text-right pr-4 pl-3 py-0 text-zinc-600 text-sm font-mono border-r border-[#27272a] sticky left-0 bg-[#111113]">
+                                <tr key={index} className="hover:bg-[#FEF34B]/20 transition-colors">
+                                    <td className="w-10 select-none text-right pr-4 pl-3 py-0 text-[#6B6B6B] text-sm font-mono border-r-2 border-black sticky left-0 bg-[#FAF9F6]">
                                         {index + 1}
                                     </td>
-                                    <td className="pl-4 pr-3 py-0">
+                                    <td className="px-2 py-1">
                                         <code
                                             ref={index === 0 ? codeRef : undefined}
                                             className={`language-${hlLanguage} font-mono text-sm block`}
@@ -75,7 +75,7 @@ export function CodeViewer({
                         </tbody>
                     </table>
                 ) : (
-                    <pre className="p-4 m-0 overflow-x-auto">
+                    <pre className="p-4 m-0 overflow-x-auto bg-white">
                         <code
                             ref={codeRef}
                             className={`language-${hlLanguage} font-mono text-sm`}

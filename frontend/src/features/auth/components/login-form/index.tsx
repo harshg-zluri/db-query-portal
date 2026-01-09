@@ -7,6 +7,7 @@ import { useLogin } from '@features/auth/queries/use-login';
 import { useAuthStore } from '@stores/auth-store';
 import { ROUTES } from '@constants/routes';
 import { loginSchema, type LoginFormData } from '@utils/schemas';
+import { UserRole } from '@/types';
 import toast from 'react-hot-toast';
 
 export function LoginForm() {
@@ -15,7 +16,16 @@ export function LoginForm() {
     const login = useAuthStore((state) => state.login);
     const loginMutation = useLogin();
 
-    const from = (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD;
+    const getDefaultRoute = (role: string) => {
+        // Redirect based on role
+        if (role === UserRole.ADMIN) {
+            return ROUTES.ADMIN;
+        }
+        if (role === UserRole.MANAGER) {
+            return ROUTES.APPROVALS;
+        }
+        return ROUTES.DASHBOARD;
+    };
 
     const {
         register,
@@ -34,7 +44,11 @@ export function LoginForm() {
             const result = await loginMutation.mutateAsync(data);
             login(result.accessToken, result.refreshToken, result.user);
             toast.success('Login successful!');
-            navigate(from, { replace: true });
+
+            // Check if there's a specific redirect location, otherwise use role-based redirect
+            const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+            const redirectTo = from || getDefaultRoute(result.user.role);
+            navigate(redirectTo, { replace: true });
         } catch (error: unknown) {
             const message = (error as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Invalid credentials';
             toast.error(message);

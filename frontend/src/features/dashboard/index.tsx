@@ -112,16 +112,16 @@ export function DashboardPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto animate-fade-in">
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-zinc-100">Submit Query Request</h1>
-                <p className="text-zinc-400 mt-1">
+                <h1 className="text-2xl font-bold text-black uppercase tracking-tight">Submit Query Request</h1>
+                <p className="text-[#6B6B6B] mt-1">
                     Create a new database query or script execution request
                 </p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-                <Card>
+                <Card animated>
                     <CardHeader>
                         <CardTitle>Request Details</CardTitle>
                         <CardDescription>
@@ -160,11 +160,11 @@ export function DashboardPage() {
                             control={control}
                             render={({ field }) => (
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-zinc-300">
-                                        Submission Type <span className="text-red-500">*</span>
+                                    <label className="block text-sm font-semibold text-black uppercase tracking-wide">
+                                        Submission Type <span className="text-[#ef4444]">*</span>
                                     </label>
                                     <div className="flex gap-4">
-                                        <label className="flex items-center gap-2 cursor-pointer">
+                                        <label className="flex items-center gap-2 cursor-pointer group">
                                             <input
                                                 type="radio"
                                                 value="query"
@@ -173,11 +173,11 @@ export function DashboardPage() {
                                                     field.onChange('query');
                                                     setValue('script', null);
                                                 }}
-                                                className="w-4 h-4 text-blue-600 bg-[#111113] border-[#27272a] focus:ring-blue-500"
+                                                className="w-5 h-5 text-[#FEF34B] bg-white border-2 border-black focus:ring-[#FEF34B] focus:ring-offset-0 cursor-pointer"
                                             />
-                                            <span className="text-sm text-zinc-300">Query</span>
+                                            <span className="text-sm font-medium text-black group-hover:text-[#5791FF] transition-colors">Query</span>
                                         </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
+                                        <label className="flex items-center gap-2 cursor-pointer group">
                                             <input
                                                 type="radio"
                                                 value="script"
@@ -186,9 +186,9 @@ export function DashboardPage() {
                                                     field.onChange('script');
                                                     setValue('query', '');
                                                 }}
-                                                className="w-4 h-4 text-blue-600 bg-[#111113] border-[#27272a] focus:ring-blue-500"
+                                                className="w-5 h-5 text-[#FEF34B] bg-white border-2 border-black focus:ring-[#FEF34B] focus:ring-offset-0 cursor-pointer"
                                             />
-                                            <span className="text-sm text-zinc-300">Script</span>
+                                            <span className="text-sm font-medium text-black group-hover:text-[#5791FF] transition-colors">Script</span>
                                         </label>
                                     </div>
                                 </div>
@@ -216,18 +216,18 @@ export function DashboardPage() {
                             name="comments"
                             control={control}
                             render={({ field }) => (
-                                <div className="space-y-1.5">
-                                    <label className="block text-sm font-medium text-zinc-300">
-                                        Comments <span className="text-red-500">*</span>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-semibold text-black uppercase tracking-wide">
+                                        Comments <span className="text-[#ef4444]">*</span>
                                     </label>
                                     <textarea
                                         {...field}
                                         placeholder="Describe what this query does and why it's needed..."
-                                        className={`w-full px-3 py-2 bg-[#111113] border rounded-lg text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none h-24 ${errors.comments ? 'border-red-500' : 'border-[#27272a] hover:border-[#3f3f46]'
+                                        className={`w-full px-3 py-2.5 bg-white border-2 rounded-md text-black placeholder-[#6B6B6B] focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1 transition-all duration-150 resize-none h-24 hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000] ${errors.comments ? 'border-[#ef4444]' : 'border-black'
                                             }`}
                                     />
                                     {errors.comments && (
-                                        <p className="text-sm text-red-500">{errors.comments.message}</p>
+                                        <p className="text-sm text-[#ef4444] font-medium">{errors.comments.message}</p>
                                     )}
                                 </div>
                             )}

@@ -49,7 +49,7 @@ export function Modal({
         <div className="fixed inset-0 z-50 overflow-y-auto">
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+                className="fixed inset-0 bg-black/40 transition-opacity animate-fade-in"
                 onClick={onClose}
             />
 
@@ -58,26 +58,33 @@ export function Modal({
                 <div
                     ref={modalRef}
                     className={cn(
-                        'relative w-full bg-[#111113] border border-[#27272a] rounded-xl shadow-2xl',
-                        'transform transition-all duration-200',
-                        'animate-in fade-in zoom-in-95',
+                        'relative w-full bg-white border-3 border-black rounded-md',
+                        'shadow-[6px_6px_0_#000]',
+                        'animate-scale-in',
                         sizes[size]
                     )}
+                    style={{ borderWidth: '3px' }}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
                     {(title || showCloseButton) && (
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#27272a]">
+                        <div className="flex items-center justify-between px-6 py-4 border-b-2 border-black">
                             {title && (
-                                <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
+                                <h2 className="text-lg font-bold text-black uppercase tracking-wide">{title}</h2>
                             )}
                             {showCloseButton && (
                                 <button
                                     onClick={onClose}
-                                    className="p-1 text-zinc-400 hover:text-zinc-100 hover:bg-[#1a1a1d] rounded-lg transition-colors"
+                                    className={cn(
+                                        'p-2 text-black border-2 border-black rounded-md',
+                                        'shadow-[2px_2px_0_#000] hover:shadow-none',
+                                        'hover:translate-x-[2px] hover:translate-y-[2px]',
+                                        'hover:bg-[#FAF9F6]',
+                                        'transition-all duration-150'
+                                    )}
                                 >
                                     <svg
-                                        className="w-5 h-5"
+                                        className="w-4 h-4"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -104,7 +111,7 @@ export function Modal({
 
 export function ModalFooter({ children, className }: { children: ReactNode; className?: string }) {
     return (
-        <div className={cn('flex justify-end gap-3 pt-4 mt-4 border-t border-[#27272a]', className)}>
+        <div className={cn('flex justify-end gap-3 pt-4 mt-4 border-t-2 border-black', className)}>
             {children}
         </div>
     );

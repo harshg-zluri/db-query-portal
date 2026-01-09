@@ -36,8 +36,8 @@ export function SubmissionDetailModal({
                 {/* Header Info */}
                 <div className="flex items-start justify-between">
                     <div>
-                        <p className="text-xs text-zinc-500 font-mono">ID: {request.id}</p>
-                        <p className="text-sm text-zinc-400 mt-1">
+                        <p className="text-xs text-[#6B6B6B] font-mono">ID: {request.id}</p>
+                        <p className="text-sm text-[#6B6B6B] mt-1">
                             Submitted on {formatDate(request.createdAt)}
                         </p>
                     </div>
@@ -45,31 +45,31 @@ export function SubmissionDetailModal({
                 </div>
 
                 {/* Metadata Grid */}
-                <div className="grid grid-cols-2 gap-4 p-4 bg-[#0a0a0b] rounded-lg">
+                <div className="grid grid-cols-2 gap-4 p-4 bg-[#FAF9F6] border-2 border-black rounded-md shadow-[2px_2px_0_#000]">
                     <div>
-                        <p className="text-xs text-zinc-500 uppercase tracking-wide">Database Type</p>
-                        <p className="text-sm text-zinc-100 mt-1">{request.databaseType}</p>
+                        <p className="text-xs text-black font-bold uppercase tracking-wide">Database Type</p>
+                        <p className="text-sm text-black mt-1">{request.databaseType}</p>
                     </div>
                     <div>
-                        <p className="text-xs text-zinc-500 uppercase tracking-wide">Instance</p>
-                        <p className="text-sm text-zinc-100 mt-1">{request.instanceName}</p>
+                        <p className="text-xs text-black font-bold uppercase tracking-wide">Instance</p>
+                        <p className="text-sm text-black mt-1">{request.instanceName}</p>
                     </div>
                     <div>
-                        <p className="text-xs text-zinc-500 uppercase tracking-wide">Database</p>
-                        <p className="text-sm text-zinc-100 mt-1">{request.databaseName}</p>
+                        <p className="text-xs text-black font-bold uppercase tracking-wide">Database</p>
+                        <p className="text-sm text-black mt-1">{request.databaseName}</p>
                     </div>
                     <div>
-                        <p className="text-xs text-zinc-500 uppercase tracking-wide">POD</p>
-                        <p className="text-sm text-zinc-100 mt-1">{request.podName}</p>
+                        <p className="text-xs text-black font-bold uppercase tracking-wide">POD</p>
+                        <p className="text-sm text-black mt-1">{request.podName}</p>
                     </div>
                 </div>
 
                 {/* Warnings */}
                 {request.warnings && request.warnings.length > 0 && (
-                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <div className="p-4 bg-[#FEF3C7] border-2 border-[#F59E0B] rounded-md shadow-[2px_2px_0_#000]">
                         <div className="flex items-center gap-2 mb-2">
                             <svg
-                                className="w-5 h-5 text-amber-500"
+                                className="w-5 h-5 text-[#92400E]"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -81,12 +81,12 @@ export function SubmissionDetailModal({
                                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                                 />
                             </svg>
-                            <span className="text-sm font-medium text-amber-500">Security Warnings</span>
+                            <span className="text-sm font-bold text-[#92400E] uppercase">Security Warnings</span>
                         </div>
-                        <ul className="space-y-1">
+                        <ul className="space-y-1 list-none">
                             {request.warnings.map((warning, index) => (
-                                <li key={index} className="text-sm text-amber-200/80">
-                                    • {warning}
+                                <li key={index} className="text-sm text-[#92400E]">
+                                    {warning}
                                 </li>
                             ))}
                         </ul>
@@ -95,7 +95,7 @@ export function SubmissionDetailModal({
 
                 {/* Query/Script Content */}
                 <div>
-                    <p className="text-xs text-zinc-500 uppercase tracking-wide mb-2">
+                    <p className="text-xs text-black font-bold uppercase tracking-wide mb-2">
                         {request.submissionType === SubmissionType.SCRIPT
                             ? `Script: ${request.scriptFileName}`
                             : 'Query'}
@@ -113,8 +113,8 @@ export function SubmissionDetailModal({
 
                 {/* Comments */}
                 <div>
-                    <p className="text-xs text-zinc-500 uppercase tracking-wide mb-2">Comments</p>
-                    <p className="text-sm text-zinc-300 bg-[#0a0a0b] p-3 rounded-lg">
+                    <p className="text-xs text-black font-bold uppercase tracking-wide mb-2">Comments</p>
+                    <p className="text-sm text-black bg-[#FAF9F6] border-2 border-black p-3 rounded-md shadow-[2px_2px_0_#000]">
                         {request.comments}
                     </p>
                 </div>
@@ -122,7 +122,7 @@ export function SubmissionDetailModal({
                 {/* Execution Result */}
                 {request.executionResult && (
                     <div>
-                        <p className="text-xs text-zinc-500 uppercase tracking-wide mb-2">Execution Result</p>
+                        <p className="text-xs text-black font-bold uppercase tracking-wide mb-2">Execution Result</p>
                         <CodeViewer
                             code={request.executionResult}
                             language="json"
@@ -133,9 +133,9 @@ export function SubmissionDetailModal({
 
                 {/* Execution Error */}
                 {request.executionError && (
-                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                        <p className="text-xs text-zinc-500 uppercase tracking-wide mb-2">Execution Error</p>
-                        <pre className="text-sm text-red-400 font-mono whitespace-pre-wrap">
+                    <div className="p-4 bg-[#FEE2E2] border-2 border-[#EF4444] rounded-md shadow-[2px_2px_0_#000]">
+                        <p className="text-xs text-black font-bold uppercase tracking-wide mb-2">Execution Error</p>
+                        <pre className="text-sm text-[#991B1B] font-mono whitespace-pre-wrap">
                             {request.executionError}
                         </pre>
                     </div>
@@ -143,19 +143,19 @@ export function SubmissionDetailModal({
 
                 {/* Rejection Reason */}
                 {request.rejectionReason && (
-                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                        <p className="text-xs text-zinc-500 uppercase tracking-wide mb-2">Rejection Reason</p>
-                        <p className="text-sm text-red-400">{request.rejectionReason}</p>
+                    <div className="p-4 bg-[#FEE2E2] border-2 border-[#EF4444] rounded-md shadow-[2px_2px_0_#000]">
+                        <p className="text-xs text-black font-bold uppercase tracking-wide mb-2">Rejection Reason</p>
+                        <p className="text-sm text-[#991B1B]">{request.rejectionReason}</p>
                     </div>
                 )}
 
                 {/* Approver Info */}
                 {request.approverEmail && (
                     <div>
-                        <p className="text-xs text-zinc-500 uppercase tracking-wide mb-1">
+                        <p className="text-xs text-black font-bold uppercase tracking-wide mb-1">
                             {request.status === 'rejected' ? 'Rejected by' : 'Approved by'}
                         </p>
-                        <p className="text-sm text-zinc-300">{request.approverEmail}</p>
+                        <p className="text-sm text-black">{request.approverEmail}</p>
                     </div>
                 )}
             </div>

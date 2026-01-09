@@ -28,7 +28,7 @@ export function SubmissionTable({
 }: SubmissionTableProps) {
     if (isLoading) {
         return (
-            <div className="bg-[#111113] border border-[#27272a] rounded-lg overflow-hidden">
+            <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000] overflow-hidden">
                 <SkeletonTable rows={5} columns={6} />
             </div>
         );
@@ -37,13 +37,13 @@ export function SubmissionTable({
     if (isEmpty) {
         if (hasFilters) {
             return (
-                <div className="bg-[#111113] border border-[#27272a] rounded-lg">
+                <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000]">
                     <NoResultsEmpty onClear={onClearFilters} />
                 </div>
             );
         }
         return (
-            <div className="bg-[#111113] border border-[#27272a] rounded-lg">
+            <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000]">
                 <NoSubmissionsEmpty onCreateNew={onCreateNew} />
             </div>
         );
@@ -62,55 +62,56 @@ export function SubmissionTable({
     };
 
     return (
-        <div className="bg-[#111113] border border-[#27272a] rounded-lg overflow-hidden">
+        <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000] overflow-hidden">
             <table className="w-full">
                 <thead>
-                    <tr className="border-b border-[#27272a] bg-[#0a0a0b]">
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                    <tr className="border-b-2 border-black bg-[#FAF9F6]">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             ID
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             Database
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             Query/Script
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             Status
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             Date
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
                             Actions
                         </th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-[#27272a]">
-                    {requests.map((request) => (
+                <tbody className="divide-y-2 divide-black">
+                    {requests.map((request, index) => (
                         <tr
                             key={request.id}
-                            className="hover:bg-[#1a1a1d]/50 transition-colors"
+                            className="hover:bg-[#FEF34B]/20 transition-colors animate-fade-in"
+                            style={{ animationDelay: `${index * 50}ms` }}
                         >
-                            <td className="px-4 py-3 text-sm text-zinc-400 font-mono">
+                            <td className="px-4 py-3 text-sm text-[#6B6B6B] font-mono">
                                 {request.id.slice(0, 8)}
                             </td>
                             <td className="px-4 py-3">
-                                <div className="text-sm text-zinc-100">{request.instanceName}</div>
-                                <div className="text-xs text-zinc-500">{request.databaseName}</div>
+                                <div className="text-sm font-semibold text-black">{request.instanceName}</div>
+                                <div className="text-xs text-[#6B6B6B]">{request.databaseName}</div>
                             </td>
                             <td className="px-4 py-3">
                                 <div className="flex items-center gap-2">
                                     {request.databaseType === DatabaseType.MONGODB ? (
-                                        <span className="text-xs px-1.5 py-0.5 bg-green-500/10 text-green-500 rounded">
+                                        <span className="text-xs px-2 py-0.5 bg-[#DCFCE7] text-[#166534] border border-[#22C55E] rounded font-semibold">
                                             Mongo
                                         </span>
                                     ) : (
-                                        <span className="text-xs px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded">
+                                        <span className="text-xs px-2 py-0.5 bg-[#DBEAFE] text-[#1E40AF] border border-[#3B82F6] rounded font-semibold">
                                             SQL
                                         </span>
                                     )}
-                                    <span className="text-sm text-zinc-300 font-mono truncate max-w-[200px]">
+                                    <span className="text-sm text-black font-mono truncate max-w-[200px]">
                                         {getQueryPreview(request)}
                                     </span>
                                 </div>
@@ -118,14 +119,14 @@ export function SubmissionTable({
                             <td className="px-4 py-3">
                                 <StatusBadge status={request.status} />
                             </td>
-                            <td className="px-4 py-3 text-sm text-zinc-400">
+                            <td className="px-4 py-3 text-sm text-[#6B6B6B]">
                                 {formatDateShort(request.createdAt)}
                             </td>
                             <td className="px-4 py-3">
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => onView(request)}
-                                        className="p-1.5 text-zinc-400 hover:text-zinc-100 hover:bg-[#1a1a1d] rounded transition-colors"
+                                        className="p-2 text-black border-2 border-black rounded-md shadow-[2px_2px_0_#000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-[#FAF9F6] transition-all duration-150"
                                         title="View details"
                                     >
                                         <svg
@@ -151,7 +152,7 @@ export function SubmissionTable({
                                     {canClone(request) && (
                                         <button
                                             onClick={() => onClone(request)}
-                                            className="p-1.5 text-zinc-400 hover:text-zinc-100 hover:bg-[#1a1a1d] rounded transition-colors"
+                                            className="p-2 text-black border-2 border-black rounded-md shadow-[2px_2px_0_#000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-[#FAF9F6] transition-all duration-150"
                                             title="Clone & resubmit"
                                         >
                                             <svg

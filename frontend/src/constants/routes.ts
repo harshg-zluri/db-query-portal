@@ -4,6 +4,7 @@ export const ROUTES = {
     DASHBOARD: '/dashboard',
     SUBMISSIONS: '/submissions',
     APPROVALS: '/approvals',
+    ADMIN: '/admin',
     REQUEST_DETAIL: (id: string) => `/requests/${id}`,
 } as const;
 
@@ -27,4 +28,11 @@ export const NAV_ITEMS = [
         icon: 'approvals',
         roles: ['manager', 'admin'],
     },
+    {
+        path: ROUTES.ADMIN,
+        label: 'Admin Panel',
+        icon: 'admin',
+        roles: ['admin'],
+    },
 ] as const;
+

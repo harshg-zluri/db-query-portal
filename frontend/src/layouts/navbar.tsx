@@ -4,6 +4,7 @@ import { ROUTES } from '@constants/routes';
 import { Button } from '@components/button';
 import apiClient from '@queries/api-client';
 import toast from 'react-hot-toast';
+import Logo from '@assets/logo.svg';
 
 export function Navbar() {
     const { user, logout } = useAuthStore();
@@ -22,20 +23,21 @@ export function Navbar() {
     };
 
     return (
-        <header className="h-16 bg-[#111113] border-b border-[#27272a] flex items-center justify-between px-6">
-            <div>
-                <h2 className="text-lg font-semibold text-zinc-100">
+        <header className="h-16 bg-white border-b-2 border-black flex items-center justify-between px-6">
+            <div className="flex items-center gap-3 justify-center">
+                <img src={Logo} alt="Zluri" className="h-8" />
+                <h2 className="text-lg font-bold text-black uppercase tracking-wide pt-3">
                     Database Query Portal
                 </h2>
             </div>
 
             <div className="flex items-center gap-4">
                 <div className="text-right">
-                    <p className="text-sm text-zinc-100">{user?.name}</p>
-                    <p className="text-xs text-zinc-500">{user?.role}</p>
+                    <p className="text-sm font-semibold text-black">{user?.name}</p>
+                    <p className="text-xs text-[#6B6B6B] uppercase tracking-wide">{user?.role}</p>
                 </div>
 
-                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                <Button variant="secondary" size="sm" onClick={handleLogout}>
                     <svg
                         className="w-4 h-4 mr-2"
                         fill="none"

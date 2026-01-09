@@ -12,34 +12,35 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
         return (
-            <div className="space-y-1.5">
+            <div className="space-y-2">
                 {label && (
                     <label
                         htmlFor={inputId}
-                        className="block text-sm font-medium text-zinc-300"
+                        className="block text-sm font-semibold text-black uppercase tracking-wide"
                     >
                         {label}
-                        {props.required && <span className="text-red-500 ml-1">*</span>}
+                        {props.required && <span className="text-[#ef4444] ml-1">*</span>}
                     </label>
                 )}
                 <input
                     ref={ref}
                     id={inputId}
                     className={cn(
-                        'w-full px-3 py-2 bg-[#111113] border rounded-lg text-zinc-100 placeholder-zinc-500',
-                        'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                        'disabled:opacity-50 disabled:cursor-not-allowed',
-                        'transition-all duration-200',
-                        error ? 'border-red-500' : 'border-[#27272a] hover:border-[#3f3f46]',
+                        'w-full px-3 py-2.5 bg-white border-2 rounded-md text-black placeholder-[#6B6B6B]',
+                        'focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1',
+                        'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[#FAF9F6]',
+                        'transition-all duration-150',
+                        'hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000]',
+                        error ? 'border-[#ef4444]' : 'border-black',
                         className
                     )}
                     {...props}
                 />
                 {error && (
-                    <p className="text-sm text-red-500">{error}</p>
+                    <p className="text-sm text-[#ef4444] font-medium">{error}</p>
                 )}
                 {hint && !error && (
-                    <p className="text-sm text-zinc-500">{hint}</p>
+                    <p className="text-sm text-[#6B6B6B]">{hint}</p>
                 )}
             </div>
         );

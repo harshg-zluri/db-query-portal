@@ -28,11 +28,11 @@ export function EmptyState({
             )}
         >
             {icon ? (
-                <div className="text-zinc-500 mb-4">{icon}</div>
+                <div className="text-black mb-4">{icon}</div>
             ) : (
-                <div className="w-16 h-16 mb-4 rounded-full bg-[#1a1a1d] flex items-center justify-center">
+                <div className="w-16 h-16 mb-4 rounded-md border-2 border-black bg-[#FAF9F6] flex items-center justify-center shadow-[2px_2px_0_#000]">
                     <svg
-                        className="w-8 h-8 text-zinc-500"
+                        className="w-8 h-8 text-black"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -40,17 +40,17 @@ export function EmptyState({
                         <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            strokeWidth={1.5}
+                            strokeWidth={2}
                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                         />
                     </svg>
                 </div>
             )}
 
-            <h3 className="text-lg font-medium text-zinc-100 mb-1">{title}</h3>
+            <h3 className="text-lg font-bold text-black uppercase tracking-tight mb-1">{title}</h3>
 
             {description && (
-                <p className="text-sm text-zinc-400 max-w-sm mb-4">{description}</p>
+                <p className="text-sm text-[#6B6B6B] max-w-sm mb-4">{description}</p>
             )}
 
             {action && (
@@ -71,7 +71,7 @@ export function NoSubmissionsEmpty({ onCreateNew }: { onCreateNew: () => void })
                     <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth={1.5}
+                        strokeWidth={2}
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                 </svg>
@@ -87,11 +87,11 @@ export function NoPendingRequestsEmpty() {
     return (
         <EmptyState
             icon={
-                <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-12 h-12 text-[#22C55E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth={1.5}
+                        strokeWidth={2}
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                 </svg>
@@ -110,7 +110,7 @@ export function NoResultsEmpty({ onClear }: { onClear?: () => void }) {
                     <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth={1.5}
+                        strokeWidth={2}
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                     />
                 </svg>

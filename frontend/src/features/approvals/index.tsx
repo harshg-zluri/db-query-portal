@@ -47,11 +47,11 @@ export function ApprovalsPage() {
     };
 
     return (
-        <div>
+        <div className="animate-fade-in">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-zinc-100">Approval Dashboard</h1>
-                    <p className="text-zinc-400 mt-1">
+                    <h1 className="text-2xl font-bold text-black uppercase tracking-tight">Approval Dashboard</h1>
+                    <p className="text-[#6B6B6B] mt-1">
                         Review and approve pending query requests
                     </p>
                 </div>
@@ -75,11 +75,11 @@ export function ApprovalsPage() {
 
             {/* Summary */}
             {pagination && (
-                <div className="mb-4 p-4 bg-[#111113] border border-[#27272a] rounded-lg flex items-center gap-6">
-                    <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                <div className="mb-4 p-4 bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000] flex items-center gap-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-[#FEF34B] border-2 border-black rounded-md flex items-center justify-center shadow-[2px_2px_0_#000]">
                             <svg
-                                className="w-5 h-5 text-amber-500"
+                                className="w-6 h-6 text-black"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -93,8 +93,8 @@ export function ApprovalsPage() {
                             </svg>
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-zinc-100">{pagination.total}</p>
-                            <p className="text-xs text-zinc-500">Pending Requests</p>
+                            <p className="text-3xl font-bold text-black">{pagination.total}</p>
+                            <p className="text-xs text-[#6B6B6B] uppercase tracking-wide font-semibold">Pending Requests</p>
                         </div>
                     </div>
                 </div>
@@ -122,7 +122,7 @@ export function ApprovalsPage() {
                         Previous
                     </Button>
 
-                    <span className="text-sm text-zinc-400 px-4">
+                    <span className="text-sm text-black font-semibold px-4 py-2 bg-white border-2 border-black rounded-md shadow-[2px_2px_0_#000]">
                         Page {page} of {pagination.totalPages}
                     </span>
 

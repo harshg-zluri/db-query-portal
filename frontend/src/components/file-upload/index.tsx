@@ -87,17 +87,17 @@ export function FileUpload({
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 className={cn(
-                    'relative border-2 border-dashed rounded-lg transition-all duration-200',
+                    'relative border-2 border-dashed rounded-md transition-all duration-150',
                     'flex flex-col items-center justify-center py-8 px-4',
                     disabled
-                        ? 'opacity-50 cursor-not-allowed border-[#27272a] bg-[#0a0a0b]'
+                        ? 'opacity-50 cursor-not-allowed border-[#9CA3AF] bg-[#FAF9F6]'
                         : isDragging
-                            ? 'border-blue-500 bg-blue-500/5'
+                            ? 'border-[#5791FF] bg-[#DBEAFE] shadow-[4px_4px_0_#000]'
                             : displayError
-                                ? 'border-red-500 bg-red-500/5'
+                                ? 'border-[#ef4444] bg-[#FEE2E2]'
                                 : selectedFile
-                                    ? 'border-green-500/50 bg-green-500/5'
-                                    : 'border-[#27272a] hover:border-[#3f3f46] bg-[#111113]'
+                                    ? 'border-[#22c55e] bg-[#DCFCE7] shadow-[2px_2px_0_#000]'
+                                    : 'border-black bg-white hover:shadow-[2px_2px_0_#000] hover:border-black'
                 )}
             >
                 <input
@@ -111,7 +111,7 @@ export function FileUpload({
                 {selectedFile ? (
                     <>
                         <svg
-                            className="w-8 h-8 text-green-500 mb-2"
+                            className="w-8 h-8 text-[#22c55e] mb-2"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -123,15 +123,15 @@ export function FileUpload({
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                         </svg>
-                        <p className="text-sm font-medium text-zinc-100">{selectedFile.name}</p>
-                        <p className="text-xs text-zinc-500 mt-1">
+                        <p className="text-sm font-bold text-black">{selectedFile.name}</p>
+                        <p className="text-xs text-[#6B6B6B] mt-1">
                             {(selectedFile.size / 1024).toFixed(1)} KB
                         </p>
                     </>
                 ) : (
                     <>
                         <svg
-                            className="w-8 h-8 text-zinc-500 mb-2"
+                            className="w-8 h-8 text-black mb-2"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -139,21 +139,21 @@ export function FileUpload({
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                strokeWidth={1.5}
+                                strokeWidth={2}
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                             />
                         </svg>
-                        <p className="text-sm text-zinc-300">
-                            <span className="font-medium text-blue-500">Click to upload</span> or drag and drop
+                        <p className="text-sm text-black">
+                            <span className="font-bold text-[#5791FF]">Click to upload</span> or drag and drop
                         </p>
-                        <p className="text-xs text-zinc-500 mt-1">
+                        <p className="text-xs text-[#6B6B6B] mt-1">
                             {accept} files up to {Math.round(maxSize / 1024 / 1024)}MB
                         </p>
                     </>
                 )}
             </div>
 
-            {displayError && <p className="text-sm text-red-500">{displayError}</p>}
+            {displayError && <p className="text-sm text-[#ef4444] font-medium">{displayError}</p>}
         </div>
     );
 }

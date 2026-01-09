@@ -67,11 +67,11 @@ export function SubmissionsPage() {
     };
 
     return (
-        <div>
+        <div className="animate-fade-in">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-zinc-100">My Submissions</h1>
-                    <p className="text-zinc-400 mt-1">
+                    <h1 className="text-2xl font-bold text-black uppercase tracking-tight">My Submissions</h1>
+                    <p className="text-[#6B6B6B] mt-1">
                         Track and manage your query requests
                     </p>
                 </div>
@@ -108,7 +108,7 @@ export function SubmissionsPage() {
                 </div>
 
                 {pagination && (
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-sm text-[#6B6B6B] font-medium">
                         Showing {requests.length} of {pagination.total} submissions
                     </p>
                 )}
@@ -138,7 +138,7 @@ export function SubmissionsPage() {
                         Previous
                     </Button>
 
-                    <span className="text-sm text-zinc-400 px-4">
+                    <span className="text-sm text-black font-semibold px-4 py-2 bg-white border-2 border-black rounded-md shadow-[2px_2px_0_#000]">
                         Page {page} of {pagination.totalPages}
                     </span>
 

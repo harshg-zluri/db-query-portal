@@ -57,30 +57,38 @@ export function QueryEditor({
     };
 
     return (
-        <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-zinc-300">
-                Query <span className="text-red-500">*</span>
+        <div className="space-y-2">
+            <label className="block text-sm font-semibold text-black uppercase tracking-wide">
+                Query <span className="text-[#ef4444]">*</span>
             </label>
 
             <div
                 className={cn(
-                    'relative rounded-lg border overflow-hidden transition-all duration-200',
+                    'relative rounded-md border-2 overflow-hidden transition-all duration-150 bg-white',
                     error
-                        ? 'border-red-500'
+                        ? 'border-[#ef4444]'
                         : isFocused
-                            ? 'border-blue-500 ring-2 ring-blue-500/20'
-                            : 'border-[#27272a] hover:border-[#3f3f46]'
+                            ? 'border-black ring-2 ring-[#FEF34B] shadow-[2px_2px_0_#000]'
+                            : 'border-black hover:shadow-[2px_2px_0_#000]'
                 )}
             >
                 {/* Syntax highlighted overlay */}
                 <pre
                     ref={highlightRef}
-                    className="absolute inset-0 p-0 m-0 overflow-auto pointer-events-none font-mono text-sm leading-6 whitespace-pre-wrap break-words"
+                    className="absolute inset-0 p-0 m-0 overflow-auto pointer-events-none font-mono text-sm leading-6 whitespace-pre-wrap break-words bg-transparent"
                     aria-hidden="true"
                 >
                     <code
-                        className={`language-${language} whitespace-pre-wrap break-words`}
-                        style={{ fontFamily: 'inherit', fontSize: 'inherit', padding: 0, margin: 0, border: 0, background: 'transparent' }}
+                        className={`language-${language} whitespace-pre-wrap break-words !text-black`}
+                        style={{
+                            fontFamily: 'inherit',
+                            fontSize: 'inherit',
+                            padding: 0,
+                            margin: 0,
+                            border: 0,
+                            background: 'transparent',
+                            color: '#000'
+                        }}
                     >
                         {value || ' '}
                     </code>
@@ -96,18 +104,18 @@ export function QueryEditor({
                     onBlur={() => setIsFocused(false)}
                     placeholder={getPlaceholder()}
                     className={cn(
-                        'relative w-full h-48 p-4 bg-transparent text-transparent caret-zinc-100',
+                        'relative w-full h-48 p-4 bg-transparent text-transparent caret-black',
                         'font-mono text-sm leading-6 resize-none',
                         'focus:outline-none',
-                        'placeholder:text-zinc-600'
+                        'placeholder:text-[#9CA3AF]'
                     )}
                     spellCheck={false}
                 />
             </div>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-[#ef4444] font-medium">{error}</p>}
 
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-[#6B6B6B]">
                 {databaseType === DatabaseType.MONGODB
                     ? 'Enter a MongoDB query (JavaScript syntax)'
                     : 'Enter a SQL query'}
