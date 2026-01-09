@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@queries/api-client';
-import type { User, Pod, PaginatedResponse, ApiResponse } from '@/types';
+import type { User, Pod, ApiResponse } from '@/types';
 
 // Query keys
 export const adminKeys = {
@@ -45,7 +45,7 @@ export function useUsers(search?: string, page: number = 1) {
             const params = new URLSearchParams();
             if (search) params.set('search', search);
             params.set('page', page.toString());
-            params.set('limit', '20');
+            params.set('limit', '10');
 
             const { data } = await apiClient.get<UsersResponse>(`/admin/users?${params}`);
             return data;

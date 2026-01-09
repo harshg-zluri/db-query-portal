@@ -6,7 +6,7 @@ import { NoPendingRequestsEmpty } from '@components/empty-state';
 import { CodeViewer } from '@components/code-viewer';
 import { WarningsDisplay } from '../warnings-display';
 import { ApprovalActions } from '../approval-actions';
-import { formatDate, formatDateShort } from '@utils/format-date';
+import { formatDate } from '@utils/format-date';
 import { cn } from '@utils/cn';
 
 interface ApprovalTableProps {

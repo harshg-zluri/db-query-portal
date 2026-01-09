@@ -7,25 +7,16 @@ import { Input } from '@components/input';
 import { Select } from '@components/select';
 import { Button } from '@components/button';
 import type { User, Pod } from '@/types';
-import { UserRole } from '@/types';
 
-const createUserSchema = z.object({
+const userSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
+    password: z.string().optional(),
     role: z.enum(['developer', 'manager', 'admin']),
     managedPodIds: z.array(z.string()).optional(),
 });
 
-const updateUserSchema = z.object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters').optional().or(z.literal('')),
-    role: z.enum(['developer', 'manager', 'admin']),
-    managedPodIds: z.array(z.string()).optional(),
-});
-
-type FormData = z.infer<typeof createUserSchema>;
+type FormData = z.infer<typeof userSchema>;
 
 interface UserFormModalProps {
     isOpen: boolean;
@@ -54,7 +45,7 @@ export function UserFormModal({
         setValue,
         formState: { errors },
     } = useForm<FormData>({
-        resolver: zodResolver(isEditing ? updateUserSchema : createUserSchema),
+        resolver: zodResolver(userSchema),
         defaultValues: {
             name: '',
             email: '',
@@ -88,6 +79,10 @@ export function UserFormModal({
     }, [user, reset]);
 
     const handleFormSubmit = (data: FormData) => {
+        // Validate password for new users
+        if (!isEditing && (!data.password || data.password.length < 8)) {
+            return;
+        }
         // Remove password if editing and no new password provided
         if (isEditing && !data.password) {
             const { password, ...rest } = data;
@@ -130,7 +125,7 @@ export function UserFormModal({
                 />
 
                 <Input
-                    label={isEditing ? 'New Password (leave blank to keep current)' : 'Password'}
+                    label={isEditing ? 'New Password (leave blank to keep current)' : 'Password (min 8 characters)'}
                     type="password"
                     placeholder="••••••••"
                     {...register('password')}
@@ -161,8 +156,8 @@ export function UserFormModal({
                                     type="button"
                                     onClick={() => togglePod(pod.id)}
                                     className={`px-3 py-1.5 text-sm font-semibold border-2 rounded-md transition-all duration-150 ${selectedPods.includes(pod.id)
-                                            ? 'bg-[#FEF34B] border-black text-black shadow-[2px_2px_0_#000]'
-                                            : 'bg-white border-black text-black hover:bg-[#FAF9F6]'
+                                        ? 'bg-[#FEF34B] border-black text-black shadow-[2px_2px_0_#000]'
+                                        : 'bg-white border-black text-black hover:bg-[#FAF9F6]'
                                         }`}
                                 >
                                     {pod.name}

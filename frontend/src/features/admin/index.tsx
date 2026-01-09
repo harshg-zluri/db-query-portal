@@ -1,6 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@components/button';
-import { Input } from '@components/input';
 import { Modal, ModalFooter } from '@components/modal';
 import { UserTable } from './components/user-table';
 import { UserFormModal } from './components/user-form-modal';
@@ -15,11 +14,14 @@ export function AdminPage() {
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [deletingUser, setDeletingUser] = useState<User | null>(null);
 
-    // Debounce search
+    // Debounce search with useEffect
     const [debouncedSearch, setDebouncedSearch] = useState('');
 
-    useMemo(() => {
-        const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 400);
+
         return () => clearTimeout(timer);
     }, [search]);
 
