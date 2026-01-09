@@ -15,7 +15,7 @@ const router = Router();
 
 // All admin routes require authentication and admin role
 router.use(authenticate);
-router.use(requireRole([UserRole.ADMIN]));
+router.use(requireRole(UserRole.ADMIN));
 
 // User management
 router.get('/users', getUsers);
