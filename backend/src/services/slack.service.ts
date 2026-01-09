@@ -256,59 +256,66 @@ export class SlackService {
 
         return [
             {
-                type: 'header',
+                type: 'header' as const,
                 text: {
-                    type: 'plain_text',
+                    type: 'plain_text' as const,
                     text: `🆕 New ${request.submissionType.toUpperCase()} Request`,
                     emoji: true
                 }
             },
             {
-                type: 'section',
+                type: 'section' as const,
                 fields: [
                     {
-                        type: 'mrkdwn',
+                        type: 'mrkdwn' as const,
                         text: `*Database Type:*\n${request.databaseType}`
                     },
                     {
-                        type: 'mrkdwn',
+                        type: 'mrkdwn' as const,
                         text: `*Instance:*\n${request.instanceName}`
                     },
                     {
-                        type: 'mrkdwn',
+                        type: 'mrkdwn' as const,
                         text: `*Database:*\n${request.databaseName || 'N/A'}`
                     },
                     {
-                        type: 'mrkdwn',
+                        type: 'mrkdwn' as const,
                         text: `*POD:*\n${request.podName}`
                     }
                 ]
             },
             {
-                type: 'section',
+                type: 'section' as const,
                 text: {
-                    type: 'mrkdwn',
+                    type: 'mrkdwn' as const,
                     text: `*Requester:*\n${request.userEmail}`
                 }
             },
-            {
-                type: 'section',
+            ...(request.comments ? [{
+                type: 'section' as const,
                 text: {
-                    type: 'mrkdwn',
+                    type: 'mrkdwn' as const,
+                    text: `*Reason/Comments:*\n${request.comments}`
+                }
+            }] : []),
+            {
+                type: 'section' as const,
+                text: {
+                    type: 'mrkdwn' as const,
                     text: `*Query Preview:*\n\`\`\`${queryPreview}\`\`\``
                 }
             },
             {
-                type: 'context',
+                type: 'context' as const,
                 elements: [
                     {
-                        type: 'mrkdwn',
+                        type: 'mrkdwn' as const,
                         text: `Request ID: \`${request.id.slice(0, 8)}\` | Submitted: ${new Date(request.createdAt).toLocaleString()}`
                     }
                 ]
             },
             {
-                type: 'divider'
+                type: 'divider' as const
             }
         ];
     }
@@ -319,7 +326,7 @@ export class SlackService {
     private static buildApprovalResultBlocks(
         request: QueryRequest,
         approverEmail: string,
-        executionResult: { success: boolean; rowCount?: number; data?: unknown; error?: string }
+        executionResult: { success: boolean; rowCount?: number; output?: string; error?: string }
     ): KnownBlock[] {
         const statusEmoji = executionResult.success ? '✅' : '❌';
         const statusText = executionResult.success ? 'Executed Successfully' : 'Execution Failed';
@@ -350,19 +357,34 @@ export class SlackService {
 
         if (executionResult.success && executionResult.rowCount !== undefined) {
             blocks.push({
-                type: 'section',
+                type: 'section' as const,
                 text: {
-                    type: 'mrkdwn',
+                    type: 'mrkdwn' as const,
                     text: `*Rows affected:* ${executionResult.rowCount}`
+                }
+            });
+        }
+
+        if (executionResult.success && executionResult.output) {
+            // Truncate output if too long for Slack block (3000 chars limit)
+            const outputPreview = executionResult.output.length > 2500
+                ? executionResult.output.substring(0, 2500) + '... (truncated)'
+                : executionResult.output;
+
+            blocks.push({
+                type: 'section' as const,
+                text: {
+                    type: 'mrkdwn' as const,
+                    text: `*Execution Result:*\n\`\`\`${outputPreview}\`\`\``
                 }
             });
         }
 
         if (!executionResult.success && executionResult.error) {
             blocks.push({
-                type: 'section',
+                type: 'section' as const,
                 text: {
-                    type: 'mrkdwn',
+                    type: 'mrkdwn' as const,
                     text: `*Error:*\n\`\`\`${executionResult.error.substring(0, 500)}\`\`\``
                 }
             });
@@ -387,7 +409,7 @@ export class SlackService {
     private static buildChannelExecutionResultBlocks(
         request: QueryRequest,
         approverEmail: string,
-        executionResult: { success: boolean; rowCount?: number; error?: string }
+        executionResult: { success: boolean; rowCount?: number; output?: string; error?: string }
     ): KnownBlock[] {
         const statusEmoji = executionResult.success ? '✅' : '❌';
         const statusText = executionResult.success ? 'Executed Successfully' : 'Execution Failed';
@@ -428,6 +450,13 @@ export class SlackService {
                     text: `*Error:* ${executionResult.error.substring(0, 200)}`
                 }
             }] : []),
+            ...(executionResult.success && executionResult.output ? [{
+                type: 'section' as const,
+                text: {
+                    type: 'mrkdwn' as const,
+                    text: `*Result Preview:*\n\`\`\`${(executionResult.output).substring(0, 500)}\`\`\``
+                }
+            }] : []),
             {
                 type: 'divider' as const
             }
@@ -442,40 +471,51 @@ export class SlackService {
         rejectorEmail: string,
         reason?: string
     ): KnownBlock[] {
+        const queryPreview = request.query
+            ? request.query.substring(0, 200) + (request.query.length > 200 ? '...' : '')
+            : request.scriptContent?.substring(0, 200) + (request.scriptContent && request.scriptContent.length > 200 ? '...' : '');
+
         return [
             {
-                type: 'header',
+                type: 'header' as const,
                 text: {
-                    type: 'plain_text',
+                    type: 'plain_text' as const,
                     text: '❌ Request Rejected',
                     emoji: true
                 }
             },
             {
-                type: 'section',
+                type: 'section' as const,
                 fields: [
                     {
-                        type: 'mrkdwn',
+                        type: 'mrkdwn' as const,
                         text: `*Rejected by:*\n${rejectorEmail}`
                     },
                     {
-                        type: 'mrkdwn',
+                        type: 'mrkdwn' as const,
                         text: `*Database:*\n${request.instanceName}`
                     }
                 ]
             },
             {
-                type: 'section',
+                type: 'section' as const,
                 text: {
-                    type: 'mrkdwn',
-                    text: `*Reason:*\n${reason || 'No reason provided'}`
+                    type: 'mrkdwn' as const,
+                    text: `*Original Request:*\n\`\`\`${queryPreview}\`\`\``
                 }
             },
             {
-                type: 'context',
+                type: 'section' as const,
+                text: {
+                    type: 'mrkdwn' as const,
+                    text: `*Rejection Reason:*\n${reason || 'No reason provided'}`
+                }
+            },
+            {
+                type: 'context' as const,
                 elements: [
                     {
-                        type: 'mrkdwn',
+                        type: 'mrkdwn' as const,
                         text: `Request ID: \`${request.id.slice(0, 8)}\` | You can modify and resubmit your request.`
                     }
                 ]
