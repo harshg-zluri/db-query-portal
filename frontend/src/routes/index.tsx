@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from '@layouts/app-layout';
 import { AuthWrapper } from '@wrappers/auth-wrapper';
 import { AuthPage } from '@features/auth';
+import { OAuthCallbackPage } from '@features/auth/oauth-callback';
 import { DashboardPage } from '@features/dashboard';
 import { SubmissionsPage } from '@features/submissions';
 import { ApprovalsPage } from '@features/approvals';
@@ -11,8 +12,11 @@ import { UserRole } from '@/types';
 
 export const router = createBrowserRouter([
     {
-        path: ROUTES.LOGIN,
         element: <AuthPage />,
+    },
+    {
+        path: '/oauth/callback',
+        element: <OAuthCallbackPage />,
     },
     {
         path: '/',

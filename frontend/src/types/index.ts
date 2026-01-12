@@ -46,6 +46,8 @@ export interface User {
     updatedAt: string;
 }
 
+export type SafeUser = User;
+
 // POD interface
 export interface Pod {
     id: string;

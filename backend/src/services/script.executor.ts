@@ -97,14 +97,15 @@ export class ScriptExecutor {
                 scriptPath
             ], {
                 env: {
-                    ...process.env,
+                    // CRITICAL SECURITY FIX: Do NOT pass ...process.env
+                    // We only explicitly pass the variables we want the script to have access to
+                    // This prevents the script from accessing backend secrets (DB creds, JWT secrets, etc.)
+                    NODE_ENV: 'production', // Force production mode for scripts
+                    PATH: process.env.PATH, // Required for spawn to find 'node'
                     ...env,
-                    // Disable network for security (basic sandboxing)
-                    // Allow access to project node_modules
-                    NODE_PATH: join(process.cwd(), 'node_modules'),
+                    // Basic sandboxing: limits access to modules
                     NODE_OPTIONS: '--no-warnings'
-                },
-                timeout: config.scriptExecution.timeoutMs
+                }
             });
 
             child.stdout?.on('data', (data) => {
@@ -115,7 +116,10 @@ export class ScriptExecutor {
                 stderr.push(data.toString());
             });
 
+            let timedOut = false;
+
             child.on('close', (code) => {
+                if (timedOut) return; // Already handled by timeout
                 if (code === 0) {
                     resolve({
                         success: true,
@@ -131,6 +135,7 @@ export class ScriptExecutor {
             });
 
             child.on('error', (err) => {
+                if (timedOut) return;
                 resolve({
                     success: false,
                     error: err.message
@@ -140,6 +145,7 @@ export class ScriptExecutor {
             // Kill on timeout
             setTimeout(() => {
                 if (!child.killed) {
+                    timedOut = true;
                     child.kill('SIGTERM');
                     resolve({
                         success: false,

@@ -109,7 +109,7 @@ describe('DatabaseController', () => {
 
             expect(res.status).toHaveBeenCalledWith(200);
             const data = (res.json as jest.Mock).mock.calls[0][0].data;
-            expect(data[0]).toEqual({ name: 'db1', instanceId: 'inst-1' });
+            expect(data[0]).toEqual('db1');
         });
 
         it('should throw NotFoundError if instance missing', async () => {

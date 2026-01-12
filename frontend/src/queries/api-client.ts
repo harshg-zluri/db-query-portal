@@ -3,7 +3,7 @@ import { useAuthStore } from '@stores/auth-store';
 import type { ApiResponse, RefreshTokenResponse } from '@/types';
 
 // Get API base URL from environment variable
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Create axios instance
 export const apiClient = axios.create({

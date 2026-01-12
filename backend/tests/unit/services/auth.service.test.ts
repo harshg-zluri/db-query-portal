@@ -219,6 +219,162 @@ describe('AuthService', () => {
         });
     });
 
+
+
+    describe('loginOrSignupWithGoogle', () => {
+        it('should login existing google user', async () => {
+            const mockUser = {
+                id: 'user-1',
+                email: 'google@example.com',
+                name: 'Google User',
+                role: UserRole.DEVELOPER,
+                managedPodIds: [],
+                google_id: 'google-123',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(mockUser);
+
+            const result = await AuthService.loginOrSignupWithGoogle(
+                'google@example.com',
+                'google-123',
+                'Google User'
+            );
+
+            expect(result.user.email).toBe('google@example.com');
+            expect(result.tokens.accessToken).toBeDefined();
+            expect(UserModel.findByGoogleId).toHaveBeenCalledWith('google-123');
+        });
+
+        it('should link account if user exists by email', async () => {
+            const existingUser = {
+                id: 'user-1',
+                email: 'existing@example.com',
+                name: 'Existing User',
+                role: UserRole.MANAGER, // Existing role
+                managedPodIds: []
+            };
+
+            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findByEmail as jest.Mock).mockResolvedValue(existingUser);
+            (UserModel.linkGoogle as jest.Mock).mockResolvedValue({ ...existingUser, google_id: 'google-123' });
+            (UserModel.findById as jest.Mock).mockResolvedValue(existingUser); // Fetch full user
+            (PodModel.getManagedPodIds as jest.Mock).mockResolvedValue(['pod-1']);
+
+            const result = await AuthService.loginOrSignupWithGoogle(
+                'existing@example.com',
+                'google-123',
+                'Existing User'
+            );
+
+            expect(UserModel.linkGoogle).toHaveBeenCalledWith('user-1', 'google-123');
+            expect(result.user.role).toBe(UserRole.MANAGER); // Role preserved
+            expect(result.tokens.accessToken).toBeDefined();
+        });
+
+        it('should create new user if not found', async () => {
+            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findByEmail as jest.Mock).mockResolvedValue(null);
+
+            const newUser = {
+                id: 'new-user',
+                email: 'new@example.com',
+                name: 'New User',
+                role: UserRole.DEVELOPER,
+                managedPodIds: []
+            };
+
+            (UserModel.create as jest.Mock).mockResolvedValue(newUser); // Return safe user
+            (UserModel.findById as jest.Mock).mockResolvedValue(newUser); // Return full user
+
+            const result = await AuthService.loginOrSignupWithGoogle(
+                'new@example.com',
+                'google-123',
+                'New User'
+            );
+
+            expect(UserModel.create).toHaveBeenCalledWith({
+                email: 'new@example.com',
+                name: 'New User',
+                role: UserRole.DEVELOPER,
+                googleId: 'google-123'
+            });
+            expect(result.user.role).toBe(UserRole.DEVELOPER);
+        });
+
+        it('should throw error if linking fails', async () => {
+            const existingUser = {
+                id: 'user-1',
+                email: 'existing@example.com'
+            };
+            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findByEmail as jest.Mock).mockResolvedValue(existingUser);
+            (UserModel.linkGoogle as jest.Mock).mockResolvedValue(null);
+
+            await expect(AuthService.loginOrSignupWithGoogle(
+                'existing@example.com',
+                'google-123',
+                'Name'
+            )).rejects.toThrow('Failed to link account');
+        });
+
+        it('should throw NotFoundError if user not found after linking', async () => {
+            const existingUser = {
+                id: 'user-1',
+                email: 'existing@example.com'
+            };
+            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findByEmail as jest.Mock).mockResolvedValue(existingUser);
+            (UserModel.linkGoogle as jest.Mock).mockResolvedValue({ ...existingUser, google_id: 'google-123' });
+            (UserModel.findById as jest.Mock).mockResolvedValue(null); // Full user fetch fails
+
+            await expect(AuthService.loginOrSignupWithGoogle(
+                'existing@example.com',
+                'google-123',
+                'Name'
+            )).rejects.toThrow(NotFoundError);
+        });
+
+        it('should throw NotFoundError if user not found after creation', async () => {
+            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findByEmail as jest.Mock).mockResolvedValue(null);
+            (UserModel.create as jest.Mock).mockResolvedValue({ id: 'new-user' });
+            (UserModel.findById as jest.Mock).mockResolvedValue(null); // Full user fetch fails
+
+            await expect(AuthService.loginOrSignupWithGoogle(
+                'new@example.com',
+                'google-123',
+                'Name'
+            )).rejects.toThrow(NotFoundError);
+        });
+
+        it('should use existing managedPodIds if present on user object', async () => {
+            const mockUser = {
+                id: 'user-1',
+                email: 'manager@example.com',
+                name: 'Manager',
+                role: UserRole.MANAGER,
+                managedPodIds: ['pod-1', 'pod-2'], // Present on user
+                google_id: 'google-123',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(mockUser);
+
+            const result = await AuthService.loginOrSignupWithGoogle(
+                'manager@example.com',
+                'google-123',
+                'Manager'
+            );
+
+            // Should NOT call getManagedPodIds as they are already on user
+            expect(PodModel.getManagedPodIds).not.toHaveBeenCalled();
+            // Verify payload has correct pods
+            const decoded = jwt.decode(result.tokens.accessToken) as any;
+            expect(decoded.managedPodIds).toEqual(['pod-1', 'pod-2']);
+        });
+    });
+
     describe('getProfile', () => {
         it('should return user profile', async () => {
             const mockUser = {
@@ -243,4 +399,5 @@ describe('AuthService', () => {
                 .rejects.toThrow(NotFoundError);
         });
     });
+
 });

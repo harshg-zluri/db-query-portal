@@ -119,7 +119,7 @@ export class SlackService {
     static async notifyRequesterApproved(
         request: QueryRequest,
         approverEmail: string,
-        executionResult: { success: boolean; rowCount?: number; data?: unknown; error?: string }
+        executionResult: { success: boolean; rowCount?: number; output?: string; data?: unknown; error?: string }
     ): Promise<void> {
         if (!this.ensureEnabled()) return;
 
@@ -159,7 +159,7 @@ export class SlackService {
     static async notifyChannelExecutionResult(
         request: QueryRequest,
         approverEmail: string,
-        executionResult: { success: boolean; rowCount?: number; error?: string }
+        executionResult: { success: boolean; rowCount?: number; output?: string; error?: string }
     ): Promise<void> {
         if (!this.ensureEnabled() || !this.approvalChannelId) return;
 

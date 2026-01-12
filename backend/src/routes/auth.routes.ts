@@ -33,4 +33,8 @@ router.get(
     AuthController.getProfile
 );
 
+// Google OAuth Routes
+router.get('/google', AuthController.googleAuth);
+router.get('/google/callback', AuthController.googleCallback);
+
 export default router;

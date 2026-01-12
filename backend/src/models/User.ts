@@ -5,23 +5,32 @@ import { v4 as uuidv4 } from 'uuid';
 // SQL queries
 const SQL = {
     findByEmail: `
-    SELECT id, email, password, name, role, managed_pod_ids, created_at, updated_at
+    SELECT id, email, password, name, role, managed_pod_ids, google_id, created_at, updated_at
     FROM users WHERE email = $1
   `,
+    findByGoogleId: `
+    SELECT id, email, password, name, role, managed_pod_ids, google_id, created_at, updated_at
+    FROM users WHERE google_id = $1
+  `,
     findById: `
-    SELECT id, email, password, name, role, managed_pod_ids, created_at, updated_at
+    SELECT id, email, password, name, role, managed_pod_ids, google_id, created_at, updated_at
     FROM users WHERE id = $1
   `,
     create: `
-    INSERT INTO users (id, email, password, name, role, managed_pod_ids, created_at, updated_at)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $7)
-    RETURNING id, email, name, role, managed_pod_ids, created_at, updated_at
+    INSERT INTO users (id, email, password, name, role, managed_pod_ids, google_id, created_at, updated_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
+    RETURNING id, email, name, role, managed_pod_ids, google_id, created_at, updated_at
   `,
     update: `
     UPDATE users SET name = $2, role = $3, managed_pod_ids = $4, updated_at = $5
     WHERE id = $1
     RETURNING id, email, name, role, managed_pod_ids, created_at, updated_at
   `,
+    linkGoogle: `
+    UPDATE users SET google_id = $2, updated_at = $3
+    WHERE id = $1
+    RETURNING id, email, name, role, managed_pod_ids, google_id, created_at, updated_at
+    `,
     updatePassword: `
     UPDATE users SET password = $2, updated_at = $3
     WHERE id = $1
@@ -50,10 +59,11 @@ function rowToUser(row: Record<string, unknown>): User {
     return {
         id: row.id as string,
         email: row.email as string,
-        password: row.password as string,
+        password: row.password as string, // Can be null now, check types
         name: row.name as string,
         role: row.role as UserRole,
         managedPodIds: (row.managed_pod_ids || []) as string[],
+        googleId: row.google_id as string | undefined,
         createdAt: new Date(row.created_at as string),
         updatedAt: new Date(row.updated_at as string)
     };
@@ -67,6 +77,7 @@ function rowToSafeUser(row: Record<string, unknown>): SafeUser {
         name: row.name as string,
         role: row.role as UserRole,
         managedPodIds: (row.managed_pod_ids || []) as string[],
+        googleId: row.google_id as string | undefined,
         createdAt: new Date(row.created_at as string),
         updatedAt: new Date(row.updated_at as string)
     };
@@ -132,14 +143,43 @@ export class UserModel {
     }
 
     /**
+     * Find user by Google ID
+     */
+    static async findByGoogleId(googleId: string): Promise<User | null> {
+        const result = await query<Record<string, unknown>>(SQL.findByGoogleId, [googleId]);
+        if (result.rows.length === 0) {
+            return null;
+        }
+        return rowToUser(result.rows[0]);
+    }
+
+    /**
+     * Link Google account to existing user
+     */
+    static async linkGoogle(id: string, googleId: string): Promise<SafeUser | null> {
+        const result = await query<Record<string, unknown>>(SQL.linkGoogle, [
+            id,
+            googleId,
+            new Date()
+        ]);
+
+        if (result.rows.length === 0) {
+            return null;
+        }
+
+        return rowToSafeUser(result.rows[0]);
+    }
+
+    /**
      * Create new user
      */
     static async create(data: {
         email: string;
-        password: string;
+        password?: string;
         name: string;
         role: UserRole;
         managedPodIds?: string[];
+        googleId?: string;
     }): Promise<SafeUser> {
         const id = uuidv4();
         const now = new Date();
@@ -147,10 +187,11 @@ export class UserModel {
         await query<Record<string, unknown>>(SQL.create, [
             id,
             data.email,
-            data.password,
+            data.password || null,
             data.name,
             data.role,
             data.managedPodIds || [],
+            data.googleId || null,
             now
         ]);
 
@@ -160,6 +201,7 @@ export class UserModel {
             name: data.name,
             role: data.role,
             managedPodIds: data.managedPodIds || [],
+            googleId: data.googleId,
             createdAt: now,
             updatedAt: now
         };

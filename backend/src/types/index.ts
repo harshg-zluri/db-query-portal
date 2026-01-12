@@ -35,6 +35,7 @@ export interface User {
     name: string;
     role: UserRole;
     managedPodIds: string[];
+    googleId?: string;
     createdAt: Date;
     updatedAt: Date;
 }

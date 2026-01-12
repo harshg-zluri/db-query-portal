@@ -152,4 +152,67 @@ export class AuthService {
 
         return user;
     }
+
+    /**
+     * Login or Signup with Google
+     */
+    static async loginOrSignupWithGoogle(
+        email: string,
+        googleId: string,
+        name: string
+    ): Promise<LoginResult> {
+        // 1. Try to find by Google ID
+        let user = await UserModel.findByGoogleId(googleId);
+
+        if (!user) {
+            // 2. Try to find by Email
+            user = await UserModel.findByEmail(email);
+
+            if (user) {
+                // Link account - PRESERVE EXISTING ROLE
+                const safeUser = await UserModel.linkGoogle(user.id, googleId);
+                if (!safeUser) throw new Error('Failed to link account');
+                // Re-fetch full user to get role for token
+                const fullUser = await UserModel.findById(user.id);
+                if (!fullUser) throw new NotFoundError('User');
+                user = fullUser;
+            } else {
+                // 3. Create new user with DEVELOPER role
+                const safeUser = await UserModel.create({
+                    email,
+                    name,
+                    role: UserRole.DEVELOPER,
+                    googleId
+                });
+                const fullUser = await UserModel.findById(safeUser.id);
+                if (!fullUser) throw new NotFoundError('User');
+                user = fullUser;
+            }
+        }
+
+        // Generate tokens
+        let managedPodIds: string[] = [];
+        if (user.role === UserRole.MANAGER) {
+            if (user.managedPodIds && user.managedPodIds.length > 0) {
+                managedPodIds = user.managedPodIds;
+            } else {
+                managedPodIds = await PodModel.getManagedPodIds(user.email);
+            }
+        }
+
+        const payload: JWTPayload = {
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+            managedPodIds
+        };
+
+        const tokens = this.generateTokens(payload);
+        const { password: _, ...safeUser } = user;
+
+        return {
+            user: safeUser,
+            tokens
+        };
+    }
 }

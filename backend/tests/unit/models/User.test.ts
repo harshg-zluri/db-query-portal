@@ -80,6 +80,66 @@ describe('UserModel', () => {
         });
     });
 
+    describe('findByGoogleId', () => {
+        it('should return user when found', async () => {
+            const mockRow = {
+                id: 'user-1',
+                email: 'test@example.com',
+                password: null,
+                name: 'Google User',
+                role: 'developer',
+                managed_pod_ids: [],
+                google_id: 'google-123',
+                created_at: '2024-01-01T00:00:00Z',
+                updated_at: '2024-01-01T00:00:00Z'
+            };
+            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+
+            const result = await UserModel.findByGoogleId('google-123');
+
+            expect(result).not.toBeNull();
+            expect(result?.googleId).toBe('google-123');
+            expect(result?.email).toBe('test@example.com');
+        });
+
+        it('should return null when not found', async () => {
+            (query as jest.Mock).mockResolvedValue({ rows: [] });
+
+            const result = await UserModel.findByGoogleId('nonexistent');
+
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('linkGoogle', () => {
+        it('should link google account to existing user', async () => {
+            const mockRow = {
+                id: 'user-1',
+                email: 'test@example.com',
+                name: 'Test User',
+                role: 'developer',
+                managed_pod_ids: [],
+                google_id: 'google-123',
+                created_at: '2024-01-01T00:00:00Z',
+                updated_at: '2024-01-01T00:00:00Z'
+            };
+            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+
+            const result = await UserModel.linkGoogle('user-1', 'google-123');
+
+            expect(result).not.toBeNull();
+            expect(result?.googleId).toBe('google-123');
+        });
+
+        it('should return null when user not found during link', async () => {
+            (query as jest.Mock).mockResolvedValue({ rows: [] });
+
+            const result = await UserModel.linkGoogle('nonexistent', 'google-123');
+
+            expect(result).toBeNull();
+        });
+    });
+
     describe('findByIdSafe', () => {
         it('should return user without password when found', async () => {
             const mockRow = {
@@ -157,6 +217,30 @@ describe('UserModel', () => {
             });
 
             expect(result.managedPodIds).toEqual(['pod-1', 'pod-2']);
+        });
+
+        it('should create user with Google ID', async () => {
+            const mockRow = {
+                id: 'test-uuid-123',
+                email: 'google@example.com',
+                name: 'Google User',
+                role: 'developer',
+                managed_pod_ids: [],
+                google_id: 'google-123',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+
+            const result = await UserModel.create({
+                email: 'google@example.com',
+                name: 'Google User',
+                role: UserRole.DEVELOPER,
+                googleId: 'google-123'
+            });
+
+            expect(result.googleId).toBe('google-123');
+            expect(result.email).toBe('google@example.com');
         });
     });
 

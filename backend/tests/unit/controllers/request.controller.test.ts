@@ -200,6 +200,24 @@ describe('RequestController', () => {
             }));
         });
 
+        it('should handle undefined query and script by defaulting to empty string for warnings', async () => {
+            req.body = { ...validBody, query: undefined, submissionType: SubmissionType.QUERY };
+            req.file = undefined;
+
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (PodModel.findById as jest.Mock).mockResolvedValue(mockPod);
+            (QueryRequestModel.countPendingByUser as jest.Mock).mockResolvedValue(0);
+            (QueryRequestModel.create as jest.Mock).mockResolvedValue({ id: 'req-1' });
+
+            await RequestController.create(req as Request, res as Response, next);
+
+            // warnings check should run on ""
+            expect(QueryRequestModel.create).toHaveBeenCalledWith(expect.objectContaining({
+                // No warnings for empty string usually
+                warnings: undefined
+            }));
+        });
+
         it('should not set warnings for safe queries', async () => {
             req.body = { ...validBody, query: 'SELECT * FROM users WHERE id = 1' };
 

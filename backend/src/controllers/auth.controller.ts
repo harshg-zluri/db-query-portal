@@ -3,6 +3,8 @@ import { AuthService } from '../services/auth.service';
 import { sendSuccess } from '../utils/responseHelper';
 import { LoginInput, RefreshTokenInput } from '../validators/auth.schema';
 import { logger, AuditCategory, AuditAction } from '../utils/logger';
+import passport from 'passport';
+import { config } from '../config/environment';
 
 /**
  * Get client IP address from request
@@ -185,5 +187,39 @@ export class AuthController {
         } catch (error) {
             next(error);
         }
+    }
+
+
+    /**
+     * GET /api/auth/google
+     * Initiate Google OAuth flow
+     */
+    static googleAuth = passport.authenticate('google', {
+        scope: ['profile', 'email']
+    });
+
+    /**
+     * GET /api/auth/google/callback
+     * Handle Google OAuth callback
+     */
+    static googleCallback(req: Request, res: Response, next: NextFunction): void {
+        passport.authenticate('google', { session: false }, (err: any, data: any) => {
+            if (err) {
+                return next(err);
+            }
+            if (!data) {
+                return res.redirect(`${config.google.frontendUrl}/login?error=auth_failed`);
+            }
+
+            const { tokens } = data;
+
+            // Redirect to frontend with tokens
+            const redirectUrl = new URL(`${config.google.frontendUrl}/oauth/callback`);
+            redirectUrl.searchParams.set('accessToken', tokens.accessToken);
+            redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
+            redirectUrl.searchParams.set('expiresIn', tokens.expiresIn);
+
+            res.redirect(redirectUrl.toString());
+        })(req, res, next);
     }
 }

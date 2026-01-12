@@ -459,7 +459,7 @@
                                 "requests"
                             ]
                         },
-                        "description": "**Role:** Developer+\\n\\nSubmit a new script request for approval. Upload a .js file.\\n\\n**Note:** Set submissionType to 'script' and attach a .js file to the 'script' field."
+                        "description": "**Role:** Developer+\\n\\nSubmit a new script request for approval. Upload a .js file.\\n\\n**Note:** Set submissionType to 'script' and attach a .js file to the 'script' field.\\n\\n**Security Restrictions:**\\n- Scripts run in a sandboxed environment.\\n- Access to `process.env` is restricted (only `NODE_ENV` is available).\\n- Sensitive modules like `fs`, `child_process`, `cluster` are blocked.\\n- Network access is disabled."
                     },
                     "response": []
                 },

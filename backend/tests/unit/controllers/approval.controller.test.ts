@@ -289,7 +289,13 @@ describe('ApprovalController', () => {
                 1,
                 20
             );
-            expect(responseHelper.sendSuccess).toHaveBeenCalled();
+            expect(responseHelper.sendPaginated).toHaveBeenCalledWith(
+                expect.any(Object),
+                [mockQueryRequest],
+                1,
+                20,
+                1
+            );
         });
 
         it('should filter by PODs for manager', async () => {
