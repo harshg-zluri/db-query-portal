@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,6 +12,7 @@ import { ScriptForm } from './components/script-form';
 import { useSubmitRequest } from './queries/use-submit-request';
 import { usePods } from './queries/use-databases';
 import { DatabaseType, SubmissionType } from '@/types';
+import type { QueryRequest } from '@/types';
 import { ROUTES } from '@constants/routes';
 import toast from 'react-hot-toast';
 
@@ -45,10 +47,18 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+interface LocationState {
+    clone?: QueryRequest;
+}
+
 export function DashboardPage() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { data: pods, isLoading: podsLoading } = usePods();
     const submitMutation = useSubmitRequest();
+
+    // Get cloned request from navigation state
+    const clonedRequest = (location.state as LocationState)?.clone;
 
     const {
         control,
@@ -71,6 +81,31 @@ export function DashboardPage() {
             podId: '',
         },
     });
+
+    // Prefill form with cloned request data
+    useEffect(() => {
+        if (clonedRequest) {
+            // Set form values from cloned request
+            setValue('databaseType', clonedRequest.databaseType as 'postgresql' | 'mongodb');
+            setValue('instanceId', clonedRequest.instanceId);
+            setValue('databaseName', clonedRequest.databaseName);
+            setValue('submissionType', clonedRequest.submissionType as 'query' | 'script');
+            setValue('comments', clonedRequest.comments);
+            setValue('podId', clonedRequest.podId);
+
+            if (clonedRequest.submissionType === SubmissionType.QUERY && clonedRequest.query) {
+                setValue('query', clonedRequest.query);
+            }
+            // Note: For scripts, we can't prefill the file as it's not stored in the request object
+            // The user will need to re-upload the script file
+
+            // Show a toast to inform user
+            toast.success('Form prefilled with previous request data');
+
+            // Clear the location state to prevent re-prefilling on navigation
+            window.history.replaceState({}, document.title);
+        }
+    }, [clonedRequest, setValue]);
 
     const submissionType = watch('submissionType');
     const databaseType = watch('databaseType');
@@ -184,7 +219,6 @@ export function DashboardPage() {
                                                 checked={field.value === 'script'}
                                                 onChange={() => {
                                                     field.onChange('script');
-                                                    setValue('query', '');
                                                 }}
                                                 className="w-5 h-5 text-[#FEF34B] bg-white border-2 border-black focus:ring-[#FEF34B] focus:ring-offset-0 cursor-pointer"
                                             />

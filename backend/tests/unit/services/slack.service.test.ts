@@ -110,6 +110,20 @@ describe('SlackService', () => {
                 expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('New request notification sent'), expect.any(Object));
             });
 
+            it('should include app link for approval in new request notification', async () => {
+                await SlackService.notifyNewRequest(mockRequest as any);
+
+                expect(mockWebClient.chat.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+                    blocks: expect.arrayContaining([
+                        expect.objectContaining({
+                            text: expect.objectContaining({
+                                text: expect.stringContaining('View in App to Approve/Reject')
+                            })
+                        })
+                    ])
+                }));
+            });
+
             it('should skip if approval channel not configured', async () => {
                 (SlackService as any).approvalChannelId = '';
                 await SlackService.notifyNewRequest(mockRequest as any);
@@ -230,6 +244,21 @@ describe('SlackService', () => {
                 }));
             });
 
+            it('should include retry link in DM if execution failed', async () => {
+                mockWebClient.users.lookupByEmail.mockResolvedValue({ ok: true, user: { id: 'U12345' } });
+                const result = { success: false, error: 'Database timeout' };
+
+                await SlackService.notifyRequesterApproved(mockRequest as any, 'approver@z.com', result);
+
+                expect(mockWebClient.chat.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+                    blocks: expect.arrayContaining([
+                        expect.objectContaining({
+                            text: expect.objectContaining({ text: expect.stringContaining('View in App to Retry') })
+                        })
+                    ])
+                }));
+            });
+
             it('should skip if service disabled', async () => {
                 (SlackService as any).isEnabled = false;
                 await SlackService.notifyRequesterApproved(mockRequest as any, 'approver@z.com', { success: true });
@@ -343,6 +372,18 @@ describe('SlackService', () => {
                     blocks: expect.arrayContaining([
                         expect.objectContaining({
                             text: expect.objectContaining({ text: expect.stringContaining('Bad query') })
+                        })
+                    ])
+                }));
+            });
+
+            it('should include app link in rejection DM', async () => {
+                await SlackService.notifyRequesterRejected(mockRequest as any, 'rejector@z.com', 'Bad query');
+
+                expect(mockWebClient.chat.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+                    blocks: expect.arrayContaining([
+                        expect.objectContaining({
+                            text: expect.objectContaining({ text: expect.stringContaining('View in App to Modify and Resubmit') })
                         })
                     ])
                 }));

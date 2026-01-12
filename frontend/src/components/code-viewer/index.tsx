@@ -87,26 +87,30 @@ export function CodeViewer({
                 style={{ maxHeight }}
             >
                 {showLineNumbers ? (
-                    <table className="w-full border-collapse">
-                        <tbody>
-                            {lines.map((line, index) => (
-                                <tr key={index} className="hover:bg-[#FEF34B]/20 transition-colors">
-                                    <td className="w-10 select-none text-right pr-4 pl-3 py-0 text-[#6B6B6B] text-sm font-mono border-r-2 border-black sticky left-0 bg-[#FAF9F6]">
-                                        {index + 1}
-                                    </td>
-                                    <td className="px-2 py-1">
-                                        <code
-                                            ref={index === 0 ? codeRef : undefined}
-                                            className={`language-${hlLanguage} font-mono text-sm block`}
-                                            style={{ background: 'transparent', padding: 0 }}
-                                        >
-                                            {line || ' '}
-                                        </code>
-                                    </td>
-                                </tr>
+                    <div className="flex">
+                        {/* Line numbers column */}
+                        <div className="flex-shrink-0 select-none text-right pr-4 pl-3 py-2 text-[#6B6B6B] text-sm font-mono border-r-2 border-black bg-[#FAF9F6]">
+                            {lines.map((_, index) => (
+                                <div key={index} className="leading-6">
+                                    {index + 1}
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
+                        {/* Code content column */}
+                        <pre className="flex-1 m-0 py-2 px-4 overflow-x-auto bg-white">
+                            <code
+                                ref={codeRef}
+                                className={`language-${hlLanguage} font-mono text-sm`}
+                                style={{
+                                    background: 'transparent',
+                                    padding: 0,
+                                    lineHeight: '1.5rem'
+                                }}
+                            >
+                                {code}
+                            </code>
+                        </pre>
+                    </div>
                 ) : (
                     <pre className="p-4 m-0 overflow-x-auto bg-white">
                         <code

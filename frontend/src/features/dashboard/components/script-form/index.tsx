@@ -83,7 +83,7 @@ export function ScriptForm({ selectedFile, onFileSelect, error }: ScriptFormProp
                             />
                         </svg>
                         <p className="text-sm text-[#404040]">
-                            Database connections are auto-injected. No hardcoded credentials needed!
+                            Database connections are auto-injected via environment variables. No hardcoded credentials needed!
                         </p>
                     </div>
 
@@ -93,13 +93,16 @@ export function ScriptForm({ selectedFile, onFileSelect, error }: ScriptFormProp
                         </p>
                         <ul className="text-sm space-y-1">
                             <li className="font-mono text-xs bg-[#FEF34B] border-2 border-black px-2 py-1 rounded inline-block mr-2 shadow-[1px_1px_0_#000]">
-                                DB_CONFIG_FILE
+                                POSTGRES_URL
                             </li>
                             <li className="font-mono text-xs bg-[#FEF34B] border-2 border-black px-2 py-1 rounded inline-block mr-2 shadow-[1px_1px_0_#000]">
-                                MONGO_URI
+                                MONGODB_URL
+                            </li>
+                            <li className="font-mono text-xs bg-[#FEF34B] border-2 border-black px-2 py-1 rounded inline-block mr-2 shadow-[1px_1px_0_#000]">
+                                DB_NAME
                             </li>
                             <li className="font-mono text-xs bg-[#FEF34B] border-2 border-black px-2 py-1 rounded inline-block shadow-[1px_1px_0_#000]">
-                                PG_CONNECTION_STRING
+                                DB_TYPE
                             </li>
                         </ul>
                     </div>
@@ -110,18 +113,16 @@ export function ScriptForm({ selectedFile, onFileSelect, error }: ScriptFormProp
                         </p>
                         <CodeViewer
                             code={`const { Client } = require('pg');
-const config = JSON.parse(
-  require('fs').readFileSync(
-    process.env.DB_CONFIG_FILE
-  )
-);
-const client = new Client(config);
+const client = new Client({
+  connectionString: process.env.POSTGRES_URL
+});
 await client.connect();
-// Your queries here
+const result = await client.query('SELECT NOW()');
+console.log(result.rows);
 await client.end();`}
                             language="javascript"
                             showLineNumbers={false}
-                            maxHeight="150px"
+                            maxHeight="180px"
                         />
                     </div>
 
@@ -132,15 +133,16 @@ await client.end();`}
                         <CodeViewer
                             code={`const { MongoClient } = require('mongodb');
 const client = new MongoClient(
-  process.env.MONGO_URI
+  process.env.MONGODB_URL
 );
 await client.connect();
-const db = client.db();
-// Your operations here
+const db = client.db(process.env.DB_NAME);
+const docs = await db.collection('users').find().toArray();
+console.log(docs);
 await client.close();`}
                             language="javascript"
                             showLineNumbers={false}
-                            maxHeight="150px"
+                            maxHeight="200px"
                         />
                     </div>
                 </div>

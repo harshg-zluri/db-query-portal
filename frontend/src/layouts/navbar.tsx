@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@stores/auth-store';
 import { ROUTES } from '@constants/routes';
 import { Button } from '@components/button';
@@ -9,6 +10,7 @@ import Logo from '@assets/logo.svg';
 export function Navbar() {
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const handleLogout = async () => {
         try {
@@ -16,6 +18,8 @@ export function Navbar() {
         } catch {
             // Ignore logout errors
         } finally {
+            // Clear React Query cache to prevent stale data from previous user
+            queryClient.clear();
             logout();
             toast.success('Logged out successfully');
             navigate(ROUTES.LOGIN);

@@ -200,4 +200,62 @@ describe('AuthController', () => {
             expect(nextFunction).toHaveBeenCalledWith(error);
         });
     });
+
+    describe('googleCallback', () => {
+        let mockRedirect: jest.Mock;
+
+        beforeEach(() => {
+            mockRedirect = jest.fn();
+            mockResponse.redirect = mockRedirect;
+        });
+
+        it('should redirect with tokens on successful auth', () => {
+            const passport = require('passport');
+            passport.authenticate = jest.fn().mockImplementation((_strategy: string, _options: any, callback: any) => {
+                return (_req: any, _res: any, _next: any) => {
+                    callback(null, {
+                        tokens: {
+                            accessToken: 'access-token',
+                            refreshToken: 'refresh-token',
+                            expiresIn: '3600'
+                        }
+                    });
+                };
+            });
+
+            AuthController.googleCallback(mockRequest as Request, mockResponse as Response, nextFunction);
+
+            expect(mockRedirect).toHaveBeenCalledWith(
+                expect.stringContaining('oauth/callback')
+            );
+        });
+
+        it('should redirect to login with error when auth fails', () => {
+            const passport = require('passport');
+            passport.authenticate = jest.fn().mockImplementation((_strategy: string, _options: any, callback: any) => {
+                return (_req: any, _res: any, _next: any) => {
+                    callback(null, null); // No error but no data = auth failed
+                };
+            });
+
+            AuthController.googleCallback(mockRequest as Request, mockResponse as Response, nextFunction);
+
+            expect(mockRedirect).toHaveBeenCalledWith(
+                expect.stringContaining('login?error=auth_failed')
+            );
+        });
+
+        it('should call next with error when passport returns error', () => {
+            const passport = require('passport');
+            passport.authenticate = jest.fn().mockImplementation((_strategy: string, _options: any, callback: any) => {
+                return (_req: any, _res: any, _next: any) => {
+                    callback(new Error('OAuth error'), null);
+                };
+            });
+
+            AuthController.googleCallback(mockRequest as Request, mockResponse as Response, nextFunction);
+
+            expect(nextFunction).toHaveBeenCalledWith(expect.any(Error));
+        });
+    });
 });

@@ -42,6 +42,13 @@ export interface SlackNotificationPayload {
 }
 
 /**
+ * Get application URL for request links
+ */
+function getAppUrl(): string {
+    return process.env.FRONTEND_URL || 'http://localhost:5173';
+}
+
+/**
  * Slack Service Class
  * Handles all Slack API interactions for notifications
  */
@@ -306,6 +313,13 @@ export class SlackService {
                 }
             },
             {
+                type: 'section' as const,
+                text: {
+                    type: 'mrkdwn' as const,
+                    text: `<${getAppUrl()}/approvals|View in App to Approve/Reject>`
+                }
+            },
+            {
                 type: 'context' as const,
                 elements: [
                     {
@@ -388,6 +402,14 @@ export class SlackService {
                     text: `*Error:*\n\`\`\`${executionResult.error.substring(0, 500)}\`\`\``
                 }
             });
+            // Add retry link for failed executions
+            blocks.push({
+                type: 'section' as const,
+                text: {
+                    type: 'mrkdwn' as const,
+                    text: `<${getAppUrl()}/submissions|View in App to Retry>`
+                }
+            });
         }
 
         blocks.push({
@@ -447,14 +469,14 @@ export class SlackService {
                 type: 'section' as const,
                 text: {
                     type: 'mrkdwn' as const,
-                    text: `*Error:* ${executionResult.error.substring(0, 200)}`
+                    text: `*Error:* ${executionResult.error.substring(0, 500)}`
                 }
             }] : []),
             ...(executionResult.success && executionResult.output ? [{
                 type: 'section' as const,
                 text: {
                     type: 'mrkdwn' as const,
-                    text: `*Result Preview:*\n\`\`\`${(executionResult.output).substring(0, 500)}\`\`\``
+                    text: `*Execution Result:*\n\`\`\`${executionResult.output}\`\`\``
                 }
             }] : []),
             {
@@ -512,11 +534,18 @@ export class SlackService {
                 }
             },
             {
+                type: 'section' as const,
+                text: {
+                    type: 'mrkdwn' as const,
+                    text: `<${getAppUrl()}/submissions|View in App to Modify and Resubmit>`
+                }
+            },
+            {
                 type: 'context' as const,
                 elements: [
                     {
                         type: 'mrkdwn' as const,
-                        text: `Request ID: \`${request.id.slice(0, 8)}\` | You can modify and resubmit your request.`
+                        text: `Request ID: \`${request.id.slice(0, 8)}\``
                     }
                 ]
             }
