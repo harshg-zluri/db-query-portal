@@ -4,7 +4,14 @@ import { config } from './environment';
 import { UserRole } from '../types';
 import { AuthService } from '../services/auth.service';
 
+
+console.log('Initializing Passport Google Strategy...');
+console.log('ClientID:', config.google.clientId ? 'Set' : 'Missing');
+console.log('ClientSecret:', config.google.clientSecret ? 'Set' : 'Missing');
+console.log('CallbackURL:', config.google.callbackUrl);
+
 if (config.google.clientId && config.google.clientSecret) {
+    console.log('Registering Google Strategy');
     passport.use(new GoogleStrategy({
         clientID: config.google.clientId,
         clientSecret: config.google.clientSecret,
