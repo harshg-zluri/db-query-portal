@@ -12,6 +12,7 @@ import { UserRole } from '@/types';
 
 export const router = createBrowserRouter([
     {
+        path: '/login',
         element: <AuthPage />,
     },
     {

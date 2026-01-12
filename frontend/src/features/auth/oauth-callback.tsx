@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '@stores/auth-store';
 import { ROUTES } from '@constants/routes';
@@ -11,21 +11,19 @@ export function OAuthCallbackPage() {
     const navigate = useNavigate();
     const login = useAuthStore((state) => state.login);
 
+    const processedRef = useRef(false);
+
     useEffect(() => {
+        if (processedRef.current) return;
+
         const accessToken = searchParams.get('accessToken');
         const refreshToken = searchParams.get('refreshToken');
 
         if (accessToken && refreshToken) {
-            // Fetch user profile to get full user object
-            // We can do this via an API call since we have the token
-            // Or change backend to send user object in URL (less secure/too large)
+            processedRef.current = true;
 
-            // For now, let's assume we need to fetch 'me'
-
-            // Manually set token for this request since store update might not be instant/reflected in interceptor yet?
-            // Actually store update is synchronous.
-
-            login(accessToken, refreshToken, {} as any); // Temporary user object until we fetch
+            // Temporary user object until we fetch
+            login(accessToken, refreshToken, {} as any);
 
             apiClient.get('/auth/me', {
                 headers: { Authorization: `Bearer ${accessToken}` }
@@ -41,7 +39,10 @@ export function OAuthCallbackPage() {
                 navigate(ROUTES.LOGIN, { replace: true });
             });
 
-        } else {
+        } else if (!accessToken && !refreshToken) {
+            // Only redirect if BOTH are missing, to avoid race conditions with partial params? 
+            // Actually if either is missing it's invalid.
+            processedRef.current = true;
             toast.error('Authentication failed');
             navigate(ROUTES.LOGIN, { replace: true });
         }

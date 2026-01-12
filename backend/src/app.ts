@@ -13,6 +13,7 @@ import { QueueService } from './services/queue.service';
 import { WorkerService } from './services/worker.service';
 import { LockService } from './services/lock.service';
 import { SlackService } from './services/slack.service';
+import './config/passport'; // Initialize Passport strategies
 
 // Validate config on startup
 validateConfig();
