@@ -2,7 +2,7 @@
     "info": {
         "_postman_id": "db-query-portal-collection",
         "name": "DB Query Portal API",
-        "description": "Complete API collection for the Database Query Execution Portal.\n\nFor detailed system architecture and setup, refer to `docs/ARCHITECTURE.md` and `docs/SETUP.md` in the repository.\n\nThis collection includes:\n- Authentication\n- Database Discovery\n- POD Management\n- Request Submission (Query & Script)\n- Approval Workflows",
+        "description": "Complete API collection for the Database Query Execution Portal.\n\n**Quick Start:**\n1. Run 'Login' request first to auto-populate tokens\n2. All other requests will use the saved access token automatically\n\n**Test Users:**\n- Admin: admin@zluri.com / Admin@123\n- Manager: manager@zluri.com / Manager@123\n- Developer: dev@zluri.com / Dev@123\n\n**Features:**\n- Authentication (Login, Logout, Refresh, OAuth)\n- Database Discovery\n- POD Management\n- Request Submission (Query & Script)\n- Approval Workflows\n- Admin Management\n\nFor detailed documentation, see FEATURE_DOCUMENTATION.md",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
@@ -20,6 +20,18 @@
             "key": "refreshToken",
             "value": "",
             "type": "string"
+        },
+        {
+            "key": "requestId",
+            "value": "",
+            "type": "string",
+            "description": "Stores the last created request ID"
+        },
+        {
+            "key": "userId",
+            "value": "",
+            "type": "string",
+            "description": "Stores the last created user ID"
         }
     ],
     "auth": {
@@ -34,11 +46,11 @@
     },
     "item": [
         {
-            "name": "Authentication",
-            "description": "Authentication endpoints for login, logout, token refresh, and profile",
+            "name": "🔐 Authentication",
+            "description": "Authentication endpoints for login, logout, token refresh, OAuth, and profile management",
             "item": [
                 {
-                    "name": "Login",
+                    "name": "Login (Developer)",
                     "event": [
                         {
                             "listen": "test",
@@ -49,8 +61,15 @@
                                     "    if (jsonData.data && jsonData.data.accessToken) {",
                                     "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
                                     "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                                    "        console.log('✅ Tokens saved to collection variables');",
                                     "    }",
-                                    "}"
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response has accessToken', () => {",
+                                    "    const data = pm.response.json().data;",
+                                    "    pm.expect(data).to.have.property('accessToken');",
+                                    "});"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -69,7 +88,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"Admin123!\"\n}"
+                            "raw": "{\n    \"email\": \"dev@zluri.com\",\n    \"password\": \"Dev@123\"\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/auth/login",
@@ -81,12 +100,139 @@
                                 "login"
                             ]
                         },
-                        "description": "Authenticate user with email and password. Returns access and refresh tokens.\n\n**Test Users:**\n- Admin: admin@example.com / Admin123!\n- Manager: manager@example.com / Manager123!\n- Developer: dev@example.com / Dev123!"
+                        "description": "Authenticate as a Developer user.\n\n**Permissions:** Can submit queries/scripts, view own submissions."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Login (Manager)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.accessToken) {",
+                                    "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                                    "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                                    "        console.log('✅ Tokens saved to collection variables');",
+                                    "    }",
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('User role is manager', () => {",
+                                    "    const data = pm.response.json().data;",
+                                    "    pm.expect(data.user.role).to.equal('manager');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"manager@zluri.com\",\n    \"password\": \"Manager@123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Authenticate as a Manager user.\n\n**Permissions:** Can approve/reject requests for managed PODs."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Login (Admin)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.accessToken) {",
+                                    "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                                    "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                                    "        console.log('✅ Tokens saved to collection variables');",
+                                    "    }",
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('User role is admin', () => {",
+                                    "    const data = pm.response.json().data;",
+                                    "    pm.expect(data.user.role).to.equal('admin');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"admin@zluri.com\",\n    \"password\": \"Admin@123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Authenticate as an Admin user.\n\n**Permissions:** Full access including user/POD management."
                     },
                     "response": []
                 },
                 {
                     "name": "Logout",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "",
+                                    "if (pm.response.code === 200) {",
+                                    "    pm.collectionVariables.set('accessToken', '');",
+                                    "    pm.collectionVariables.set('refreshToken', '');",
+                                    "    console.log('✅ Tokens cleared from collection variables');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [],
@@ -100,7 +246,7 @@
                                 "logout"
                             ]
                         },
-                        "description": "Logout the current user. Client should discard tokens after this call."
+                        "description": "Logout the current user. Clears saved tokens."
                     },
                     "response": []
                 },
@@ -116,8 +262,11 @@
                                     "    if (jsonData.data && jsonData.data.accessToken) {",
                                     "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
                                     "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                                    "        console.log('✅ Tokens refreshed and saved');",
                                     "    }",
-                                    "}"
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));"
                                 ],
                                 "type": "text/javascript"
                             }
@@ -148,12 +297,28 @@
                                 "refresh"
                             ]
                         },
-                        "description": "Refresh the access token using a valid refresh token."
+                        "description": "Refresh access token using a valid refresh token.\n\n**Note:** Uses the saved refreshToken variable."
                     },
                     "response": []
                 },
                 {
                     "name": "Get Profile",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Response has user data', () => {",
+                                    "    const data = pm.response.json().data;",
+                                    "    pm.expect(data).to.have.property('email');",
+                                    "    pm.expect(data).to.have.property('role');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -167,18 +332,55 @@
                                 "me"
                             ]
                         },
-                        "description": "Get the current authenticated user's profile information."
+                        "description": "Get current user's profile information."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Google OAuth - Initiate",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/google",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "google"
+                            ]
+                        },
+                        "description": "Initiate Google OAuth flow.\n\n**Note:** This will redirect to Google's OAuth consent screen. Use in browser, not Postman."
                     },
                     "response": []
                 }
             ]
         },
         {
-            "name": "Databases",
-            "description": "Database management endpoints for types, instances, and databases",
+            "name": "🗄️ Databases",
+            "description": "Database discovery and instance management endpoints",
             "item": [
                 {
                     "name": "Get Database Types",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Returns array of types', () => {",
+                                    "    const data = pm.response.json().data;",
+                                    "    pm.expect(data).to.be.an('array');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -192,12 +394,27 @@
                                 "types"
                             ]
                         },
-                        "description": "Get list of available database types (PostgreSQL, MongoDB)."
+                        "description": "Get list of available database types.\n\n**Returns:** `['postgresql', 'mongodb']`"
                     },
                     "response": []
                 },
                 {
-                    "name": "Get Database Instances",
+                    "name": "Get All Database Instances",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Returns array of instances', () => {",
+                                    "    const data = pm.response.json().data;",
+                                    "    pm.expect(data).to.be.an('array');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -216,7 +433,7 @@
                     "response": []
                 },
                 {
-                    "name": "Get Database Instances (Filtered by Type)",
+                    "name": "Get PostgreSQL Instances",
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -232,12 +449,36 @@
                             "query": [
                                 {
                                     "key": "type",
-                                    "value": "postgresql",
-                                    "description": "Filter by database type: postgresql or mongodb"
+                                    "value": "postgresql"
                                 }
                             ]
                         },
-                        "description": "Get list of database instances filtered by type."
+                        "description": "Get database instances filtered by PostgreSQL type."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get MongoDB Instances",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/databases/instances?type=mongodb",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "databases",
+                                "instances"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "mongodb"
+                                }
+                            ]
+                        },
+                        "description": "Get database instances filtered by MongoDB type."
                     },
                     "response": []
                 },
@@ -259,17 +500,17 @@
                             "variable": [
                                 {
                                     "key": "instanceId",
-                                    "value": "pg-prod-1",
+                                    "value": "prod-postgres-main",
                                     "description": "Database instance ID"
                                 }
                             ]
                         },
-                        "description": "Get list of databases for a specific instance."
+                        "description": "Get list of databases available on a specific instance."
                     },
                     "response": []
                 },
                 {
-                    "name": "Get Instance Details (Admin Only)",
+                    "name": "Get Instance Details",
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -285,23 +526,38 @@
                             "variable": [
                                 {
                                     "key": "instanceId",
-                                    "value": "pg-prod-1",
+                                    "value": "prod-postgres-main",
                                     "description": "Database instance ID"
                                 }
                             ]
                         },
-                        "description": "Get detailed information about a database instance. **Admin only.**"
+                        "description": "Get detailed information about a specific database instance."
                     },
                     "response": []
                 }
             ]
         },
         {
-            "name": "PODs",
+            "name": "👥 PODs",
             "description": "POD (team) management endpoints",
             "item": [
                 {
                     "name": "Get All PODs",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Returns array of PODs', () => {",
+                                    "    const data = pm.response.json().data;",
+                                    "    pm.expect(data).to.be.an('array');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -340,18 +596,37 @@
                                 }
                             ]
                         },
-                        "description": "Get details of a specific POD by ID."
+                        "description": "Get details of a specific POD."
                     },
                     "response": []
                 }
             ]
         },
         {
-            "name": "Requests",
-            "description": "Query/script request submission and management",
+            "name": "📝 Requests - Submit",
+            "description": "Submit new query and script requests",
             "item": [
                 {
-                    "name": "Create Request (SQL Query)",
+                    "name": "Submit PostgreSQL Query",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                                    "",
+                                    "if (pm.response.code === 201) {",
+                                    "    const data = pm.response.json().data;",
+                                    "    if (data && data.id) {",
+                                    "        pm.collectionVariables.set('requestId', data.id);",
+                                    "        console.log('✅ Request ID saved:', data.id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [
@@ -362,7 +637,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"databaseType\": \"postgresql\",\n    \"instanceId\": \"pg-prod-1\",\n    \"databaseName\": \"users_db\",\n    \"submissionType\": \"query\",\n    \"query\": \"SELECT * FROM users LIMIT 10;\",\n    \"podId\": \"pod-backend\",\n    \"comments\": \"Fetching user data for analysis\"\n}"
+                            "raw": "{\n    \"databaseType\": \"postgresql\",\n    \"instanceId\": \"prod-postgres-main\",\n    \"databaseName\": \"zluri_prod\",\n    \"submissionType\": \"query\",\n    \"query\": \"SELECT id, email, created_at FROM users LIMIT 10;\",\n    \"podId\": \"pod-backend\",\n    \"comments\": \"Fetching sample user data for analysis\"\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/requests",
@@ -373,12 +648,31 @@
                                 "requests"
                             ]
                         },
-                        "description": "**Role:** Developer+\\n\\nSubmit a new SQL query request for approval.\\n\\n**Fields:**\\n- databaseType: postgresql or mongodb\\n- instanceId: Target database instance\\n- databaseName: Target database\\n- submissionType: query or script\\n- query: SQL/MongoDB query (for query type)\\n- podId: Team/POD ID\\n- comments: Optional comments"
+                        "description": "Submit a new PostgreSQL query for approval.\n\n**Required Fields:**\n- databaseType: 'postgresql'\n- instanceId: Target instance ID\n- databaseName: Target database\n- submissionType: 'query'\n- query: SQL query\n- podId: Your team's POD ID\n- comments: Reason for request"
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Request (MongoDB Query)",
+                    "name": "Submit MongoDB Query",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                                    "",
+                                    "if (pm.response.code === 201) {",
+                                    "    const data = pm.response.json().data;",
+                                    "    if (data && data.id) {",
+                                    "        pm.collectionVariables.set('requestId', data.id);",
+                                    "        console.log('✅ Request ID saved:', data.id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [
@@ -389,7 +683,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"databaseType\": \"mongodb\",\n    \"instanceId\": \"mongo-prod-1\",\n    \"databaseName\": \"analytics\",\n    \"submissionType\": \"query\",\n    \"query\": \"db.events.find({}).limit(10)\",\n    \"podId\": \"pod-backend\",\n    \"comments\": \"Fetching analytics events\"\n}"
+                            "raw": "{\n    \"databaseType\": \"mongodb\",\n    \"instanceId\": \"prod-mongodb-cache\",\n    \"databaseName\": \"zluri_sessions\",\n    \"submissionType\": \"query\",\n    \"query\": \"db.sessions.find({}).limit(10)\",\n    \"podId\": \"pod-backend\",\n    \"comments\": \"Checking session data for debugging\"\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/requests",
@@ -400,12 +694,31 @@
                                 "requests"
                             ]
                         },
-                        "description": "**Role:** Developer+\\n\\nSubmit a new MongoDB query request for approval."
+                        "description": "Submit a new MongoDB query for approval.\n\n**Supported MongoDB Methods:**\n- find, findOne, aggregate\n- insertOne, insertMany\n- updateOne, updateMany\n- deleteOne, deleteMany\n- countDocuments"
                     },
                     "response": []
                 },
                 {
-                    "name": "Create Request (Script Upload)",
+                    "name": "Submit Script (File Upload)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                                    "",
+                                    "if (pm.response.code === 201) {",
+                                    "    const data = pm.response.json().data;",
+                                    "    if (data && data.id) {",
+                                    "        pm.collectionVariables.set('requestId', data.id);",
+                                    "        console.log('✅ Request ID saved:', data.id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [],
@@ -419,12 +732,12 @@
                                 },
                                 {
                                     "key": "instanceId",
-                                    "value": "pg-prod-1",
+                                    "value": "prod-postgres-main",
                                     "type": "text"
                                 },
                                 {
                                     "key": "databaseName",
-                                    "value": "users_db",
+                                    "value": "zluri_prod",
                                     "type": "text"
                                 },
                                 {
@@ -439,7 +752,7 @@
                                 },
                                 {
                                     "key": "comments",
-                                    "value": "Data migration script",
+                                    "value": "Data migration script for user cleanup",
                                     "type": "text"
                                 },
                                 {
@@ -459,12 +772,34 @@
                                 "requests"
                             ]
                         },
-                        "description": "**Role:** Developer+\\n\\nSubmit a new script request for approval. Upload a .js file.\\n\\n**Note:** Set submissionType to 'script' and attach a .js file to the 'script' field.\\n\\n**Security Restrictions:**\\n- Scripts run in a sandboxed environment.\\n- Access to `process.env` is restricted (only `NODE_ENV` is available).\\n- Sensitive modules like `fs`, `child_process`, `cluster` are blocked.\\n- Network access is disabled."
+                        "description": "Submit a JavaScript script for approval.\n\n**Script Environment:**\n- Access to `POSTGRES_URL` or `MONGODB_URL` env vars\n- `DB_NAME` and `DB_TYPE` also available\n- 30s timeout, 128MB memory limit\n\n**Blocked APIs:**\n- child_process, eval, Function constructor\n- process.exit, direct fs module access"
                     },
                     "response": []
-                },
+                }
+            ]
+        },
+        {
+            "name": "📋 Requests - View",
+            "description": "View and manage submitted requests",
+            "item": [
                 {
                     "name": "Get My Requests",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Returns paginated data', () => {",
+                                    "    const json = pm.response.json();",
+                                    "    pm.expect(json).to.have.property('data');",
+                                    "    pm.expect(json).to.have.property('pagination');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -489,12 +824,56 @@
                                 {
                                     "key": "status",
                                     "value": "pending",
-                                    "description": "Filter by status: pending, approved, executed, failed, rejected, withdrawn",
+                                    "description": "Filter: pending, approved, executed, failed, rejected, withdrawn",
                                     "disabled": true
                                 }
                             ]
                         },
-                        "description": "**Role:** Authenticated User\\n\\nGet the current user's submitted requests with pagination.\\n\\n**Query Parameters:**\\n- page: Page number (default 1)\\n- limit: Items per page (default 20)\\n- status: Filter by status (pending/approved/executed/failed/rejected/withdrawn)"
+                        "description": "Get current user's submitted requests with pagination.\n\n**Query Params:**\n- page: Page number (default 1)\n- limit: Items per page (default 20)\n- status: Filter by status"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get My Pending Requests",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/requests/my?status=pending",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests",
+                                "my"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "pending"
+                                }
+                            ]
+                        },
+                        "description": "Get only pending requests for the current user."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Request by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/requests/{{requestId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "requests",
+                                "{{requestId}}"
+                            ]
+                        },
+                        "description": "Get details of a specific request.\n\n**Note:** Uses saved requestId variable."
                     },
                     "response": []
                 },
@@ -514,50 +893,29 @@
                                 "withdraw"
                             ]
                         },
-                        "description": "**Role:** Request Owner\\n\\nWithdraw a pending request. Only the request owner can withdraw.\\n\\n**Use case:** When you've reached your pending request limit (10) and need to free up a slot."
+                        "description": "Withdraw a pending request.\n\n**Requirements:**\n- Must be the request owner\n- Request must be in 'pending' status"
                     },
                     "response": []
-                },
+                }
+            ]
+        },
+        {
+            "name": "✅ Approvals (Manager+)",
+            "description": "Approval workflow endpoints - requires Manager or Admin role",
+            "item": [
                 {
-                    "name": "Get All Requests (Manager/Admin)",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{baseUrl}}/requests?page=1&limit=20",
-                            "host": [
-                                "{{baseUrl}}"
-                            ],
-                            "path": [
-                                "requests"
-                            ],
-                            "query": [
-                                {
-                                    "key": "page",
-                                    "value": "1"
-                                },
-                                {
-                                    "key": "limit",
-                                    "value": "20"
-                                },
-                                {
-                                    "key": "status",
-                                    "value": "pending",
-                                    "disabled": true
-                                },
-                                {
-                                    "key": "podId",
-                                    "value": "pod-backend",
-                                    "disabled": true
-                                }
-                            ]
-                        },
-                        "description": "Get all requests. **Manager/Admin only.**\n\n**Optional filters:**\n- status: pending, approved, rejected, completed, failed\n- podId: Filter by POD\n- dateFrom: Start date filter\n- dateTo: End date filter"
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Get Pending Requests (Manager/Admin)",
+                    "name": "Get Pending Requests",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -581,71 +939,92 @@
                                 }
                             ]
                         },
-                        "description": "Get all pending requests awaiting approval. **Manager/Admin only.**"
+                        "description": "Get all pending requests awaiting approval.\n\n**Role Required:** Manager or Admin\n\n**Managers:** See only requests for their managed PODs\n**Admins:** See all pending requests"
                     },
                     "response": []
                 },
                 {
-                    "name": "Get Request by ID",
+                    "name": "Get All Requests",
                     "request": {
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/requests/:id",
+                            "raw": "{{baseUrl}}/requests?page=1&limit=20",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
-                                "requests",
-                                ":id"
+                                "requests"
                             ],
-                            "variable": [
+                            "query": [
                                 {
-                                    "key": "id",
-                                    "value": "request-id-here",
-                                    "description": "Request ID"
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "approved",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "podId",
+                                    "value": "pod-backend",
+                                    "disabled": true
                                 }
                             ]
                         },
-                        "description": "Get details of a specific request. Access depends on ownership or role."
+                        "description": "Get all requests with optional filters.\n\n**Role Required:** Manager or Admin"
                     },
                     "response": []
-                }
-            ]
-        },
-        {
-            "name": "Approvals",
-            "description": "Request approval and rejection workflows",
-            "item": [
+                },
                 {
                     "name": "Approve Request",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/requests/:id/approve",
+                            "raw": "{{baseUrl}}/requests/{{requestId}}/approve",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "requests",
-                                ":id",
+                                "{{requestId}}",
                                 "approve"
-                            ],
-                            "variable": [
-                                {
-                                    "key": "id",
-                                    "value": "request-id-here",
-                                    "description": "Request ID to approve"
-                                }
                             ]
                         },
-                        "description": "Approve a pending request and trigger execution. **Manager/Admin only.**\n\nThe query/script will be executed immediately after approval."
+                        "description": "Approve a pending request and trigger execution.\n\n**Role Required:** Manager (for own PODs) or Admin\n\n**Post-Approval:**\n- Job is enqueued for execution\n- Slack notification sent\n- Status updates to 'executed' or 'failed'"
                     },
                     "response": []
                 },
                 {
                     "name": "Reject Request",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [
@@ -656,29 +1035,400 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"reason\": \"Query is too broad. Please add more specific filters.\"\n}"
+                            "raw": "{\n    \"reason\": \"Query is too broad. Please add more specific filters to limit the result set.\"\n}"
                         },
                         "url": {
-                            "raw": "{{baseUrl}}/requests/:id/reject",
+                            "raw": "{{baseUrl}}/requests/{{requestId}}/reject",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "requests",
-                                ":id",
+                                "{{requestId}}",
                                 "reject"
+                            ]
+                        },
+                        "description": "Reject a pending request with a reason.\n\n**Role Required:** Manager (for own PODs) or Admin\n\n**Body:**\n- reason: Explanation for rejection (optional but recommended)"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "⚙️ Admin (Admin Only)",
+            "description": "Administrative endpoints - requires Admin role",
+            "item": [
+                {
+                    "name": "Get All Users",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                                    "pm.test('Returns array of users', () => {",
+                                    "    const data = pm.response.json().data;",
+                                    "    pm.expect(data).to.be.an('array');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users"
+                            ]
+                        },
+                        "description": "Get list of all users.\n\n**Role Required:** Admin"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users",
+                                ":id"
                             ],
                             "variable": [
                                 {
                                     "key": "id",
-                                    "value": "request-id-here",
-                                    "description": "Request ID to reject"
+                                    "value": "{{userId}}",
+                                    "description": "User ID"
                                 }
                             ]
                         },
-                        "description": "Reject a pending request with an optional reason. **Manager/Admin only.**"
+                        "description": "Get details of a specific user.\n\n**Role Required:** Admin"
                     },
                     "response": []
+                },
+                {
+                    "name": "Create User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const data = pm.response.json().data;",
+                                    "    if (data && data.id) {",
+                                    "        pm.collectionVariables.set('userId', data.id);",
+                                    "        console.log('✅ User ID saved:', data.id);",
+                                    "    }",
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 201', () => pm.response.to.have.status(201));"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"newuser@zluri.com\",\n    \"password\": \"SecurePass@123\",\n    \"name\": \"New User\",\n    \"role\": \"developer\",\n    \"managedPodIds\": []\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users"
+                            ]
+                        },
+                        "description": "Create a new user.\n\n**Role Required:** Admin\n\n**Body:**\n- email: User email (unique)\n- password: Strong password\n- name: Display name\n- role: 'developer', 'manager', or 'admin'\n- managedPodIds: Array of POD IDs (for managers)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update User",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Updated Name\",\n    \"role\": \"manager\",\n    \"managedPodIds\": [\"pod-backend\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users",
+                                "{{userId}}"
+                            ]
+                        },
+                        "description": "Update an existing user.\n\n**Role Required:** Admin\n\n**Updatable Fields:**\n- name, role, managedPodIds, password"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete User",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "users",
+                                "{{userId}}"
+                            ]
+                        },
+                        "description": "Delete a user.\n\n**Role Required:** Admin\n\n**Warning:** This action is irreversible."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get PODs (Admin)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/pods",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "admin",
+                                "pods"
+                            ]
+                        },
+                        "description": "Get all PODs for user assignment.\n\n**Role Required:** Admin"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "🧪 Testing Scenarios",
+            "description": "Pre-configured test scenarios for common workflows",
+            "item": [
+                {
+                    "name": "Full Flow - Submit and Approve",
+                    "item": [
+                        {
+                            "name": "1. Login as Developer",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "if (pm.response.code === 200) {",
+                                            "    const jsonData = pm.response.json();",
+                                            "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                                            "    pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                                            "}"
+                                        ],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "auth": {
+                                    "type": "noauth"
+                                },
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"dev@zluri.com\",\n    \"password\": \"Dev@123\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/auth/login",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "login"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "2. Submit Query Request",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "if (pm.response.code === 201) {",
+                                            "    const data = pm.response.json().data;",
+                                            "    pm.collectionVariables.set('requestId', data.id);",
+                                            "}"
+                                        ],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"databaseType\": \"postgresql\",\n    \"instanceId\": \"prod-postgres-main\",\n    \"databaseName\": \"zluri_prod\",\n    \"submissionType\": \"query\",\n    \"query\": \"SELECT COUNT(*) FROM users;\",\n    \"podId\": \"pod-backend\",\n    \"comments\": \"Test query for approval flow\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/requests",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "requests"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "3. Login as Manager",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "if (pm.response.code === 200) {",
+                                            "    const jsonData = pm.response.json();",
+                                            "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                                            "    pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                                            "}"
+                                        ],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "auth": {
+                                    "type": "noauth"
+                                },
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"manager@zluri.com\",\n    \"password\": \"Manager@123\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/auth/login",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "login"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "4. View Pending Requests",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/requests/pending",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "requests",
+                                        "pending"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "5. Approve Request",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/requests/{{requestId}}/approve",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "requests",
+                                        "{{requestId}}",
+                                        "approve"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "6. Check Execution Result",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/requests/{{requestId}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "requests",
+                                        "{{requestId}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
                 }
             ]
         }
