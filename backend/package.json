@@ -22,6 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "@slack/web-api": "^7.13.0",
     "@types/passport": "^1.0.17",
     "bcrypt": "^5.1.1",
@@ -37,6 +38,7 @@
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.11.3",
     "pg-boss": "^10.4.0",
+    "prisma": "^5.22.0",
     "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },

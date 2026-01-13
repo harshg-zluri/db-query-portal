@@ -12,6 +12,7 @@
 import { WebClient, KnownBlock } from '@slack/web-api';
 import { logger } from '../utils/logger';
 import { QueryRequest } from '../types';
+import { SlackMessageBuilder } from '../utils/slack-message-builder';
 
 /**
  * Slack notification types for type safety
@@ -250,7 +251,7 @@ export class SlackService {
     }
 
     // ==========================================================================
-    // Block Builder Methods
+    // Block Builder Methods (Refactored to use SlackMessageBuilder)
     // ==========================================================================
 
     /**
@@ -258,80 +259,30 @@ export class SlackService {
      */
     private static buildNewRequestBlocks(request: QueryRequest): KnownBlock[] {
         const queryPreview = request.query
-            ? request.query.substring(0, 200) + (request.query.length > 200 ? '...' : '')
-            : request.scriptContent?.substring(0, 200) + (request.scriptContent && request.scriptContent.length > 200 ? '...' : '');
+            ? request.query
+            : request.scriptContent || '';
 
-        return [
-            {
-                type: 'header' as const,
-                text: {
-                    type: 'plain_text' as const,
-                    text: `🆕 New ${request.submissionType.toUpperCase()} Request`,
-                    emoji: true
-                }
-            },
-            {
-                type: 'section' as const,
-                fields: [
-                    {
-                        type: 'mrkdwn' as const,
-                        text: `*Database Type:*\n${request.databaseType}`
-                    },
-                    {
-                        type: 'mrkdwn' as const,
-                        text: `*Instance:*\n${request.instanceName}`
-                    },
-                    {
-                        type: 'mrkdwn' as const,
-                        text: `*Database:*\n${request.databaseName || 'N/A'}`
-                    },
-                    {
-                        type: 'mrkdwn' as const,
-                        text: `*POD:*\n${request.podName}`
-                    }
-                ]
-            },
-            {
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Requester:*\n${request.userEmail}`
-                }
-            },
-            ...(request.comments ? [{
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Reason/Comments:*\n${request.comments}`
-                }
-            }] : []),
-            {
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Query Preview:*\n\`\`\`${queryPreview}\`\`\``
-                }
-            },
-            {
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `<${getAppUrl()}/approvals|View in App to Approve/Reject>`
-                }
-            },
-            {
-                type: 'context' as const,
-                elements: [
-                    {
-                        type: 'mrkdwn' as const,
-                        text: `Request ID: \`${request.id.slice(0, 8)}\` | Submitted: ${new Date(request.createdAt).toLocaleString()}`
-                    }
-                ]
-            },
-            {
-                type: 'divider' as const
-            }
-        ];
+        const builder = new SlackMessageBuilder()
+            .header(`🆕 New ${request.submissionType.toUpperCase()} Request`)
+            .sectionFields([
+                { label: 'Database Type', value: request.databaseType },
+                { label: 'Instance', value: request.instanceName },
+                { label: 'Database', value: request.databaseName || 'N/A' },
+                { label: 'POD', value: request.podName }
+            ])
+            .section(`*Requester:*\n${request.userEmail}`);
+
+        if (request.comments) {
+            builder.section(`*Reason/Comments:*\n${request.comments}`);
+        }
+
+        builder.section('*Query Preview:*')
+            .codeBlock(queryPreview, 200)
+            .linkValidation('View in App to Approve/Reject', `${getAppUrl()}/approvals`)
+            .context(`Request ID: \`${request.id.slice(0, 8)}\` | Submitted: ${new Date(request.createdAt).toLocaleString()}`)
+            .divider();
+
+        return builder.build();
     }
 
     /**
@@ -345,84 +296,31 @@ export class SlackService {
         const statusEmoji = executionResult.success ? '✅' : '❌';
         const statusText = executionResult.success ? 'Executed Successfully' : 'Execution Failed';
 
-        const blocks: KnownBlock[] = [
-            {
-                type: 'header',
-                text: {
-                    type: 'plain_text',
-                    text: `${statusEmoji} Request ${statusText}`,
-                    emoji: true
-                }
-            },
-            {
-                type: 'section',
-                fields: [
-                    {
-                        type: 'mrkdwn',
-                        text: `*Approved by:*\n${approverEmail}`
-                    },
-                    {
-                        type: 'mrkdwn',
-                        text: `*Database:*\n${request.instanceName}`
-                    }
-                ]
-            }
-        ];
+        const builder = new SlackMessageBuilder()
+            .header(`${statusEmoji} Request ${statusText}`)
+            .sectionFields([
+                { label: 'Approved by', value: approverEmail },
+                { label: 'Database', value: request.instanceName }
+            ]);
 
         if (executionResult.success && executionResult.rowCount !== undefined) {
-            blocks.push({
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Rows affected:* ${executionResult.rowCount}`
-                }
-            });
+            builder.section(`*Rows affected:* ${executionResult.rowCount}`);
         }
 
         if (executionResult.success && executionResult.output) {
-            // Truncate output if too long for Slack block (3000 chars limit)
-            const outputPreview = executionResult.output.length > 2500
-                ? executionResult.output.substring(0, 2500) + '... (truncated)'
-                : executionResult.output;
-
-            blocks.push({
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Execution Result:*\n\`\`\`${outputPreview}\`\`\``
-                }
-            });
+            builder.section('*Execution Result:*')
+                .codeBlock(executionResult.output);
         }
 
         if (!executionResult.success && executionResult.error) {
-            blocks.push({
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Error:*\n\`\`\`${executionResult.error.substring(0, 500)}\`\`\``
-                }
-            });
-            // Add retry link for failed executions
-            blocks.push({
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `<${getAppUrl()}/submissions|View in App to Retry>`
-                }
-            });
+            builder.section('*Error:*')
+                .codeBlock(executionResult.error, 500)
+                .linkValidation('View in App to Retry', `${getAppUrl()}/submissions`);
         }
 
-        blocks.push({
-            type: 'context',
-            elements: [
-                {
-                    type: 'mrkdwn',
-                    text: `Request ID: \`${request.id.slice(0, 8)}\``
-                }
-            ]
-        });
+        builder.context(`Request ID: \`${request.id.slice(0, 8)}\``);
 
-        return blocks;
+        return builder.build();
     }
 
     /**
@@ -436,53 +334,27 @@ export class SlackService {
         const statusEmoji = executionResult.success ? '✅' : '❌';
         const statusText = executionResult.success ? 'Executed Successfully' : 'Execution Failed';
 
-        return [
-            {
-                type: 'section',
-                text: {
-                    type: 'mrkdwn',
-                    text: `${statusEmoji} *Request ${request.id.slice(0, 8)} ${statusText}*`
-                }
-            },
-            {
-                type: 'section',
-                fields: [
-                    {
-                        type: 'mrkdwn',
-                        text: `*Requester:* ${request.userEmail}`
-                    },
-                    {
-                        type: 'mrkdwn',
-                        text: `*Approved by:* ${approverEmail}`
-                    },
-                    {
-                        type: 'mrkdwn',
-                        text: `*Rows:* ${executionResult.rowCount ?? 'N/A'}`
-                    },
-                    {
-                        type: 'mrkdwn',
-                        text: `*Database:* ${request.instanceName}`
-                    }
-                ]
-            },
-            ...(executionResult.error ? [{
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Error:* ${executionResult.error.substring(0, 500)}`
-                }
-            }] : []),
-            ...(executionResult.success && executionResult.output ? [{
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Execution Result:*\n\`\`\`${executionResult.output}\`\`\``
-                }
-            }] : []),
-            {
-                type: 'divider' as const
-            }
-        ];
+        const builder = new SlackMessageBuilder()
+            .section(`${statusEmoji} *Request ${request.id.slice(0, 8)} ${statusText}*`)
+            .sectionFields([
+                { label: 'Requester', value: request.userEmail },
+                { label: 'Approved by', value: approverEmail },
+                { label: 'Rows', value: executionResult.rowCount?.toString() ?? 'N/A' },
+                { label: 'Database', value: request.instanceName }
+            ]);
+
+        if (executionResult.error) {
+            builder.section(`*Error:* ${executionResult.error.substring(0, 500)}`);
+        }
+
+        if (executionResult.success && executionResult.output) {
+            builder.section('*Execution Result:*')
+                .codeBlock(executionResult.output);
+        }
+
+        builder.divider();
+
+        return builder.build();
     }
 
     /**
@@ -494,62 +366,22 @@ export class SlackService {
         reason?: string
     ): KnownBlock[] {
         const queryPreview = request.query
-            ? request.query.substring(0, 200) + (request.query.length > 200 ? '...' : '')
-            : request.scriptContent?.substring(0, 200) + (request.scriptContent && request.scriptContent.length > 200 ? '...' : '');
+            ? request.query
+            : request.scriptContent || '';
 
-        return [
-            {
-                type: 'header' as const,
-                text: {
-                    type: 'plain_text' as const,
-                    text: '❌ Request Rejected',
-                    emoji: true
-                }
-            },
-            {
-                type: 'section' as const,
-                fields: [
-                    {
-                        type: 'mrkdwn' as const,
-                        text: `*Rejected by:*\n${rejectorEmail}`
-                    },
-                    {
-                        type: 'mrkdwn' as const,
-                        text: `*Database:*\n${request.instanceName}`
-                    }
-                ]
-            },
-            {
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Original Request:*\n\`\`\`${queryPreview}\`\`\``
-                }
-            },
-            {
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Rejection Reason:*\n${reason || 'No reason provided'}`
-                }
-            },
-            {
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `<${getAppUrl()}/submissions|View in App to Modify and Resubmit>`
-                }
-            },
-            {
-                type: 'context' as const,
-                elements: [
-                    {
-                        type: 'mrkdwn' as const,
-                        text: `Request ID: \`${request.id.slice(0, 8)}\``
-                    }
-                ]
-            }
-        ];
+        const builder = new SlackMessageBuilder()
+            .header('❌ Request Rejected')
+            .sectionFields([
+                { label: 'Rejected by', value: rejectorEmail },
+                { label: 'Database', value: request.instanceName }
+            ])
+            .section('*Original Request:*')
+            .codeBlock(queryPreview, 200)
+            .section(`*Rejection Reason:*\n${reason || 'No reason provided'}`)
+            .linkValidation('View in App to Modify and Resubmit', `${getAppUrl()}/submissions`)
+            .context(`Request ID: \`${request.id.slice(0, 8)}\``);
+
+        return builder.build();
     }
 }
 

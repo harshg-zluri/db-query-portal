@@ -72,42 +72,7 @@ describe('Coverage Gap Fill Tests', () => {
         });
     });
 
-    // 2. User Model - Edge Cases
-    describe('User Model - Edge Cases', () => {
-        const mockUser = {
-            id: '1',
-            email: 'test@test.com',
-            name: 'Original Name',
-            role: UserRole.DEVELOPER,
-            managedPodIds: []
-        };
 
-        beforeEach(() => {
-            jest.spyOn(UserModel, 'findById').mockResolvedValue(mockUser as any);
-        });
-
-        it('should retain original name if not provided in update (line 127)', async () => {
-            (query as jest.Mock).mockResolvedValue({
-                rows: [{ ...mockUser, name: 'Original Name' }]
-            });
-
-            await UserModel.update('1', { role: UserRole.MANAGER });
-
-            const calls = (query as jest.Mock).mock.calls;
-            const updateCall = calls.find(call => call[0].includes('UPDATE users'));
-            // 2nd arg is params array: [id, name, role, managedPodIds, date]
-            expect(updateCall[1][1]).toBe('Original Name');
-        });
-
-        it('should handle null managed_pod_ids from DB (line 143)', async () => {
-            (query as jest.Mock).mockResolvedValue({
-                rows: [{ ...mockUser, managed_pod_ids: null }]
-            });
-
-            const result = await UserModel.update('1', { name: 'New Name' });
-            expect(result?.managedPodIds).toEqual([]);
-        });
-    });
 
     // 3. Mongo Executor - Validation and Branches
     describe('MongoExecutor Tests', () => {

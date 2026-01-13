@@ -1,5 +1,22 @@
 import { Pool, PoolConfig } from 'pg';
+import { PrismaClient } from '@prisma/client';
 import { config } from './environment';
+
+// =============================================================================
+// Prisma Client (Primary ORM for portal database)
+// =============================================================================
+export const prisma = new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+});
+
+// Graceful Prisma shutdown
+export async function disconnectPrisma(): Promise<void> {
+    await prisma.$disconnect();
+}
+
+// =============================================================================
+// Legacy pg Pool (for pg-boss, postgres.executor.ts, lock.service.ts)
+// =============================================================================
 
 // Parse DATABASE_URL into pool config
 function parseConnectionString(url: string): PoolConfig {

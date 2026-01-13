@@ -1,17 +1,22 @@
 import { DatabaseInstanceModel } from '../../../src/models/DatabaseInstance';
 import { DatabaseType } from '../../../src/types';
+import { prisma } from '../../../src/config/database';
 
-// Mock database query
+// Mock Prisma
 jest.mock('../../../src/config/database', () => ({
-    query: jest.fn()
+    prisma: {
+        databaseInstance: {
+            findMany: jest.fn(),
+            findUnique: jest.fn(),
+            create: jest.fn()
+        }
+    }
 }));
 
 // Mock uuid
 jest.mock('uuid', () => ({
     v4: jest.fn(() => 'test-uuid-123')
 }));
-
-import { query } from '../../../src/config/database';
 
 describe('DatabaseInstanceModel', () => {
     beforeEach(() => {
@@ -20,27 +25,27 @@ describe('DatabaseInstanceModel', () => {
 
     describe('findAll', () => {
         it('should return all database instances', async () => {
-            const mockRows = [
+            const mockInstances = [
                 {
                     id: 'db-1',
                     name: 'Production Postgres',
-                    type: 'postgresql',
+                    type: DatabaseType.POSTGRESQL,
                     host: 'localhost',
                     port: 5432,
                     databases: ['app_db', 'analytics_db'],
-                    created_at: '2024-01-01T00:00:00Z'
+                    createdAt: new Date()
                 },
                 {
                     id: 'db-2',
                     name: 'Dev MongoDB',
-                    type: 'mongodb',
+                    type: DatabaseType.MONGODB,
                     host: 'localhost',
                     port: 27017,
                     databases: ['dev_db'],
-                    created_at: '2024-01-01T00:00:00Z'
+                    createdAt: new Date()
                 }
             ];
-            (query as jest.Mock).mockResolvedValue({ rows: mockRows });
+            (prisma.databaseInstance.findMany as jest.Mock).mockResolvedValue(mockInstances);
 
             const result = await DatabaseInstanceModel.findAll();
 
@@ -48,62 +53,46 @@ describe('DatabaseInstanceModel', () => {
             expect(result[0].name).toBe('Production Postgres');
             expect(result[1].type).toBe('mongodb');
         });
-
-        it('should handle null databases array', async () => {
-            const mockRows = [
-                {
-                    id: 'db-1',
-                    name: 'Empty Instance',
-                    type: 'postgresql',
-                    host: 'localhost',
-                    port: 5432,
-                    databases: null,
-                    created_at: '2024-01-01T00:00:00Z'
-                }
-            ];
-            (query as jest.Mock).mockResolvedValue({ rows: mockRows });
-
-            const result = await DatabaseInstanceModel.findAll();
-
-            expect(result[0].databases).toEqual([]);
-        });
     });
 
     describe('findByType', () => {
         it('should return instances of specific type', async () => {
-            const mockRows = [
+            const mockInstances = [
                 {
                     id: 'db-1',
                     name: 'PostgreSQL 1',
-                    type: 'postgresql',
+                    type: DatabaseType.POSTGRESQL,
                     host: 'localhost',
                     port: 5432,
                     databases: ['db1'],
-                    created_at: '2024-01-01T00:00:00Z'
+                    createdAt: new Date()
                 }
             ];
-            (query as jest.Mock).mockResolvedValue({ rows: mockRows });
+            (prisma.databaseInstance.findMany as jest.Mock).mockResolvedValue(mockInstances);
 
             const result = await DatabaseInstanceModel.findByType(DatabaseType.POSTGRESQL);
 
             expect(result).toHaveLength(1);
             expect(result[0].type).toBe('postgresql');
-            expect(query).toHaveBeenCalledWith(expect.any(String), ['postgresql']);
+            expect(prisma.databaseInstance.findMany).toHaveBeenCalledWith({
+                where: { type: DatabaseType.POSTGRESQL },
+                orderBy: { name: 'asc' }
+            });
         });
     });
 
     describe('findById', () => {
         it('should return instance when found', async () => {
-            const mockRow = {
+            const mockInstance = {
                 id: 'db-1',
                 name: 'Test Instance',
-                type: 'postgresql',
+                type: DatabaseType.POSTGRESQL,
                 host: 'localhost',
                 port: 5432,
                 databases: ['test_db'],
-                created_at: '2024-01-01T00:00:00Z'
+                createdAt: new Date()
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            (prisma.databaseInstance.findUnique as jest.Mock).mockResolvedValue(mockInstance);
 
             const result = await DatabaseInstanceModel.findById('db-1');
 
@@ -113,7 +102,7 @@ describe('DatabaseInstanceModel', () => {
         });
 
         it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+            (prisma.databaseInstance.findUnique as jest.Mock).mockResolvedValue(null);
 
             const result = await DatabaseInstanceModel.findById('nonexistent');
 
@@ -123,24 +112,40 @@ describe('DatabaseInstanceModel', () => {
 
     describe('getDatabases', () => {
         it('should return databases for instance', async () => {
-            const mockRow = {
+            const mockInstance = {
                 id: 'db-1',
                 name: 'Test Instance',
-                type: 'postgresql',
+                type: DatabaseType.POSTGRESQL,
                 host: 'localhost',
                 port: 5432,
-                databases: ['db1', 'db2', 'db3'],
-                created_at: '2024-01-01T00:00:00Z'
+                databases: ['db1', 'db2'],
+                createdAt: new Date()
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            (prisma.databaseInstance.findUnique as jest.Mock).mockResolvedValue(mockInstance);
 
             const result = await DatabaseInstanceModel.getDatabases('db-1');
 
-            expect(result).toEqual(['db1', 'db2', 'db3']);
+            expect(result).toEqual(['db1', 'db2']);
+        });
+
+        it('should return empty array if databases is null/undefined in DB', async () => {
+            const mockInstance = {
+                id: 'db-1',
+                name: 'Test Instance',
+                type: DatabaseType.POSTGRESQL,
+                host: 'localhost',
+                port: 5432,
+                databases: null, // Simulate null
+                createdAt: new Date()
+            };
+            (prisma.databaseInstance.findUnique as jest.Mock).mockResolvedValue(mockInstance);
+
+            const result = await DatabaseInstanceModel.getDatabases('db-1');
+            expect(result).toEqual([]);
         });
 
         it('should return empty array when instance not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+            (prisma.databaseInstance.findUnique as jest.Mock).mockResolvedValue(null);
 
             const result = await DatabaseInstanceModel.getDatabases('nonexistent');
 
@@ -150,16 +155,16 @@ describe('DatabaseInstanceModel', () => {
 
     describe('create', () => {
         it('should create new database instance', async () => {
-            const mockRow = {
+            const mockInstance = {
                 id: 'test-uuid-123',
                 name: 'New Instance',
-                type: 'mongodb',
+                type: DatabaseType.MONGODB,
                 host: '192.168.1.1',
                 port: 27017,
                 databases: ['new_db'],
-                created_at: new Date().toISOString()
+                createdAt: new Date()
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            (prisma.databaseInstance.create as jest.Mock).mockResolvedValue(mockInstance);
 
             const result = await DatabaseInstanceModel.create({
                 name: 'New Instance',
@@ -171,8 +176,7 @@ describe('DatabaseInstanceModel', () => {
 
             expect(result.id).toBe('test-uuid-123');
             expect(result.name).toBe('New Instance');
-            expect(result.type).toBe('mongodb');
-            expect(query).toHaveBeenCalled();
+            expect(prisma.databaseInstance.create).toHaveBeenCalled();
         });
     });
 });

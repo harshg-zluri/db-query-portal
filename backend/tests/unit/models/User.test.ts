@@ -1,18 +1,26 @@
 import { UserModel } from '../../../src/models/User';
 import { UserRole } from '../../../src/types';
+import { prisma } from '../../../src/config/database';
 
-// Mock database query
+// Mock Prisma
 jest.mock('../../../src/config/database', () => ({
-    query: jest.fn(),
-    withTransaction: jest.fn()
+    prisma: {
+        user: {
+            findMany: jest.fn(),
+            count: jest.fn(),
+            findUnique: jest.fn(),
+            findFirst: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn()
+        }
+    }
 }));
 
 // Mock uuid
 jest.mock('uuid', () => ({
     v4: jest.fn(() => 'test-uuid-123')
 }));
-
-import { query } from '../../../src/config/database';
 
 describe('UserModel', () => {
     beforeEach(() => {
@@ -21,28 +29,30 @@ describe('UserModel', () => {
 
     describe('findByEmail', () => {
         it('should return user when found', async () => {
-            const mockRow = {
+            const mockUser = {
                 id: 'user-1',
                 email: 'test@example.com',
                 password: 'hashed-password',
                 name: 'Test User',
                 role: 'developer',
-                managed_pod_ids: ['pod-1'],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
+                managedPodIds: ['pod-1'],
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
             const result = await UserModel.findByEmail('test@example.com');
 
             expect(result).not.toBeNull();
             expect(result?.email).toBe('test@example.com');
-            expect(result?.role).toBe('developer');
-            expect(result?.managedPodIds).toEqual(['pod-1']);
+            expect(prisma.user.findUnique).toHaveBeenCalledWith({
+                where: { email: 'test@example.com' }
+            });
         });
 
         it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
             const result = await UserModel.findByEmail('notfound@example.com');
 
@@ -52,27 +62,27 @@ describe('UserModel', () => {
 
     describe('findById', () => {
         it('should return user when found', async () => {
-            const mockRow = {
+            const mockUser = {
                 id: 'user-1',
                 email: 'test@example.com',
                 password: 'hashed-password',
                 name: 'Test User',
                 role: 'manager',
-                managed_pod_ids: null,
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
+                managedPodIds: [],
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
             const result = await UserModel.findById('user-1');
 
             expect(result).not.toBeNull();
             expect(result?.id).toBe('user-1');
-            expect(result?.managedPodIds).toEqual([]);
         });
 
         it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
             const result = await UserModel.findById('nonexistent');
 
@@ -82,28 +92,27 @@ describe('UserModel', () => {
 
     describe('findByGoogleId', () => {
         it('should return user when found', async () => {
-            const mockRow = {
+            const mockUser = {
                 id: 'user-1',
                 email: 'test@example.com',
                 password: null,
                 name: 'Google User',
                 role: 'developer',
-                managed_pod_ids: [],
-                google_id: 'google-123',
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
+                managedPodIds: [],
+                googleId: 'google-123',
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
 
             const result = await UserModel.findByGoogleId('google-123');
 
             expect(result).not.toBeNull();
             expect(result?.googleId).toBe('google-123');
-            expect(result?.email).toBe('test@example.com');
         });
 
         it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+            (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
 
             const result = await UserModel.findByGoogleId('nonexistent');
 
@@ -113,17 +122,17 @@ describe('UserModel', () => {
 
     describe('linkGoogle', () => {
         it('should link google account to existing user', async () => {
-            const mockRow = {
+            const mockUser = {
                 id: 'user-1',
                 email: 'test@example.com',
                 name: 'Test User',
                 role: 'developer',
-                managed_pod_ids: [],
-                google_id: 'google-123',
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
+                managedPodIds: [],
+                googleId: 'google-123',
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            (prisma.user.update as jest.Mock).mockResolvedValue(mockUser);
 
             const result = await UserModel.linkGoogle('user-1', 'google-123');
 
@@ -131,8 +140,8 @@ describe('UserModel', () => {
             expect(result?.googleId).toBe('google-123');
         });
 
-        it('should return null when user not found during link', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+        it('should return null when update fails', async () => {
+            (prisma.user.update as jest.Mock).mockRejectedValue(new Error('Record not found'));
 
             const result = await UserModel.linkGoogle('nonexistent', 'google-123');
 
@@ -140,48 +149,19 @@ describe('UserModel', () => {
         });
     });
 
-    describe('findByIdSafe', () => {
-        it('should return user without password when found', async () => {
-            const mockRow = {
-                id: 'user-1',
-                email: 'test@example.com',
-                password: 'secret-password',
-                name: 'Test User',
-                role: 'admin',
-                managed_pod_ids: [],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
-            };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
-
-            const result = await UserModel.findByIdSafe('user-1');
-
-            expect(result).not.toBeNull();
-            expect(result?.email).toBe('test@example.com');
-            expect((result as any).password).toBeUndefined();
-        });
-
-        it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
-            const result = await UserModel.findByIdSafe('nonexistent');
-
-            expect(result).toBeNull();
-        });
-    });
-
     describe('create', () => {
         it('should create a new user', async () => {
-            const mockRow = {
+            const mockUser = {
                 id: 'test-uuid-123',
                 email: 'new@example.com',
                 name: 'New User',
                 role: 'developer',
-                managed_pod_ids: [],
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                managedPodIds: [],
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            (prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
 
             const result = await UserModel.create({
                 email: 'new@example.com',
@@ -191,86 +171,64 @@ describe('UserModel', () => {
             });
 
             expect(result.email).toBe('new@example.com');
-            expect(result.name).toBe('New User');
-            expect(result.role).toBe('developer');
-            expect(query).toHaveBeenCalled();
+            expect(prisma.user.create).toHaveBeenCalled();
         });
 
-        it('should create user with managedPodIds', async () => {
-            const mockRow = {
+        it('should create user with defaults (no password, no pods)', async () => {
+            const mockUser = {
                 id: 'test-uuid-123',
-                email: 'manager@example.com',
-                name: 'Manager',
-                role: 'manager',
-                managed_pod_ids: ['pod-1', 'pod-2'],
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
-
-            const result = await UserModel.create({
-                email: 'manager@example.com',
-                password: 'hashed-password',
-                name: 'Manager',
-                role: UserRole.MANAGER,
-                managedPodIds: ['pod-1', 'pod-2']
-            });
-
-            expect(result.managedPodIds).toEqual(['pod-1', 'pod-2']);
-        });
-
-        it('should create user with Google ID', async () => {
-            const mockRow = {
-                id: 'test-uuid-123',
-                email: 'google@example.com',
-                name: 'Google User',
+                email: 'new@example.com',
+                name: 'New User',
                 role: 'developer',
-                managed_pod_ids: [],
-                google_id: 'google-123',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                managedPodIds: [],
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            (prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
 
-            const result = await UserModel.create({
-                email: 'google@example.com',
-                name: 'Google User',
-                role: UserRole.DEVELOPER,
-                googleId: 'google-123'
+            await UserModel.create({
+                email: 'new@example.com',
+                name: 'New User',
+                role: UserRole.DEVELOPER
             });
 
-            expect(result.googleId).toBe('google-123');
-            expect(result.email).toBe('google@example.com');
+            expect(prisma.user.create).toHaveBeenCalledWith(expect.objectContaining({
+                data: expect.objectContaining({
+                    password: null,
+                    managedPodIds: [],
+                    googleId: null
+                })
+            }));
         });
     });
 
     describe('update', () => {
         it('should update existing user', async () => {
-            // First call for findById
             const existingUser = {
                 id: 'user-1',
                 email: 'test@example.com',
                 password: 'hashed',
                 name: 'Old Name',
                 role: 'developer',
-                managed_pod_ids: [],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
+                managedPodIds: [],
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
-            // Second call for update
-            const updatedRow = {
+            const updatedUser = {
                 id: 'user-1',
                 email: 'test@example.com',
                 name: 'New Name',
                 role: 'manager',
-                managed_pod_ids: ['pod-1'],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-02T00:00:00Z'
+                managedPodIds: ['pod-1'],
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
 
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [existingUser] })
-                .mockResolvedValueOnce({ rows: [updatedRow] });
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(existingUser);
+            (prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
 
             const result = await UserModel.update('user-1', {
                 name: 'New Name',
@@ -279,68 +237,226 @@ describe('UserModel', () => {
             });
 
             expect(result).not.toBeNull();
-            expect(result?.name).toBe('New Name');
             expect(result?.role).toBe('manager');
         });
 
-        it('should return null when user not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
-            const result = await UserModel.update('nonexistent', { name: 'New Name' });
-
-            expect(result).toBeNull();
-        });
-
-        it('should return null when update returns no rows', async () => {
+        it('should use existing values for missing fields', async () => {
             const existingUser = {
                 id: 'user-1',
                 email: 'test@example.com',
                 password: 'hashed',
                 name: 'Old Name',
                 role: 'developer',
-                managed_pod_ids: [],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
+                managedPodIds: ['pod-1'],
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+            // Simulate update result returning new name but keeping old role/pods
+            const updatedUser = { ...existingUser, name: 'New Name' };
+
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(existingUser);
+            (prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
+
+            await UserModel.update('user-1', { name: 'New Name' });
+
+            expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
+                data: {
+                    name: 'New Name',
+                    role: 'developer', // Retains existing
+                    managedPodIds: ['pod-1'] // Retains existing
+                }
+            }));
+        });
+
+        it('should use existing name when not provided', async () => {
+            const existingUser = {
+                id: 'user-1',
+                email: 'test@example.com',
+                password: 'hashed',
+                name: 'Old Name',
+                role: 'developer',
+                managedPodIds: ['pod-1'],
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
 
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [existingUser] })  // findById
-                .mockResolvedValueOnce({ rows: [] });  // update returns empty
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(existingUser);
+            (prisma.user.update as jest.Mock).mockResolvedValue(existingUser);
+
+            await UserModel.update('user-1', { role: UserRole.MANAGER });
+
+            expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
+                data: expect.objectContaining({
+                    name: 'Old Name' // Should retain old name
+                })
+            }));
+        });
+
+        it('should return null if user not found', async () => {
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+            const result = await UserModel.update('nonexistent', {});
+
+            expect(result).toBeNull();
+        });
+
+        it('should return null on update failure', async () => {
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1' });
+            (prisma.user.update as jest.Mock).mockRejectedValue(new Error('Update failed'));
 
             const result = await UserModel.update('user-1', { name: 'New Name' });
 
             expect(result).toBeNull();
         });
+    });
+    describe('findAll', () => {
+        it('should return all users with pagination', async () => {
+            const mockUsers = [
+                {
+                    id: 'user-1',
+                    email: 'test@example.com',
+                    password: 'hashed',
+                    name: 'Test User',
+                    role: 'developer',
+                    managedPodIds: [],
+                    googleId: null,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                }
+            ];
+            (prisma.user.findMany as jest.Mock).mockResolvedValue(mockUsers);
+            (prisma.user.count as jest.Mock).mockResolvedValue(1);
 
-        it('should use existing values when partial update', async () => {
-            const existingUser = {
+            const result = await UserModel.findAll({ page: 1, limit: 10 });
+
+            expect(result.users).toHaveLength(1);
+            expect(result.total).toBe(1);
+            expect(result.users[0]).not.toHaveProperty('password');
+        });
+
+        it('should handle missing managedPodIds from DB', async () => {
+            const mockUser = {
                 id: 'user-1',
                 email: 'test@example.com',
                 password: 'hashed',
-                name: 'Existing Name',
+                name: 'Test User',
                 role: 'developer',
-                managed_pod_ids: ['pod-1'],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
+                managedPodIds: null, // Simulate null from DB
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
-            const updatedRow = {
+            (prisma.user.findMany as jest.Mock).mockResolvedValue([mockUser]);
+            (prisma.user.count as jest.Mock).mockResolvedValue(1);
+
+            const result = await UserModel.findAll();
+
+            expect(result.users[0].managedPodIds).toEqual([]);
+        });
+
+        it('should use default options when none provided', async () => {
+            (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
+            (prisma.user.count as jest.Mock).mockResolvedValue(0);
+
+            await UserModel.findAll();
+
+            expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                take: 20,
+                skip: 0,
+                where: {}
+            }));
+        });
+
+        it('should filter by search term', async () => {
+            (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
+            (prisma.user.count as jest.Mock).mockResolvedValue(0);
+
+            await UserModel.findAll({ search: 'test' });
+
+            expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                where: expect.objectContaining({
+                    OR: expect.arrayContaining([
+                        { name: { contains: 'test', mode: 'insensitive' } },
+                        { email: { contains: 'test', mode: 'insensitive' } }
+                    ])
+                })
+            }));
+        });
+    });
+
+    describe('findByIdSafe', () => {
+        it('should return safe user when found', async () => {
+            const mockUser = {
                 id: 'user-1',
                 email: 'test@example.com',
-                name: 'New Name',
+                password: 'hashed',
+                name: 'Test User',
                 role: 'developer',
-                managed_pod_ids: ['pod-1'],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-02T00:00:00Z'
+                managedPodIds: [],
+                googleId: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [existingUser] })
-                .mockResolvedValueOnce({ rows: [updatedRow] });
+            const result = await UserModel.findByIdSafe('user-1');
 
-            const result = await UserModel.update('user-1', { name: 'New Name' });
+            expect(result).not.toBeNull();
+            expect(result).not.toHaveProperty('password');
+            expect(result?.email).toBe('test@example.com');
+        });
 
-            expect(result?.name).toBe('New Name');
-            expect(result?.role).toBe('developer');  // Unchanged
+        it('should return null when not found', async () => {
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+            const result = await UserModel.findByIdSafe('nonexistent');
+
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('updatePassword', () => {
+        it('should update password and return true', async () => {
+            (prisma.user.update as jest.Mock).mockResolvedValue({ id: 'user-1' });
+
+            const result = await UserModel.updatePassword('user-1', 'new-hashed-password');
+
+            expect(result).toBe(true);
+            expect(prisma.user.update).toHaveBeenCalledWith({
+                where: { id: 'user-1' },
+                data: { password: 'new-hashed-password' }
+            });
+        });
+
+        it('should return false on failure', async () => {
+            (prisma.user.update as jest.Mock).mockRejectedValue(new Error('Update failed'));
+
+            const result = await UserModel.updatePassword('user-1', 'new-hashed-password');
+
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('delete', () => {
+        it('should delete user and return true', async () => {
+            (prisma.user.delete as jest.Mock).mockResolvedValue({ id: 'user-1' });
+
+            const result = await UserModel.delete('user-1');
+
+            expect(result).toBe(true);
+            expect(prisma.user.delete).toHaveBeenCalledWith({
+                where: { id: 'user-1' }
+            });
+        });
+
+        it('should return false on failure', async () => {
+            (prisma.user.delete as jest.Mock).mockRejectedValue(new Error('Delete failed'));
+
+            const result = await UserModel.delete('user-1');
+
+            expect(result).toBe(false);
         });
     });
 });

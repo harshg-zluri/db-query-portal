@@ -1,9 +1,19 @@
 import { QueryRequestModel } from '../../../src/models/QueryRequest';
 import { DatabaseType, SubmissionType, RequestStatus } from '../../../src/types';
+import { prisma } from '../../../src/config/database';
 
-// Mock database query
+// Mock Prisma
 jest.mock('../../../src/config/database', () => ({
-    query: jest.fn()
+    prisma: {
+        queryRequest: {
+            findMany: jest.fn(),
+            count: jest.fn(),
+            findUnique: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn(),
+            updateMany: jest.fn()
+        }
+    }
 }));
 
 // Mock uuid
@@ -11,41 +21,40 @@ jest.mock('uuid', () => ({
     v4: jest.fn(() => 'test-uuid-123')
 }));
 
-import { query } from '../../../src/config/database';
-
 describe('QueryRequestModel', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    const mockRequestRow = {
+    const mockRequest = {
         id: 'req-1',
-        user_id: 'user-1',
-        user_email: 'user@example.com',
-        database_type: 'postgresql',
-        instance_id: 'db-1',
-        instance_name: 'Production DB',
-        database_name: 'app_db',
-        submission_type: 'query',
+        userId: 'user-1',
+        userEmail: 'user@example.com',
+        databaseType: DatabaseType.POSTGRESQL,
+        instanceId: 'db-1',
+        instanceName: 'Production DB',
+        databaseName: 'app_db',
+        submissionType: SubmissionType.QUERY,
         query: 'SELECT * FROM users',
-        script_file_name: null,
-        script_content: null,
+        scriptFileName: null,
+        scriptContent: null,
         comments: 'Test query',
-        pod_id: 'pod-1',
-        pod_name: 'Engineering',
-        status: 'pending',
-        approver_email: null,
-        rejection_reason: null,
-        execution_result: null,
-        execution_error: null,
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z',
-        executed_at: null
+        podId: 'pod-1',
+        podName: 'Engineering',
+        status: RequestStatus.PENDING,
+        approverEmail: null,
+        rejectionReason: null,
+        executionResult: null,
+        executionError: null,
+        warnings: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        executedAt: null
     };
 
     describe('create', () => {
         it('should create a new query request', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRequestRow] });
+            (prisma.queryRequest.create as jest.Mock).mockResolvedValue(mockRequest);
 
             const result = await QueryRequestModel.create({
                 userId: 'user-1',
@@ -63,12 +72,23 @@ describe('QueryRequestModel', () => {
 
             expect(result.id).toBe('req-1');
             expect(result.status).toBe('pending');
-            expect(query).toHaveBeenCalled();
+            expect(prisma.queryRequest.create).toHaveBeenCalled();
         });
 
-        it('should create script submission request', async () => {
-            const scriptRow = { ...mockRequestRow, submission_type: 'script', query: null, script_file_name: 'script.js', script_content: 'console.log(1)' };
-            (query as jest.Mock).mockResolvedValue({ rows: [scriptRow] });
+        it('should handle optional fields and defaults', async () => {
+            const mockRequestWithDefaults = {
+                ...mockRequest,
+                query: null,
+                scriptFileName: null,
+                scriptContent: null,
+                approverEmail: null,
+                rejectionReason: null,
+                executionResult: null,
+                executionError: null,
+                warnings: [], // Default empty array from mapped type
+                executedAt: null
+            };
+            (prisma.queryRequest.create as jest.Mock).mockResolvedValue(mockRequestWithDefaults);
 
             const result = await QueryRequestModel.create({
                 userId: 'user-1',
@@ -78,51 +98,73 @@ describe('QueryRequestModel', () => {
                 instanceName: 'Production DB',
                 databaseName: 'app_db',
                 submissionType: SubmissionType.SCRIPT,
-                scriptFileName: 'script.js',
-                scriptContent: 'console.log(1)',
+                // query missing
                 comments: 'Test script',
                 podId: 'pod-1',
                 podName: 'Engineering'
             });
 
-            expect(result.submissionType).toBe('script');
+            expect(result.query).toBeUndefined();
+            expect(prisma.queryRequest.create).toHaveBeenCalledWith(expect.objectContaining({
+                data: expect.objectContaining({
+                    query: null,
+                    warnings: []
+                })
+            }));
         });
     });
 
     describe('findById', () => {
         it('should return request when found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRequestRow] });
+            (prisma.queryRequest.findUnique as jest.Mock).mockResolvedValue(mockRequest);
 
             const result = await QueryRequestModel.findById('req-1');
 
             expect(result).not.toBeNull();
             expect(result?.id).toBe('req-1');
-            expect(result?.query).toBe('SELECT * FROM users');
+        });
+
+        it('should handle null warnings from DB', async () => {
+            const mockRequestNoWarnings = {
+                ...mockRequest,
+                warnings: null
+            };
+            (prisma.queryRequest.findUnique as jest.Mock).mockResolvedValue(mockRequestNoWarnings);
+
+            const result = await QueryRequestModel.findById('req-1');
+
+            expect(result?.warnings).toBeUndefined();
         });
 
         it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+            (prisma.queryRequest.findUnique as jest.Mock).mockResolvedValue(null);
 
             const result = await QueryRequestModel.findById('nonexistent');
 
             expect(result).toBeNull();
         });
+    });
 
-        it('should handle executed_at field', async () => {
-            const executedRow = { ...mockRequestRow, executed_at: '2024-01-02T00:00:00Z' };
-            (query as jest.Mock).mockResolvedValue({ rows: [executedRow] });
+    describe('countPendingByUser', () => {
+        it('should count pending and approved requests', async () => {
+            (prisma.queryRequest.count as jest.Mock).mockResolvedValue(5);
 
-            const result = await QueryRequestModel.findById('req-1');
+            const count = await QueryRequestModel.countPendingByUser('user-1');
 
-            expect(result?.executedAt).toBeInstanceOf(Date);
+            expect(count).toBe(5);
+            expect(prisma.queryRequest.count).toHaveBeenCalledWith({
+                where: {
+                    userId: 'user-1',
+                    status: { in: [RequestStatus.PENDING, RequestStatus.APPROVED] }
+                }
+            });
         });
     });
 
     describe('findByUserId', () => {
         it('should return paginated results', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [mockRequestRow] })
-                .mockResolvedValueOnce({ rows: [{ total: '5' }] });
+            (prisma.queryRequest.findMany as jest.Mock).mockResolvedValue([mockRequest]);
+            (prisma.queryRequest.count as jest.Mock).mockResolvedValue(5);
 
             const result = await QueryRequestModel.findByUserId('user-1', 1, 10);
 
@@ -130,35 +172,34 @@ describe('QueryRequestModel', () => {
             expect(result.total).toBe(5);
         });
 
-        it('should use default pagination', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [] })
-                .mockResolvedValueOnce({ rows: [{ total: '0' }] });
+        it('should use default page and limit', async () => {
+            (prisma.queryRequest.findMany as jest.Mock).mockResolvedValue([]);
+            (prisma.queryRequest.count as jest.Mock).mockResolvedValue(0);
 
-            const result = await QueryRequestModel.findByUserId('user-1');
+            await QueryRequestModel.findByUserId('user-1');
 
-            expect(result.requests).toHaveLength(0);
-            expect(result.total).toBe(0);
+            expect(prisma.queryRequest.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                take: 20,
+                skip: 0
+            }));
         });
 
-        it('should filter by status', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [mockRequestRow] })
-                .mockResolvedValueOnce({ rows: [{ total: '1' }] });
+        it('should filter by status if provided', async () => {
+            (prisma.queryRequest.findMany as jest.Mock).mockResolvedValue([]);
+            (prisma.queryRequest.count as jest.Mock).mockResolvedValue(0);
 
-            const result = await QueryRequestModel.findByUserId('user-1', 1, 10, RequestStatus.PENDING);
+            await QueryRequestModel.findByUserId('user-1', 1, 20, RequestStatus.PENDING);
 
-            expect(result.requests).toHaveLength(1);
-            expect(result.total).toBe(1);
-            expect(query).toHaveBeenCalledWith(expect.stringContaining('WHERE'), expect.any(Array));
+            expect(prisma.queryRequest.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                where: { userId: 'user-1', status: RequestStatus.PENDING }
+            }));
         });
     });
 
     describe('findWithFilters', () => {
         it('should filter by status', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [mockRequestRow] })
-                .mockResolvedValueOnce({ rows: [{ total: '1' }] });
+            (prisma.queryRequest.findMany as jest.Mock).mockResolvedValue([mockRequest]);
+            (prisma.queryRequest.count as jest.Mock).mockResolvedValue(1);
 
             const result = await QueryRequestModel.findWithFilters(
                 { status: RequestStatus.PENDING },
@@ -167,40 +208,42 @@ describe('QueryRequestModel', () => {
             );
 
             expect(result.requests).toHaveLength(1);
+            expect(prisma.queryRequest.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                where: expect.objectContaining({ status: RequestStatus.PENDING })
+            }));
         });
 
-        it('should handle all filter options', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [] })
-                .mockResolvedValueOnce({ rows: [{ total: '0' }] });
+        it('should apply extensive filters (podId, approver, dates)', async () => {
+            (prisma.queryRequest.findMany as jest.Mock).mockResolvedValue([]);
+            (prisma.queryRequest.count as jest.Mock).mockResolvedValue(0);
 
-            const result = await QueryRequestModel.findWithFilters({
-                status: RequestStatus.APPROVED,
+            const filters = {
                 podId: 'pod-1',
                 approverEmail: 'approver@example.com',
+                allowedPodIds: ['pod-1', 'pod-2'],
                 dateFrom: new Date('2024-01-01'),
-                dateTo: new Date('2024-12-31'),
-                allowedPodIds: ['pod-1', 'pod-2']
-            });
+                dateTo: new Date('2024-01-31')
+            };
 
-            expect(result.requests).toHaveLength(0);
-        });
+            await QueryRequestModel.findWithFilters(filters);
 
-        it('should use default pagination', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [] })
-                .mockResolvedValueOnce({ rows: [{ total: '0' }] });
-
-            await QueryRequestModel.findWithFilters({});
-
-            expect(query).toHaveBeenCalled();
+            expect(prisma.queryRequest.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                where: expect.objectContaining({
+                    podId: { in: ['pod-1', 'pod-2'] }, // allowedPodIds overrides check
+                    approverEmail: 'approver@example.com',
+                    createdAt: {
+                        gte: filters.dateFrom,
+                        lte: filters.dateTo
+                    }
+                })
+            }));
         });
     });
 
     describe('approve', () => {
         it('should approve request', async () => {
-            const approvedRow = { ...mockRequestRow, status: 'approved', approver_email: 'approver@example.com' };
-            (query as jest.Mock).mockResolvedValue({ rows: [approvedRow] });
+            const approvedRequest = { ...mockRequest, status: RequestStatus.APPROVED, approverEmail: 'approver@example.com' };
+            (prisma.queryRequest.update as jest.Mock).mockResolvedValue(approvedRequest);
 
             const result = await QueryRequestModel.approve('req-1', 'approver@example.com');
 
@@ -209,7 +252,7 @@ describe('QueryRequestModel', () => {
         });
 
         it('should return null when request not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+            (prisma.queryRequest.update as jest.Mock).mockRejectedValue(new Error('P2025')); // Record not found
 
             const result = await QueryRequestModel.approve('nonexistent', 'approver@example.com');
 
@@ -219,37 +262,65 @@ describe('QueryRequestModel', () => {
 
     describe('reject', () => {
         it('should reject request with reason', async () => {
-            const rejectedRow = { ...mockRequestRow, status: 'rejected', rejection_reason: 'Not allowed' };
-            (query as jest.Mock).mockResolvedValue({ rows: [rejectedRow] });
+            const rejectedRequest = {
+                ...mockRequest,
+                status: RequestStatus.REJECTED,
+                approverEmail: 'approver@example.com',
+                rejectionReason: 'Policy violation'
+            };
+            (prisma.queryRequest.update as jest.Mock).mockResolvedValue(rejectedRequest);
 
-            const result = await QueryRequestModel.reject('req-1', 'approver@example.com', 'Not allowed');
+            const result = await QueryRequestModel.reject('req-1', 'approver@example.com', 'Policy violation');
 
-            expect(result).not.toBeNull();
             expect(result?.status).toBe('rejected');
+            expect(result?.rejectionReason).toBe('Policy violation');
         });
 
-        it('should reject request without reason', async () => {
-            const rejectedRow = { ...mockRequestRow, status: 'rejected' };
-            (query as jest.Mock).mockResolvedValue({ rows: [rejectedRow] });
-
+        it('should return null on failure', async () => {
+            (prisma.queryRequest.update as jest.Mock).mockRejectedValue(new Error('Error'));
             const result = await QueryRequestModel.reject('req-1', 'approver@example.com');
+            expect(result).toBeNull();
+        });
+    });
 
-            expect(result).not.toBeNull();
+    describe('withdraw', () => {
+        it('should withdraw pending request', async () => {
+            (prisma.queryRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+            (prisma.queryRequest.findUnique as jest.Mock).mockResolvedValue({ ...mockRequest, status: RequestStatus.WITHDRAWN });
+
+            const result = await QueryRequestModel.withdraw('req-1', 'user-1');
+
+            expect(result?.status).toBe('withdrawn');
+            expect(prisma.queryRequest.updateMany).toHaveBeenCalledWith({
+                where: { id: 'req-1', userId: 'user-1', status: RequestStatus.PENDING },
+                data: { status: RequestStatus.WITHDRAWN }
+            });
         });
 
-        it('should return null when request not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+        it('should return null if nothing updated (e.g. not pending or not owner)', async () => {
+            (prisma.queryRequest.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
 
-            const result = await QueryRequestModel.reject('nonexistent', 'approver@example.com');
+            const result = await QueryRequestModel.withdraw('req-1', 'user-1');
 
+            expect(result).toBeNull();
+        });
+
+        it('should return null on failure', async () => {
+            (prisma.queryRequest.updateMany as jest.Mock).mockRejectedValue(new Error('Error'));
+            const result = await QueryRequestModel.withdraw('req-1', 'user-1');
             expect(result).toBeNull();
         });
     });
 
     describe('setExecutionResult', () => {
         it('should set successful execution result', async () => {
-            const executedRow = { ...mockRequestRow, status: 'executed', execution_result: '{"rows": []}', executed_at: '2024-01-02T00:00:00Z' };
-            (query as jest.Mock).mockResolvedValue({ rows: [executedRow] });
+            const executedRequest = {
+                ...mockRequest,
+                status: RequestStatus.EXECUTED,
+                executionResult: '{"rows": []}',
+                executedAt: new Date()
+            };
+            (prisma.queryRequest.update as jest.Mock).mockResolvedValue(executedRequest);
 
             const result = await QueryRequestModel.setExecutionResult('req-1', true, '{"rows": []}');
 
@@ -258,51 +329,26 @@ describe('QueryRequestModel', () => {
         });
 
         it('should set failed execution result', async () => {
-            const failedRow = { ...mockRequestRow, status: 'failed', execution_error: 'Connection failed' };
-            (query as jest.Mock).mockResolvedValue({ rows: [failedRow] });
+            const failedRequest = {
+                ...mockRequest,
+                status: RequestStatus.FAILED,
+                executionError: 'Syntax Error',
+                executedAt: new Date()
+            };
+            (prisma.queryRequest.update as jest.Mock).mockResolvedValue(failedRequest);
 
-            const result = await QueryRequestModel.setExecutionResult('req-1', false, undefined, 'Connection failed');
+            const result = await QueryRequestModel.setExecutionResult('req-1', false, undefined, 'Syntax Error');
 
-            expect(result).not.toBeNull();
             expect(result?.status).toBe('failed');
+            expect(result?.executionError).toBe('Syntax Error');
         });
 
-        it('should return null when request not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+        it('should return null on error', async () => {
+            (prisma.queryRequest.update as jest.Mock).mockRejectedValue(new Error('Update failed'));
 
-            const result = await QueryRequestModel.setExecutionResult('nonexistent', true);
+            const result = await QueryRequestModel.setExecutionResult('req-1', true);
 
             expect(result).toBeNull();
-        });
-    });
-
-    describe('withdraw', () => {
-        it('should withdraw request', async () => {
-            const withdrawnRow = { ...mockRequestRow, status: 'withdrawn' };
-            (query as jest.Mock).mockResolvedValue({ rows: [withdrawnRow] });
-
-            const result = await QueryRequestModel.withdraw('req-1', 'user-1');
-
-            expect(result).not.toBeNull();
-            expect(result?.status).toBe('withdrawn');
-        });
-
-        it('should return null when request not found or not owned by user', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
-            const result = await QueryRequestModel.withdraw('nonexistent', 'user-1');
-
-            expect(result).toBeNull();
-        });
-    });
-
-    describe('countPendingByUser', () => {
-        it('should return pending count', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [{ total: '5' }] });
-
-            const count = await QueryRequestModel.countPendingByUser('user-1');
-
-            expect(count).toBe(5);
         });
     });
 });

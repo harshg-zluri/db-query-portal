@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  developer
+  manager
+  admin
+}
+
+enum DatabaseType {
+  postgresql
+  mongodb
+}
+
+enum SubmissionType {
+  query
+  script
+}
+
+enum RequestStatus {
+  pending
+  approved
+  rejected
+  executed
+  failed
+  withdrawn
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String?
+  name          String
+  role          UserRole @default(developer)
+  managedPodIds String[] @map("managed_pod_ids")
+  googleId      String?  @map("google_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  queryRequests QueryRequest[]
+
+  @@map("users")
+}
+
+model DatabaseInstance {
+  id        String       @id @default(uuid())
+  name      String       @unique
+  type      DatabaseType
+  host      String
+  port      Int
+  databases String[]
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  queryRequests QueryRequest[]
+
+  @@map("database_instances")
+}
+
+model QueryRequest {
+  id              String         @id @default(uuid())
+  userId          String         @map("user_id")
+  userEmail       String         @map("user_email")
+  databaseType    DatabaseType   @map("database_type")
+  instanceId      String         @map("instance_id")
+  instanceName    String         @map("instance_name")
+  databaseName    String         @map("database_name")
+  submissionType  SubmissionType @map("submission_type")
+  query           String?
+  scriptFileName  String?        @map("script_file_name")
+  scriptContent   String?        @map("script_content")
+  comments        String
+  podId           String         @map("pod_id")
+  podName         String         @map("pod_name")
+  status          RequestStatus  @default(pending)
+  approverEmail   String?        @map("approver_email")
+  rejectionReason String?        @map("rejection_reason")
+  executionResult String?        @map("execution_result")
+  executionError  String?        @map("execution_error")
+  warnings        String[]
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  executedAt      DateTime?      @map("executed_at")
+
+  user     User             @relation(fields: [userId], references: [id])
+  instance DatabaseInstance @relation(fields: [instanceId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([podId])
+  @@index([createdAt(sort: Desc)])
+  @@index([status, podId])
+  @@map("query_requests")
+}

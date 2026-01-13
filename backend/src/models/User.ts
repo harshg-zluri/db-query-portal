@@ -1,92 +1,59 @@
-import { query } from '../config/database';
+import { prisma } from '../config/database';
 import { User, SafeUser, UserRole } from '../types';
-import { v4 as uuidv4 } from 'uuid';
 
-// SQL queries
-const SQL = {
-    findByEmail: `
-    SELECT id, email, password, name, role, managed_pod_ids, google_id, created_at, updated_at
-    FROM users WHERE email = $1
-  `,
-    findByGoogleId: `
-    SELECT id, email, password, name, role, managed_pod_ids, google_id, created_at, updated_at
-    FROM users WHERE google_id = $1
-  `,
-    findById: `
-    SELECT id, email, password, name, role, managed_pod_ids, google_id, created_at, updated_at
-    FROM users WHERE id = $1
-  `,
-    create: `
-    INSERT INTO users (id, email, password, name, role, managed_pod_ids, google_id, created_at, updated_at)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
-    RETURNING id, email, name, role, managed_pod_ids, google_id, created_at, updated_at
-  `,
-    update: `
-    UPDATE users SET name = $2, role = $3, managed_pod_ids = $4, updated_at = $5
-    WHERE id = $1
-    RETURNING id, email, name, role, managed_pod_ids, created_at, updated_at
-  `,
-    linkGoogle: `
-    UPDATE users SET google_id = $2, updated_at = $3
-    WHERE id = $1
-    RETURNING id, email, name, role, managed_pod_ids, google_id, created_at, updated_at
-    `,
-    updatePassword: `
-    UPDATE users SET password = $2, updated_at = $3
-    WHERE id = $1
-    RETURNING id
-  `,
-    delete: `
-    DELETE FROM users WHERE id = $1
-    RETURNING id
-  `,
-    findAll: `
-    SELECT id, email, name, role, managed_pod_ids, created_at, updated_at
-    FROM users
-    WHERE ($1::text IS NULL OR name ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
-    ORDER BY created_at DESC
-    LIMIT $2 OFFSET $3
-  `,
-    countAll: `
-    SELECT COUNT(*) as total
-    FROM users
-    WHERE ($1::text IS NULL OR name ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
-  `
-};
-
-// Transform database row to User object
-function rowToUser(row: Record<string, unknown>): User {
+// Transform Prisma result to User object
+function toUser(row: {
+    id: string;
+    email: string;
+    password: string | null;
+    name: string;
+    role: string;
+    managedPodIds: string[];
+    googleId: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+}): User {
     return {
-        id: row.id as string,
-        email: row.email as string,
-        password: row.password as string, // Can be null now, check types
-        name: row.name as string,
+        id: row.id,
+        email: row.email,
+        password: row.password || '',
+        name: row.name,
         role: row.role as UserRole,
-        managedPodIds: (row.managed_pod_ids || []) as string[],
-        googleId: row.google_id as string | undefined,
-        createdAt: new Date(row.created_at as string),
-        updatedAt: new Date(row.updated_at as string)
-    };
-}
-
-// Transform database row to SafeUser (no password)
-function rowToSafeUser(row: Record<string, unknown>): SafeUser {
-    return {
-        id: row.id as string,
-        email: row.email as string,
-        name: row.name as string,
-        role: row.role as UserRole,
-        managedPodIds: (row.managed_pod_ids || []) as string[],
-        googleId: row.google_id as string | undefined,
-        createdAt: new Date(row.created_at as string),
-        updatedAt: new Date(row.updated_at as string)
+        managedPodIds: row.managedPodIds || [],
+        googleId: row.googleId || undefined,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt
     };
 }
 
 // Remove password from user
 function toSafeUser(user: User): SafeUser {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...safe } = user;
     return safe;
+}
+
+// Transform Prisma result to SafeUser (no password)
+function rowToSafeUser(row: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    managedPodIds: string[];
+    googleId: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+}): SafeUser {
+    return {
+        id: row.id,
+        email: row.email,
+        name: row.name,
+        role: row.role as UserRole,
+        managedPodIds: row.managedPodIds || [],
+        googleId: row.googleId || undefined,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt
+    };
 }
 
 export class UserModel {
@@ -98,17 +65,39 @@ export class UserModel {
         page?: number;
         limit?: number;
     } = {}): Promise<{ users: SafeUser[]; total: number }> {
-        const { search = null, page = 1, limit = 20 } = options;
-        const offset = (page - 1) * limit;
+        const { search, page = 1, limit = 20 } = options;
+        const skip = (page - 1) * limit;
 
-        const [usersResult, countResult] = await Promise.all([
-            query<Record<string, unknown>>(SQL.findAll, [search, limit, offset]),
-            query<{ total: string }>(SQL.countAll, [search])
+        const whereClause = search ? {
+            OR: [
+                { name: { contains: search, mode: 'insensitive' as const } },
+                { email: { contains: search, mode: 'insensitive' as const } }
+            ]
+        } : {};
+
+        const [users, total] = await Promise.all([
+            prisma.user.findMany({
+                where: whereClause,
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+                skip,
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    role: true,
+                    managedPodIds: true,
+                    googleId: true,
+                    createdAt: true,
+                    updatedAt: true
+                }
+            }),
+            prisma.user.count({ where: whereClause })
         ]);
 
         return {
-            users: usersResult.rows.map(rowToSafeUser),
-            total: parseInt(countResult.rows[0]?.total || '0', 10)
+            users: users.map(rowToSafeUser),
+            total
         };
     }
 
@@ -116,22 +105,22 @@ export class UserModel {
      * Find user by email
      */
     static async findByEmail(email: string): Promise<User | null> {
-        const result = await query<Record<string, unknown>>(SQL.findByEmail, [email]);
-        if (result.rows.length === 0) {
-            return null;
-        }
-        return rowToUser(result.rows[0]);
+        const user = await prisma.user.findUnique({
+            where: { email }
+        });
+
+        return user ? toUser(user) : null;
     }
 
     /**
      * Find user by ID
      */
     static async findById(id: string): Promise<User | null> {
-        const result = await query<Record<string, unknown>>(SQL.findById, [id]);
-        if (result.rows.length === 0) {
-            return null;
-        }
-        return rowToUser(result.rows[0]);
+        const user = await prisma.user.findUnique({
+            where: { id }
+        });
+
+        return user ? toUser(user) : null;
     }
 
     /**
@@ -146,28 +135,37 @@ export class UserModel {
      * Find user by Google ID
      */
     static async findByGoogleId(googleId: string): Promise<User | null> {
-        const result = await query<Record<string, unknown>>(SQL.findByGoogleId, [googleId]);
-        if (result.rows.length === 0) {
-            return null;
-        }
-        return rowToUser(result.rows[0]);
+        const user = await prisma.user.findFirst({
+            where: { googleId }
+        });
+
+        return user ? toUser(user) : null;
     }
 
     /**
      * Link Google account to existing user
      */
     static async linkGoogle(id: string, googleId: string): Promise<SafeUser | null> {
-        const result = await query<Record<string, unknown>>(SQL.linkGoogle, [
-            id,
-            googleId,
-            new Date()
-        ]);
+        try {
+            const user = await prisma.user.update({
+                where: { id },
+                data: { googleId },
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    role: true,
+                    managedPodIds: true,
+                    googleId: true,
+                    createdAt: true,
+                    updatedAt: true
+                }
+            });
 
-        if (result.rows.length === 0) {
+            return rowToSafeUser(user);
+        } catch {
             return null;
         }
-
-        return rowToSafeUser(result.rows[0]);
     }
 
     /**
@@ -181,30 +179,28 @@ export class UserModel {
         managedPodIds?: string[];
         googleId?: string;
     }): Promise<SafeUser> {
-        const id = uuidv4();
-        const now = new Date();
+        const user = await prisma.user.create({
+            data: {
+                email: data.email,
+                password: data.password || null,
+                name: data.name,
+                role: data.role,
+                managedPodIds: data.managedPodIds || [],
+                googleId: data.googleId || null
+            },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                managedPodIds: true,
+                googleId: true,
+                createdAt: true,
+                updatedAt: true
+            }
+        });
 
-        await query<Record<string, unknown>>(SQL.create, [
-            id,
-            data.email,
-            data.password || null,
-            data.name,
-            data.role,
-            data.managedPodIds || [],
-            data.googleId || null,
-            now
-        ]);
-
-        return {
-            id,
-            email: data.email,
-            name: data.name,
-            role: data.role,
-            managedPodIds: data.managedPodIds || [],
-            googleId: data.googleId,
-            createdAt: now,
-            updatedAt: now
-        };
+        return rowToSafeUser(user);
     }
 
     /**
@@ -215,43 +211,63 @@ export class UserModel {
         role?: UserRole;
         managedPodIds?: string[];
     }): Promise<SafeUser | null> {
-        const user = await this.findById(id);
-        if (!user) {
+        const existingUser = await this.findById(id);
+        if (!existingUser) {
             return null;
         }
 
-        const result = await query<Record<string, unknown>>(SQL.update, [
-            id,
-            data.name ?? user.name,
-            data.role ?? user.role,
-            data.managedPodIds ?? user.managedPodIds,
-            new Date()
-        ]);
+        try {
+            const user = await prisma.user.update({
+                where: { id },
+                data: {
+                    name: data.name ?? existingUser.name,
+                    role: data.role ?? existingUser.role,
+                    managedPodIds: data.managedPodIds ?? existingUser.managedPodIds
+                },
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    role: true,
+                    managedPodIds: true,
+                    googleId: true,
+                    createdAt: true,
+                    updatedAt: true
+                }
+            });
 
-        if (result.rows.length === 0) {
+            return rowToSafeUser(user);
+        } catch {
             return null;
         }
-
-        return rowToSafeUser(result.rows[0]);
     }
 
     /**
      * Update user password
      */
     static async updatePassword(id: string, hashedPassword: string): Promise<boolean> {
-        const result = await query<{ id: string }>(SQL.updatePassword, [
-            id,
-            hashedPassword,
-            new Date()
-        ]);
-        return result.rows.length > 0;
+        try {
+            await prisma.user.update({
+                where: { id },
+                data: { password: hashedPassword }
+            });
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     /**
      * Delete user by ID
      */
     static async delete(id: string): Promise<boolean> {
-        const result = await query<{ id: string }>(SQL.delete, [id]);
-        return result.rows.length > 0;
+        try {
+            await prisma.user.delete({
+                where: { id }
+            });
+            return true;
+        } catch {
+            return false;
+        }
     }
 }
