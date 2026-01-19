@@ -53,31 +53,23 @@ export const seedUsers = [
     }
 ];
 
-// Sample database instances
+// Sample database instances (dynamic discovery with fallback)
 export const seedDatabaseInstances = [
     {
         id: uuidv4(),
-        name: 'prod-be-app-rds',
+        name: 'Primary PostgreSQL',
         type: 'postgresql',
         host: 'localhost',
         port: 5432,
-        databases: ['zluri_app', 'zluri_analytics', 'zluri_logs']
+        databases: ['public', 'load_testing', 'staging_app', 'staging_test', 'zluri_analytics', 'zluri_app', 'zluri_logs', 'zluri_reports', 'zluri_users']
     },
     {
         id: uuidv4(),
-        name: 'Zluri-ProdDB',
+        name: 'Primary MongoDB',
         type: 'mongodb',
         host: 'localhost',
         port: 27017,
-        databases: ['zluri_main', 'zluri_integrations', 'zluri_cache']
-    },
-    {
-        id: uuidv4(),
-        name: 'staging-postgres',
-        type: 'postgresql',
-        host: 'localhost',
-        port: 5433,
-        databases: ['staging_app', 'staging_test']
+        databases: ['test_db']
     }
 ];
 

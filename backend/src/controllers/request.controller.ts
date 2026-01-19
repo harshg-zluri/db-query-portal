@@ -12,6 +12,7 @@ import { SlackNotificationType, sendSlackNotification } from '../services/slack.
 import { config } from '../config/environment';
 import { getPaginationParams } from '../utils/pagination';
 import path from 'path';
+import { DiscoveryService } from '../services/discovery.service';
 
 /**
  * Get client IP address from request
@@ -54,9 +55,37 @@ export class RequestController {
                 throw new ValidationError('Database type mismatch with selected instance');
             }
 
-            // Validate database exists in instance
-            if (!instance.databases.includes(input.databaseName)) {
-                throw new ValidationError('Database not found in selected instance');
+
+
+            // Validate database exists in instance (Static + Dynamic + Safety Fallback)
+            let validDatabases = instance.databases || [];
+
+            // Attempt dynamic discovery if configured
+            try {
+                if (instance.type === input.databaseType) {
+                    if (instance.type === 'postgresql' && config.targetDatabases.postgresUrl) {
+                        const discovered = await DiscoveryService.getPostgresSchemas(config.targetDatabases.postgresUrl);
+                        if (discovered && discovered.length > 0) validDatabases = discovered;
+                    } else if (instance.type === 'mongodb' && config.targetDatabases.mongodbUrl) {
+                        const discovered = await DiscoveryService.getMongoDatabases(config.targetDatabases.mongodbUrl);
+                        if (discovered && discovered.length > 0) validDatabases = discovered;
+                    }
+                }
+            } catch (err) {
+                logger.warn('Discovery failed during validation, using static/fallback', { error: err });
+            }
+
+            // Safety Fallback if list is still empty (e.g. seeding failed)
+            if (validDatabases.length === 0) {
+                if (instance.type === 'postgresql') {
+                    validDatabases = ['public', 'load_testing', 'staging_app', 'staging_test', 'zluri_analytics', 'zluri_app', 'zluri_logs', 'zluri_reports', 'zluri_users'];
+                } else if (instance.type === 'mongodb') {
+                    validDatabases = ['test_db'];
+                }
+            }
+
+            if (!validDatabases.includes(input.databaseName)) {
+                throw new ValidationError(`Database '${input.databaseName}' not found in selected instance. Available: ${validDatabases.join(', ')}`);
             }
 
             // Validate POD exists

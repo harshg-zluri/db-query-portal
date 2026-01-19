@@ -101,6 +101,15 @@ export class DatabaseController {
                     error: discoveryError instanceof Error ? discoveryError.message : String(discoveryError)
                 });
                 // databases remains fully populated from instance.databases
+
+                // Safety fallback: If instance has no databases and discovery failed, use defaults
+                if (databases.length === 0) {
+                    if (instance.type === DatabaseType.POSTGRESQL) {
+                        databases = ['public', 'load_testing', 'staging_app', 'staging_test', 'zluri_analytics', 'zluri_app', 'zluri_logs', 'zluri_reports', 'zluri_users'];
+                    } else if (instance.type === DatabaseType.MONGODB) {
+                        databases = ['test_db'];
+                    }
+                }
             }
 
             sendSuccess(res, databases);

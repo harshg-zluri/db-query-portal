@@ -36,7 +36,10 @@ export class DiscoveryService {
         }
 
         try {
-            const sql = postgres(connectionUrl, { max: 1 });
+            const sql = postgres(connectionUrl, {
+                max: 1,
+                connect_timeout: 5 // 5 seconds timeout
+            });
 
             // Query system catalog for non-template databases
             const result = await sql`
@@ -81,8 +84,10 @@ export class DiscoveryService {
         }
 
         try {
-            // Connect to MongoDB
-            const connection = await mongoose.createConnection(connectionUrl).asPromise();
+            // Connect to MongoDB with timeout
+            const connection = await mongoose.createConnection(connectionUrl, {
+                serverSelectionTimeoutMS: 5000 // 5 seconds timeout
+            }).asPromise();
 
             // List databases using admin command
             if (!connection.db) {
@@ -125,7 +130,10 @@ export class DiscoveryService {
         if (cached) return cached;
 
         try {
-            const sql = postgres(connectionUrl, { max: 1 });
+            const sql = postgres(connectionUrl, {
+                max: 1,
+                connect_timeout: 5 // 5 seconds timeout
+            });
 
             const result = await sql`
                 SELECT schema_name FROM information_schema.schemata
