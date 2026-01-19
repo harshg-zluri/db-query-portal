@@ -1,0 +1,569 @@
+openapi: 3.0.0
+info:
+  title: DB Query Portal API
+  version: 1.0.0
+  description: |
+    API documentation for the Database Query Execution Portal.
+    Allows developers to submit queries/scripts for approval and execution against production databases.
+servers:
+  - url: http://localhost:3000/api
+    description: Local Development Server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [developer, manager, admin]
+        managedPodIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    Pod:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        managerEmail:
+          type: string
+          format: email
+
+    DatabaseInstance:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [postgresql, mongodb]
+        host:
+          type: string
+        port:
+          type: integer
+
+    Request:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        podId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, approved, rejected, completed, failed, withdrawn]
+        submissionType:
+          type: string
+          enum: [query, script]
+        databaseType:
+          type: string
+          enum: [postgresql, mongodb]
+        query:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+security:
+  - bearerAuth: []
+
+paths:
+  # Auth Routes
+  /auth/login:
+    post:
+      summary: Login
+      security: []
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: dev@zluri.com
+                password:
+                  type: string
+                  format: password
+                  example: Dev@123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                      refreshToken:
+                        type: string
+                      user:
+                        $ref: '#/components/schemas/User'
+
+  /auth/refresh:
+    post:
+      summary: Refresh Access Token
+      security: []
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Tokens refreshed
+
+  /auth/logout:
+    post:
+      summary: Logout
+      tags: [Authentication]
+      responses:
+        '200':
+          description: Logged out successfully
+
+  /auth/me:
+    get:
+      summary: Get Current User
+      tags: [Authentication]
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/User'
+
+  /auth/google:
+    get:
+      summary: Initiate Google OAuth
+      security: []
+      tags: [Authentication]
+      responses:
+        '302':
+          description: Redirects to Google
+
+  # Request Routes
+  /requests:
+    post:
+      summary: Submit Request
+      tags: [Requests]
+      description: Submit a query or script for execution.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [databaseType, instanceId, databaseName, comments, podId, submissionType]
+              properties:
+                submissionType:
+                  type: string
+                  enum: [query, script]
+                databaseType:
+                  type: string
+                  enum: [postgresql, mongodb]
+                instanceId:
+                  type: string
+                  description: Target DB Instance ID
+                databaseName:
+                  type: string
+                  description: Target Database Name
+                podId:
+                  type: string
+                  format: uuid
+                  description: POD ID for approval
+                comments:
+                  type: string
+                query:
+                  type: string
+                  description: Required if submissionType is query
+                script:
+                  type: string
+                  format: binary
+                  description: Required if submissionType is script
+      responses:
+        '201':
+          description: Request created
+
+    get:
+      summary: List Requests (Manager/Admin)
+      tags: [Requests]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: podId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of requests
+
+  /requests/my:
+    get:
+      summary: List My Requests
+      tags: [Requests]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User's requests
+
+  /requests/{id}:
+    get:
+      summary: Get Request Details
+      tags: [Requests]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Request details
+
+  /requests/{id}/withdraw:
+    post:
+      summary: Withdraw Request
+      tags: [Requests]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Request withdrawn
+
+  /requests/{id}/download-result:
+    get:
+      summary: Download Execution Result
+      tags: [Requests]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: JSON or CSV file download
+
+  # Approval Routes
+  /approvals/pending:
+    get:
+      summary: Get Pending Approvals (Manager)
+      tags: [Approvals]
+      responses:
+        '200':
+          description: List of pending requests for managed PODs
+
+  /approvals/{id}/approve:
+    post:
+      summary: Approve Request
+      tags: [Approvals]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Request approved and executed
+
+  /approvals/{id}/reject:
+    post:
+      summary: Reject Request
+      tags: [Approvals]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Request rejected
+
+  # Database Routes
+  /databases/types:
+    get:
+      summary: Get Supported DB Types
+      tags: [Databases]
+      responses:
+        '200':
+          description: List of types
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                      enum: [postgresql, mongodb]
+
+  /databases/instances:
+    get:
+      summary: Get DB Instances
+      tags: [Databases]
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of instances
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DatabaseInstance'
+
+  /databases/{instanceId}/databases:
+    get:
+      summary: Get Databases on Instance
+      tags: [Databases]
+      parameters:
+        - in: path
+          name: instanceId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of database names
+
+  # POD Routes
+  /pods:
+    get:
+      summary: Get All PODs
+      tags: [PODs]
+      responses:
+        '200':
+          description: List of PODs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Pod'
+
+  /pods/{id}:
+    get:
+      summary: Get POD Details
+      tags: [PODs]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: POD details
+
+  # Admin Routes
+  /admin/users:
+    get:
+      summary: List Users (Admin)
+      tags: [Admin]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of users
+
+    post:
+      summary: Create User (Admin)
+      tags: [Admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name, role]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+                role:
+                  type: string
+                  enum: [developer, manager, admin]
+                managedPodIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: User created
+
+  /admin/users/{id}:
+    get:
+      summary: Get User (Admin)
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User details
+
+    put:
+      summary: Update User (Admin)
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                role:
+                  type: string
+                managedPodIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: User updated
+
+    delete:
+      summary: Delete User (Admin)
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User deleted
+
+  /admin/pods:
+    get:
+      summary: Get All PODs (Admin)
+      tags: [Admin]
+      responses:
+        '200':
+          description: List of all PODs for assignment
