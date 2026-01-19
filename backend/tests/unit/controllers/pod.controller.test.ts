@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as PodController from '../../../src/controllers/pod.controller';
-import { PodModel } from '../../../src/models/Pod';
-import { logger } from '../../../src/utils/logger';
+import * as PodModel from '../../../src/models/Pod';
 
 // Mock dependencies
 jest.mock('../../../src/models/Pod');
@@ -45,11 +44,11 @@ describe('PodController', () => {
 
     describe('getAll', () => {
         it('should list all pods', async () => {
-            (PodModel.findAll as jest.Mock).mockResolvedValue([mockPod]);
+            (PodModel.findAllPods as jest.Mock).mockResolvedValue([mockPod]);
 
             await PodController.getAll(req as Request, res as Response, next);
 
-            expect(PodModel.findAll).toHaveBeenCalled();
+            expect(PodModel.findAllPods).toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(200);
             const data = (res.json as jest.Mock).mock.calls[0][0].data;
             expect(data[0]).toEqual({
@@ -60,7 +59,7 @@ describe('PodController', () => {
 
         it('should handle errors', async () => {
             const error = new Error('Database error');
-            (PodModel.findAll as jest.Mock).mockRejectedValue(error);
+            (PodModel.findAllPods as jest.Mock).mockRejectedValue(error);
 
             await PodController.getAll(req as Request, res as Response, next);
 
@@ -71,17 +70,17 @@ describe('PodController', () => {
     describe('getById', () => {
         it('should return pod if found', async () => {
             req.params = { id: 'pod-1' };
-            (PodModel.findById as jest.Mock).mockResolvedValue(mockPod);
+            (PodModel.findPodById as jest.Mock).mockResolvedValue(mockPod);
 
             await PodController.getById(req as Request, res as Response, next);
 
-            expect(PodModel.findById).toHaveBeenCalledWith('pod-1');
+            expect(PodModel.findPodById).toHaveBeenCalledWith('pod-1');
             expect(res.status).toHaveBeenCalledWith(200);
         });
 
         it('should return null if not found', async () => {
             req.params = { id: 'pod-1' };
-            (PodModel.findById as jest.Mock).mockResolvedValue(null);
+            (PodModel.findPodById as jest.Mock).mockResolvedValue(null);
 
             await PodController.getById(req as Request, res as Response, next);
 
@@ -92,7 +91,7 @@ describe('PodController', () => {
 
         it('should handle errors', async () => {
             const error = new Error('Database error');
-            (PodModel.findById as jest.Mock).mockRejectedValue(error);
+            (PodModel.findPodById as jest.Mock).mockRejectedValue(error);
 
             await PodController.getById(req as Request, res as Response, next);
 

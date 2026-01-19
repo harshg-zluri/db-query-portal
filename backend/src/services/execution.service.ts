@@ -2,8 +2,8 @@ import { DatabaseType, SubmissionType, ExecutionResult, QueryRequest } from '../
 import { PostgresExecutor, createPostgresExecutor } from './postgres.executor';
 import { MongoExecutor, createMongoExecutor } from './mongo.executor';
 import { ScriptExecutor } from './script.executor';
-import { DatabaseInstanceModel } from '../models/DatabaseInstance';
-import { QueryRequestModel } from '../models/QueryRequest';
+import { findInstanceById } from '../models/DatabaseInstance';
+import { setRequestExecutionResult } from '../models/QueryRequest';
 import { logger } from '../utils/logger';
 import { ValidationError, NotFoundError } from '../utils/errors';
 import { config } from '../config/environment';
@@ -62,7 +62,7 @@ export class ExecutionService {
             }
 
             // Update request with result
-            await QueryRequestModel.setExecutionResult(
+            await setRequestExecutionResult(
                 request.id,
                 result.success,
                 result.output,
@@ -75,7 +75,7 @@ export class ExecutionService {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
             // Update request with error
-            await QueryRequestModel.setExecutionResult(
+            await setRequestExecutionResult(
                 request.id,
                 false,
                 undefined,
@@ -99,7 +99,7 @@ export class ExecutionService {
         }
 
         // Get instance details
-        const instance = await DatabaseInstanceModel.findById(request.instanceId);
+        const instance = await findInstanceById(request.instanceId);
         if (!instance) {
             throw new NotFoundError('Database instance');
         }

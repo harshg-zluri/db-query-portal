@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserModel } from '../models/User';
-import { PodModel } from '../models/Pod';
+import { findAllUsers, findUserByIdSafe, findUserByEmail, createUser as createUserModel, findUserById, updateUser as updateUserModel, updateUserPassword, deleteUser as deleteUserModel } from '../models/User';
+import { findAllPods } from '../models/Pod';
 import { UserRole } from '../types';
 import bcrypt from 'bcrypt';
 import { getPaginationParams } from '../utils/pagination';
@@ -15,7 +15,7 @@ export async function getUsers(req: Request, res: Response, next: NextFunction) 
         const { page, limit } = getPaginationParams(req.query);
         const search = req.query.search as string | undefined;
 
-        const { users, total } = await UserModel.findAll({ search, page, limit });
+        const { users, total } = await findAllUsers({ search, page, limit });
 
         res.json({
             success: true,
@@ -38,7 +38,7 @@ export async function getUsers(req: Request, res: Response, next: NextFunction) 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
     try {
         const { id } = req.params;
-        const user = await UserModel.findByIdSafe(id);
+        const user = await findUserByIdSafe(id);
 
         if (!user) {
             return res.status(404).json({
@@ -64,7 +64,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
         const { email, password, name, role, managedPodIds } = req.body;
 
         // Check if email already exists
-        const existingUser = await UserModel.findByEmail(email);
+        const existingUser = await findUserByEmail(email);
         if (existingUser) {
             return res.status(400).json({
                 success: false,
@@ -82,7 +82,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
 
         // Validate pod IDs if provided
         if (managedPodIds && managedPodIds.length > 0) {
-            const pods = await PodModel.findAll();
+            const pods = await findAllPods();
             const validPodIds = pods.map(p => p.id);
             const invalidPods = managedPodIds.filter((id: string) => !validPodIds.includes(id));
             if (invalidPods.length > 0) {
@@ -96,7 +96,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
         // Hash password
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-        const user = await UserModel.create({
+        const user = await createUserModel({
             email,
             password: hashedPassword,
             name,
@@ -123,7 +123,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
         const { name, role, managedPodIds, password } = req.body;
 
         // Check if user exists
-        const existingUser = await UserModel.findById(id);
+        const existingUser = await findUserById(id);
         if (!existingUser) {
             return res.status(404).json({
                 success: false,
@@ -141,7 +141,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 
         // Validate pod IDs if provided
         if (managedPodIds && managedPodIds.length > 0) {
-            const pods = await PodModel.findAll();
+            const pods = await findAllPods();
             const validPodIds = pods.map(p => p.id);
             const invalidPods = managedPodIds.filter((id: string) => !validPodIds.includes(id));
             if (invalidPods.length > 0) {
@@ -155,11 +155,11 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
         // Update password if provided
         if (password) {
             const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-            await UserModel.updatePassword(id, hashedPassword);
+            await updateUserPassword(id, hashedPassword);
         }
 
         // Update user details
-        const user = await UserModel.update(id, {
+        const user = await updateUserModel(id, {
             name,
             role,
             managedPodIds
@@ -192,7 +192,7 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
         }
 
         // Check if user exists
-        const existingUser = await UserModel.findById(id);
+        const existingUser = await findUserById(id);
         if (!existingUser) {
             return res.status(404).json({
                 success: false,
@@ -200,7 +200,7 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
             });
         }
 
-        const deleted = await UserModel.delete(id);
+        const deleted = await deleteUserModel(id);
 
         if (!deleted) {
             return res.status(500).json({
@@ -223,7 +223,7 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
  */
 export async function getPods(req: Request, res: Response, next: NextFunction) {
     try {
-        const pods = await PodModel.findAll();
+        const pods = await findAllPods();
         res.json({
             success: true,
             data: pods

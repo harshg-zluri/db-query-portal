@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { QueryRequestModel, CreateRequestData } from '../models/QueryRequest';
-import { DatabaseInstanceModel } from '../models/DatabaseInstance';
-import { PodModel } from '../models/Pod';
+import { createRequest, findRequestById, findRequestsByUserId, countPendingRequestsByUser, findRequestsWithFilters, withdrawRequest, CreateRequestData } from '../models/QueryRequest';
+import { findInstanceById } from '../models/DatabaseInstance';
+import { findPodById } from '../models/Pod';
 import { UserRole, SubmissionType, RequestStatus } from '../types';
 import { sendSuccess, sendCreated, sendPaginated } from '../utils/responseHelper';
 import { NotFoundError, ValidationError, ForbiddenError } from '../utils/errors';
@@ -45,7 +45,7 @@ export class RequestController {
             const input = req.body as CreateRequestInput;
 
             // Validate instance exists
-            const instance = await DatabaseInstanceModel.findById(input.instanceId);
+            const instance = await findInstanceById(input.instanceId);
             if (!instance) {
                 throw new NotFoundError('Database instance');
             }
@@ -89,13 +89,13 @@ export class RequestController {
             }
 
             // Validate POD exists
-            const pod = await PodModel.findById(input.podId);
+            const pod = await findPodById(input.podId);
             if (!pod) {
                 throw new NotFoundError('POD');
             }
 
             // Check request limit per user (abuse prevention)
-            const pendingCount = await QueryRequestModel.countPendingByUser(user.userId);
+            const pendingCount = await countPendingRequestsByUser(user.userId);
             const maxAllowed = config.requestLimits.maxPendingPerUser;
 
             if (pendingCount >= maxAllowed) {
@@ -151,7 +151,7 @@ export class RequestController {
                 warnings: warnings.length > 0 ? warnings : undefined
             };
 
-            const request = await QueryRequestModel.create(requestData);
+            const request = await createRequest(requestData);
 
             // Audit log: request created
             logger.audit({
@@ -242,7 +242,7 @@ export class RequestController {
 
             const { page, limit } = getPaginationParams(req.query);
 
-            const { requests, total } = await QueryRequestModel.findWithFilters(
+            const { requests, total } = await findRequestsWithFilters(
                 filters,
                 page,
                 limit
@@ -292,7 +292,7 @@ export class RequestController {
                 throw new ValidationError(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
             }
 
-            const { requests, total } = await QueryRequestModel.findByUserId(
+            const { requests, total } = await findRequestsByUserId(
                 user.userId,
                 page,
                 limit,
@@ -332,7 +332,7 @@ export class RequestController {
         const user = req.user!;
 
         try {
-            const request = await QueryRequestModel.findById(id);
+            const request = await findRequestById(id);
 
             if (!request) {
                 throw new NotFoundError('Request');
@@ -402,11 +402,11 @@ export class RequestController {
 
         try {
             // Try to withdraw (will fail if not owner or not pending)
-            const withdrawnRequest = await QueryRequestModel.withdraw(id, user.userId);
+            const withdrawnRequest = await withdrawRequest(id, user.userId);
 
             if (!withdrawnRequest) {
                 // Check if request exists and give appropriate error
-                const request = await QueryRequestModel.findById(id);
+                const request = await findRequestById(id);
 
                 if (!request) {
                     throw new NotFoundError('Request');
@@ -456,7 +456,7 @@ export class RequestController {
         const { id } = req.params;
 
         try {
-            const request = await QueryRequestModel.findById(id);
+            const request = await findRequestById(id);
             if (!request) {
                 throw new NotFoundError('Request');
             }

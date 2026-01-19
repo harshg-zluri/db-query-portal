@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApprovalController } from '../../../src/controllers/approval.controller';
-import { QueryRequestModel } from '../../../src/models/QueryRequest';
+import * as QueryRequestModel from '../../../src/models/QueryRequest';
 import { ExecutionService } from '../../../src/services/execution.service';
 import * as responseHelper from '../../../src/utils/responseHelper';
 import { UserRole, RequestStatus, DatabaseType, SubmissionType } from '../../../src/types';
@@ -67,7 +67,7 @@ describe('ApprovalController', () => {
             mockRequest.user = { userId: 'manager-1', email: 'manager@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
             mockRequest.headers = { 'x-forwarded-for': ['192.168.1.1', '10.0.0.1'] };
 
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(null);
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(null);
 
             await ApprovalController.approve(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -78,7 +78,7 @@ describe('ApprovalController', () => {
             mockRequest.user = { userId: 'manager-1', email: 'manager@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
             mockRequest.headers = { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' };
 
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(null);
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(null);
 
             await ApprovalController.approve(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -90,7 +90,7 @@ describe('ApprovalController', () => {
             mockRequest.headers = {};
             mockRequest.socket = { remoteAddress: undefined } as any;
 
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(null);
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(null);
 
             await ApprovalController.approve(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -108,10 +108,10 @@ describe('ApprovalController', () => {
                 managedPodIds: []
             };
 
-            (QueryRequestModel.findById as jest.Mock)
+            (QueryRequestModel.findRequestById as jest.Mock)
                 .mockResolvedValueOnce(mockQueryRequest)
                 .mockResolvedValueOnce({ ...mockQueryRequest, status: RequestStatus.EXECUTED });
-            (QueryRequestModel.approve as jest.Mock).mockResolvedValue({
+            (QueryRequestModel.approveRequest as jest.Mock).mockResolvedValue({
                 ...mockQueryRequest,
                 status: RequestStatus.APPROVED
             });
@@ -122,14 +122,14 @@ describe('ApprovalController', () => {
 
             await ApprovalController.approve(mockRequest as Request, mockResponse as Response, nextFunction);
 
-            expect(QueryRequestModel.approve).toHaveBeenCalledWith('req-123', 'manager@zluri.com');
+            expect(QueryRequestModel.approveRequest).toHaveBeenCalledWith('req-123', 'manager@zluri.com');
             expect(ExecutionService.executeRequest).toHaveBeenCalled();
             expect(responseHelper.sendSuccess).toHaveBeenCalled();
         });
 
         it('should reject if request not found', async () => {
             mockRequest.user = { userId: 'manager-1', email: 'manager@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(null);
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(null);
 
             await ApprovalController.approve(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -138,7 +138,7 @@ describe('ApprovalController', () => {
 
         it('should reject if request not pending', async () => {
             mockRequest.user = { userId: 'manager-1', email: 'manager@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue({
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue({
                 ...mockQueryRequest,
                 status: RequestStatus.EXECUTED
             });
@@ -155,7 +155,7 @@ describe('ApprovalController', () => {
                 role: UserRole.MANAGER,
                 managedPodIds: ['pod-2']  // Different POD
             };
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockQueryRequest);
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(mockQueryRequest);
 
             await ApprovalController.approve(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -165,10 +165,10 @@ describe('ApprovalController', () => {
         it('should handle execution failure', async () => {
             mockRequest.user = { userId: 'admin-1', email: 'admin@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
 
-            (QueryRequestModel.findById as jest.Mock)
+            (QueryRequestModel.findRequestById as jest.Mock)
                 .mockResolvedValueOnce(mockQueryRequest)
                 .mockResolvedValueOnce({ ...mockQueryRequest, status: RequestStatus.FAILED });
-            (QueryRequestModel.approve as jest.Mock).mockResolvedValue({
+            (QueryRequestModel.approveRequest as jest.Mock).mockResolvedValue({
                 ...mockQueryRequest,
                 status: RequestStatus.APPROVED
             });
@@ -184,8 +184,8 @@ describe('ApprovalController', () => {
 
         it('should handle approve returning null', async () => {
             mockRequest.user = { userId: 'admin-1', email: 'admin@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockQueryRequest);
-            (QueryRequestModel.approve as jest.Mock).mockResolvedValue(null);
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(mockQueryRequest);
+            (QueryRequestModel.approveRequest as jest.Mock).mockResolvedValue(null);
 
             await ApprovalController.approve(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -198,8 +198,8 @@ describe('ApprovalController', () => {
             mockRequest.user = { userId: 'admin-1', email: 'admin@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
             mockRequest.body = { reason: 'Not approved' };
 
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockQueryRequest);
-            (QueryRequestModel.reject as jest.Mock).mockResolvedValue({
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(mockQueryRequest);
+            (QueryRequestModel.rejectRequest as jest.Mock).mockResolvedValue({
                 ...mockQueryRequest,
                 status: RequestStatus.REJECTED,
                 rejectionReason: 'Not approved'
@@ -207,7 +207,7 @@ describe('ApprovalController', () => {
 
             await ApprovalController.reject(mockRequest as Request, mockResponse as Response, nextFunction);
 
-            expect(QueryRequestModel.reject).toHaveBeenCalledWith('req-123', 'admin@zluri.com', 'Not approved');
+            expect(QueryRequestModel.rejectRequest).toHaveBeenCalledWith('req-123', 'admin@zluri.com', 'Not approved');
             expect(responseHelper.sendSuccess).toHaveBeenCalled();
         });
 
@@ -215,20 +215,20 @@ describe('ApprovalController', () => {
             mockRequest.user = { userId: 'admin-1', email: 'admin@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
             mockRequest.body = {};
 
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockQueryRequest);
-            (QueryRequestModel.reject as jest.Mock).mockResolvedValue({
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(mockQueryRequest);
+            (QueryRequestModel.rejectRequest as jest.Mock).mockResolvedValue({
                 ...mockQueryRequest,
                 status: RequestStatus.REJECTED
             });
 
             await ApprovalController.reject(mockRequest as Request, mockResponse as Response, nextFunction);
 
-            expect(QueryRequestModel.reject).toHaveBeenCalledWith('req-123', 'admin@zluri.com', undefined);
+            expect(QueryRequestModel.rejectRequest).toHaveBeenCalledWith('req-123', 'admin@zluri.com', undefined);
         });
 
         it('should fail if request not found', async () => {
             mockRequest.user = { userId: 'admin-1', email: 'admin@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(null);
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(null);
 
             await ApprovalController.reject(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -237,7 +237,7 @@ describe('ApprovalController', () => {
 
         it('should fail if request not pending', async () => {
             mockRequest.user = { userId: 'admin-1', email: 'admin@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue({
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue({
                 ...mockQueryRequest,
                 status: RequestStatus.EXECUTED
             });
@@ -254,7 +254,7 @@ describe('ApprovalController', () => {
                 role: UserRole.MANAGER,
                 managedPodIds: ['pod-2']
             };
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockQueryRequest);
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(mockQueryRequest);
 
             await ApprovalController.reject(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -263,8 +263,8 @@ describe('ApprovalController', () => {
 
         it('should handle reject returning null', async () => {
             mockRequest.user = { userId: 'admin-1', email: 'admin@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
-            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockQueryRequest);
-            (QueryRequestModel.reject as jest.Mock).mockResolvedValue(null);
+            (QueryRequestModel.findRequestById as jest.Mock).mockResolvedValue(mockQueryRequest);
+            (QueryRequestModel.rejectRequest as jest.Mock).mockResolvedValue(null);
 
             await ApprovalController.reject(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -277,14 +277,14 @@ describe('ApprovalController', () => {
             mockRequest.user = { userId: 'admin-1', email: 'admin@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
             mockRequest.query = { page: '1', limit: '20' };
 
-            (QueryRequestModel.findWithFilters as jest.Mock).mockResolvedValue({
+            (QueryRequestModel.findRequestsWithFilters as jest.Mock).mockResolvedValue({
                 requests: [mockQueryRequest],
                 total: 1
             });
 
             await ApprovalController.getPending(mockRequest as Request, mockResponse as Response, nextFunction);
 
-            expect(QueryRequestModel.findWithFilters).toHaveBeenCalledWith(
+            expect(QueryRequestModel.findRequestsWithFilters).toHaveBeenCalledWith(
                 { status: RequestStatus.PENDING },
                 1,
                 20
@@ -307,14 +307,14 @@ describe('ApprovalController', () => {
             };
             mockRequest.query = {};
 
-            (QueryRequestModel.findWithFilters as jest.Mock).mockResolvedValue({
+            (QueryRequestModel.findRequestsWithFilters as jest.Mock).mockResolvedValue({
                 requests: [],
                 total: 0
             });
 
             await ApprovalController.getPending(mockRequest as Request, mockResponse as Response, nextFunction);
 
-            expect(QueryRequestModel.findWithFilters).toHaveBeenCalledWith(
+            expect(QueryRequestModel.findRequestsWithFilters).toHaveBeenCalledWith(
                 { status: RequestStatus.PENDING, allowedPodIds: ['pod-1', 'pod-2'] },
                 1,
                 20
@@ -325,7 +325,7 @@ describe('ApprovalController', () => {
             mockRequest.user = { userId: 'admin-1', email: 'admin@zluri.com', role: UserRole.ADMIN, managedPodIds: [] };
             mockRequest.query = {};
             const error = new Error('Database error');
-            (QueryRequestModel.findWithFilters as jest.Mock).mockRejectedValue(error);
+            (QueryRequestModel.findRequestsWithFilters as jest.Mock).mockRejectedValue(error);
 
             await ApprovalController.getPending(mockRequest as Request, mockResponse as Response, nextFunction);
 

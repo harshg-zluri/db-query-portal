@@ -1,5 +1,5 @@
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
-import { QueryRequestModel } from '../../../src/models/QueryRequest';
+import * as QueryRequestModel from '../../../src/models/QueryRequest';
 import { DatabaseType, SubmissionType, RequestStatus } from '../../../src/types';
 import { getEm } from '../../../src/config/database';
 import { QueryRequest } from '../../../src/entities/QueryRequest';
@@ -37,7 +37,7 @@ describe('QueryRequestModel', () => {
 
     describe('create', () => {
         it('should create a new query request', async () => {
-            const result = await QueryRequestModel.create({
+            const result = await QueryRequestModel.createRequest({
                 userId: 'user-1',
                 userEmail: 'user@example.com',
                 databaseType: DatabaseType.POSTGRESQL,
@@ -72,7 +72,7 @@ describe('QueryRequestModel', () => {
                 warnings: ['Warning 1']
             };
 
-            await QueryRequestModel.create(data);
+            await QueryRequestModel.createRequest(data);
 
             expect(mockEm.persistAndFlush).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -88,7 +88,7 @@ describe('QueryRequestModel', () => {
         it('should return request when found', async () => {
             mockEm.findOne.mockResolvedValue(mockRequest);
 
-            const result = await QueryRequestModel.findById('req-1');
+            const result = await QueryRequestModel.findRequestById('req-1');
 
             expect(result).toEqual(mockRequest);
             expect(mockEm.findOne).toHaveBeenCalledWith(QueryRequest, { id: 'req-1' });
@@ -96,7 +96,7 @@ describe('QueryRequestModel', () => {
 
         it('should return null when not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await QueryRequestModel.findById('nonexistent');
+            const result = await QueryRequestModel.findRequestById('nonexistent');
             expect(result).toBeNull();
         });
     });
@@ -105,7 +105,7 @@ describe('QueryRequestModel', () => {
         it('should return paginated results', async () => {
             mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-            const result = await QueryRequestModel.findByUserId('user-1', 1, 10);
+            const result = await QueryRequestModel.findRequestsByUserId('user-1', 1, 10);
 
             expect(result.requests).toHaveLength(1);
             expect(result.total).toBe(1);
@@ -114,7 +114,7 @@ describe('QueryRequestModel', () => {
         it('should use default pagination', async () => {
             mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-            await QueryRequestModel.findByUserId('user-1');
+            await QueryRequestModel.findRequestsByUserId('user-1');
 
             expect(mockEm.findAndCount).toHaveBeenCalledWith(
                 QueryRequest,
@@ -126,7 +126,7 @@ describe('QueryRequestModel', () => {
         it('should filter by status', async () => {
             mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-            await QueryRequestModel.findByUserId('user-1', 1, 10, RequestStatus.PENDING);
+            await QueryRequestModel.findRequestsByUserId('user-1', 1, 10, RequestStatus.PENDING);
 
             expect(mockEm.findAndCount).toHaveBeenCalledWith(
                 QueryRequest,
@@ -140,7 +140,7 @@ describe('QueryRequestModel', () => {
         it('should filter by status', async () => {
             mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-            const result = await QueryRequestModel.findWithFilters(
+            const result = await QueryRequestModel.findRequestsWithFilters(
                 { status: RequestStatus.PENDING },
                 1,
                 20
@@ -159,7 +159,7 @@ describe('QueryRequestModel', () => {
             const fromDate = new Date('2024-01-01');
             const toDate = new Date('2024-01-31');
 
-            await QueryRequestModel.findWithFilters({
+            await QueryRequestModel.findRequestsWithFilters({
                 dateFrom: fromDate,
                 dateTo: toDate
             });
@@ -181,7 +181,7 @@ describe('QueryRequestModel', () => {
             const fromDate = new Date('2024-01-01');
             const toDate = new Date('2024-01-31');
 
-            await QueryRequestModel.findWithFilters({
+            await QueryRequestModel.findRequestsWithFilters({
                 status: RequestStatus.APPROVED,
                 dateFrom: fromDate,
                 dateTo: toDate
@@ -203,7 +203,7 @@ describe('QueryRequestModel', () => {
         it('should filter by specific fields (podId, approverEmail, allowedPodIds)', async () => {
             mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-            await QueryRequestModel.findWithFilters({
+            await QueryRequestModel.findRequestsWithFilters({
                 podId: 'pod-1',
                 approverEmail: 'admin@example.com',
                 allowedPodIds: ['pod-1', 'pod-2']
@@ -224,7 +224,7 @@ describe('QueryRequestModel', () => {
         it('should approve request', async () => {
             mockEm.findOne.mockResolvedValue(mockRequest);
 
-            const result = await QueryRequestModel.approve('req-1', 'approver@example.com');
+            const result = await QueryRequestModel.approveRequest('req-1', 'approver@example.com');
 
             expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('approved');
@@ -239,7 +239,7 @@ describe('QueryRequestModel', () => {
 
         it('should return null when request not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await QueryRequestModel.approve('nonexistent', 'approver@example.com');
+            const result = await QueryRequestModel.approveRequest('nonexistent', 'approver@example.com');
             expect(result).toBeNull();
         });
     });
@@ -250,7 +250,7 @@ describe('QueryRequestModel', () => {
         it('should reject request with reason', async () => {
             mockEm.findOne.mockResolvedValue(mockRequest);
 
-            const result = await QueryRequestModel.reject('req-1', 'approver@example.com', 'Not allowed');
+            const result = await QueryRequestModel.rejectRequest('req-1', 'approver@example.com', 'Not allowed');
 
             expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('rejected');
@@ -259,7 +259,7 @@ describe('QueryRequestModel', () => {
 
         it('should return null when request not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await QueryRequestModel.reject('nonexistent', 'approver@example.com');
+            const result = await QueryRequestModel.rejectRequest('nonexistent', 'approver@example.com');
             expect(result).toBeNull();
         });
     });
@@ -268,7 +268,7 @@ describe('QueryRequestModel', () => {
         it('should set successful execution result', async () => {
             mockEm.findOne.mockResolvedValue(mockRequest);
 
-            const result = await QueryRequestModel.setExecutionResult('req-1', true, '[]');
+            const result = await QueryRequestModel.setRequestExecutionResult('req-1', true, '[]');
 
             expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('executed');
@@ -278,7 +278,7 @@ describe('QueryRequestModel', () => {
         it('should set failed execution result with error', async () => {
             mockEm.findOne.mockResolvedValue(mockRequest);
 
-            const result = await QueryRequestModel.setExecutionResult('req-1', false, undefined, 'Syntax error');
+            const result = await QueryRequestModel.setRequestExecutionResult('req-1', false, undefined, 'Syntax error');
 
             expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('failed');
@@ -288,14 +288,14 @@ describe('QueryRequestModel', () => {
         it('should set compressed flag', async () => {
             mockEm.findOne.mockResolvedValue(mockRequest);
 
-            const result = await QueryRequestModel.setExecutionResult('req-1', true, '[]', undefined, true);
+            const result = await QueryRequestModel.setRequestExecutionResult('req-1', true, '[]', undefined, true);
 
             expect(result?.isCompressed).toBe(true);
         });
 
         it('should return null if request not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await QueryRequestModel.setExecutionResult('nonexistent', true);
+            const result = await QueryRequestModel.setRequestExecutionResult('nonexistent', true);
             expect(result).toBeNull();
         });
     });
@@ -304,7 +304,7 @@ describe('QueryRequestModel', () => {
         it('should withdraw request', async () => {
             mockEm.findOne.mockResolvedValue(mockRequest);
 
-            const result = await QueryRequestModel.withdraw('req-1', 'user-1');
+            const result = await QueryRequestModel.withdrawRequest('req-1', 'user-1');
 
             expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('withdrawn');
@@ -312,7 +312,7 @@ describe('QueryRequestModel', () => {
 
         it('should return null if request not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await QueryRequestModel.withdraw('nonexistent', 'user-1');
+            const result = await QueryRequestModel.withdrawRequest('nonexistent', 'user-1');
             expect(result).toBeNull();
         });
     });
@@ -321,7 +321,7 @@ describe('QueryRequestModel', () => {
         it('should return pending count', async () => {
             mockEm.count.mockResolvedValue(5);
 
-            const count = await QueryRequestModel.countPendingByUser('user-1');
+            const count = await QueryRequestModel.countPendingRequestsByUser('user-1');
 
             expect(count).toBe(5);
             expect(mockEm.count).toHaveBeenCalledWith(QueryRequest, {

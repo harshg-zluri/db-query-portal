@@ -1,4 +1,6 @@
 import multer from 'multer';
+import { ValidationError } from '../utils/errors';
+
 
 // Configure multer for file uploads
 export const upload = multer({
@@ -13,7 +15,7 @@ export const upload = multer({
             file.originalname.endsWith('.js')) {
             cb(null, true);
         } else {
-            cb(new Error('Only .js files are allowed'));
+            cb(new ValidationError('Only .js files are allowed'));
         }
     }
 });

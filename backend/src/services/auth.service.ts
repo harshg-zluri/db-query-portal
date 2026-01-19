@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/environment';
-import { UserModel } from '../models/User';
-import { PodModel } from '../models/Pod';
+import { findUserById, findUserByEmail, findUserByIdSafe, findUserByGoogleId, linkUserGoogle, createUser } from '../models/User';
+import { getManagedPodIds } from '../models/Pod';
 import { JWTPayload, SafeUser, UserRole } from '../types';
 import { AuthenticationError, NotFoundError } from '../utils/errors';
 
@@ -74,14 +74,14 @@ export class AuthService {
                 throw new AuthenticationError('Invalid refresh token');
             }
 
-            const user = await UserModel.findById(decoded.userId);
+            const user = await findUserById(decoded.userId);
             if (!user) {
                 throw new AuthenticationError('User not found');
             }
 
             // Get managed POD IDs
             const managedPodIds = user.role === UserRole.MANAGER
-                ? await PodModel.getManagedPodIds(user.email)
+                ? await getManagedPodIds(user.email)
                 : [];
 
             const payload: JWTPayload = {
@@ -104,7 +104,7 @@ export class AuthService {
      * Login user with email and password
      */
     static async login(email: string, password: string): Promise<LoginResult> {
-        const user = await UserModel.findByEmail(email);
+        const user = await findUserByEmail(email);
 
         if (!user) {
             // Use same error message to prevent user enumeration
@@ -123,7 +123,7 @@ export class AuthService {
 
         // Get managed POD IDs for managers
         const managedPodIds = user.role === UserRole.MANAGER
-            ? await PodModel.getManagedPodIds(user.email)
+            ? await getManagedPodIds(user.email)
             : [];
 
         const payload: JWTPayload = {
@@ -148,7 +148,7 @@ export class AuthService {
      * Get user profile by ID
      */
     static async getProfile(userId: string): Promise<SafeUser> {
-        const user = await UserModel.findByIdSafe(userId);
+        const user = await findUserByIdSafe(userId);
 
         if (!user) {
             throw new NotFoundError('User');
@@ -166,29 +166,29 @@ export class AuthService {
         name: string
     ): Promise<LoginResult> {
         // 1. Try to find by Google ID
-        let user = await UserModel.findByGoogleId(googleId);
+        let user = await findUserByGoogleId(googleId);
 
         if (!user) {
             // 2. Try to find by Email
-            user = await UserModel.findByEmail(email);
+            user = await findUserByEmail(email);
 
             if (user) {
                 // Link account - PRESERVE EXISTING ROLE
-                const safeUser = await UserModel.linkGoogle(user.id, googleId);
+                const safeUser = await linkUserGoogle(user.id, googleId);
                 if (!safeUser) throw new Error('Failed to link account');
                 // Re-fetch full user to get role for token
-                const fullUser = await UserModel.findById(user.id);
+                const fullUser = await findUserById(user.id);
                 if (!fullUser) throw new NotFoundError('User');
                 user = fullUser;
             } else {
                 // 3. Create new user with DEVELOPER role
-                const safeUser = await UserModel.create({
+                const safeUser = await createUser({
                     email,
                     name,
                     role: UserRole.DEVELOPER,
                     googleId
                 });
-                const fullUser = await UserModel.findById(safeUser.id);
+                const fullUser = await findUserById(safeUser.id);
                 if (!fullUser) throw new NotFoundError('User');
                 user = fullUser;
             }
@@ -200,7 +200,7 @@ export class AuthService {
             if (user.managedPodIds && user.managedPodIds.length > 0) {
                 managedPodIds = user.managedPodIds;
             } else {
-                managedPodIds = await PodModel.getManagedPodIds(user.email);
+                managedPodIds = await getManagedPodIds(user.email);
             }
         }
 

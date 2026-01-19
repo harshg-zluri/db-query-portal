@@ -1,4 +1,4 @@
-import { PodModel } from '../../../src/models/Pod';
+import { findAllPods, findPodById, findPodByManagerEmail, getManagedPodIds } from '../../../src/models/Pod';
 
 // Mock the pods config
 jest.mock('../../../src/config/pods.json', () => ({
@@ -10,9 +10,9 @@ jest.mock('../../../src/config/pods.json', () => ({
 }), { virtual: true });
 
 describe('PodModel', () => {
-    describe('findAll', () => {
+    describe('findAllPods', () => {
         it('should return all pods', async () => {
-            const pods = await PodModel.findAll();
+            const pods = await findAllPods();
 
             expect(pods).toHaveLength(3);
             expect(pods[0].name).toBe('Engineering');
@@ -20,9 +20,9 @@ describe('PodModel', () => {
         });
     });
 
-    describe('findById', () => {
+    describe('findPodById', () => {
         it('should return pod when found', async () => {
-            const pod = await PodModel.findById('pod-1');
+            const pod = await findPodById('pod-1');
 
             expect(pod).not.toBeNull();
             expect(pod?.name).toBe('Engineering');
@@ -30,15 +30,15 @@ describe('PodModel', () => {
         });
 
         it('should return null when not found', async () => {
-            const pod = await PodModel.findById('nonexistent');
+            const pod = await findPodById('nonexistent');
 
             expect(pod).toBeNull();
         });
     });
 
-    describe('findByManagerEmail', () => {
+    describe('findPodByManagerEmail', () => {
         it('should return pods managed by email', async () => {
-            const pods = await PodModel.findByManagerEmail('manager1@example.com');
+            const pods = await findPodByManagerEmail('manager1@example.com');
 
             expect(pods).toHaveLength(2);
             expect(pods.map(p => p.id)).toContain('pod-1');
@@ -46,7 +46,7 @@ describe('PodModel', () => {
         });
 
         it('should return empty array when no pods found', async () => {
-            const pods = await PodModel.findByManagerEmail('nobody@example.com');
+            const pods = await findPodByManagerEmail('nobody@example.com');
 
             expect(pods).toHaveLength(0);
         });
@@ -54,7 +54,7 @@ describe('PodModel', () => {
 
     describe('getManagedPodIds', () => {
         it('should return pod IDs managed by email', async () => {
-            const podIds = await PodModel.getManagedPodIds('manager1@example.com');
+            const podIds = await getManagedPodIds('manager1@example.com');
 
             expect(podIds).toHaveLength(2);
             expect(podIds).toContain('pod-1');
@@ -62,7 +62,7 @@ describe('PodModel', () => {
         });
 
         it('should return empty array when no managed pods', async () => {
-            const podIds = await PodModel.getManagedPodIds('nobody@example.com');
+            const podIds = await getManagedPodIds('nobody@example.com');
 
             expect(podIds).toHaveLength(0);
         });

@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { AuthService } from '../../../src/services/auth.service';
-import { UserModel } from '../../../src/models/User';
-import { PodModel } from '../../../src/models/Pod';
+import * as UserModel from '../../../src/models/User';
+import * as PodModel from '../../../src/models/Pod';
 import { config } from '../../../src/config/environment';
 import { UserRole } from '../../../src/types';
 import { AuthenticationError, NotFoundError } from '../../../src/utils/errors';
@@ -94,12 +94,12 @@ describe('AuthService', () => {
                 managedPodIds: []
             };
 
-            (UserModel.findById as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserById as jest.Mock).mockResolvedValue(mockUser);
 
             const tokens = await AuthService.refreshAccessToken(refreshToken);
 
             expect(jwt.verify).toHaveBeenCalledWith(refreshToken, config.jwt.secret);
-            expect(UserModel.findById).toHaveBeenCalledWith('user-123');
+            expect(UserModel.findUserById).toHaveBeenCalledWith('user-123');
             expect(tokens.accessToken).toBeDefined();
         });
 
@@ -125,7 +125,7 @@ describe('AuthService', () => {
                 managedPodIds: []
             };
 
-            (UserModel.findById as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserById as jest.Mock).mockResolvedValue(mockUser);
             (PodModel.getManagedPodIds as jest.Mock).mockResolvedValue(['pod-1']);
 
             const tokens = await AuthService.refreshAccessToken(refreshToken);
@@ -146,7 +146,7 @@ describe('AuthService', () => {
                 managedPodIds: ['existing-pod-1', 'existing-pod-2']
             };
 
-            (UserModel.findById as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserById as jest.Mock).mockResolvedValue(mockUser);
             // PodModel.getManagedPodIds is still called for managers but result is not used
             (PodModel.getManagedPodIds as jest.Mock).mockResolvedValue(['fetched-pod']);
 
@@ -170,7 +170,7 @@ describe('AuthService', () => {
             const token = 'valid-refresh-token';
             const decoded = { userId: 'deleted-user', type: 'refresh' };
             jest.spyOn(jwt, 'verify').mockReturnValue(decoded as any);
-            (UserModel.findById as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserById as jest.Mock).mockResolvedValue(null);
 
             await expect(AuthService.refreshAccessToken(token))
                 .rejects.toThrow(AuthenticationError);
@@ -182,7 +182,7 @@ describe('AuthService', () => {
             jest.spyOn(jwt, 'verify').mockReturnValue(decoded as any);
 
             const customError = new Error('Database connection failed');
-            (UserModel.findById as jest.Mock).mockRejectedValue(customError);
+            (UserModel.findUserById as jest.Mock).mockRejectedValue(customError);
 
             await expect(AuthService.refreshAccessToken(token))
                 .rejects.toThrow('Database connection failed');
@@ -202,7 +202,7 @@ describe('AuthService', () => {
                 updatedAt: new Date()
             };
 
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(mockUser);
 
             await expect(AuthService.login('google@zluri.com', 'password'))
                 .rejects.toThrow(AuthenticationError);
@@ -219,7 +219,7 @@ describe('AuthService', () => {
                 updatedAt: new Date()
             };
 
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(mockUser);
             // Even if PodModel returns something else, we expect existing ids to be used
             (PodModel.getManagedPodIds as jest.Mock).mockResolvedValue(['pod-fetched']);
             jest.spyOn(AuthService as any, 'comparePassword').mockResolvedValue(true);
@@ -242,7 +242,7 @@ describe('AuthService', () => {
                 managedPodIds: []
             };
 
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(mockUser);
             (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
             const result = await AuthService.login('test@zluri.com', 'password');
@@ -253,7 +253,7 @@ describe('AuthService', () => {
         });
 
         it('should fail if user not found', async () => {
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(null);
 
             await expect(AuthService.login('test@zluri.com', 'password'))
                 .rejects.toThrow(AuthenticationError);
@@ -261,7 +261,7 @@ describe('AuthService', () => {
 
         it('should fail with invalid password', async () => {
             const mockUser = { id: 'user-123', password: 'hashed', managedPodIds: [] };
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(mockUser);
             (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
             await expect(AuthService.login('test@zluri.com', 'wrong'))
@@ -280,7 +280,7 @@ describe('AuthService', () => {
                 updatedAt: new Date()
             };
 
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(mockUser);
             (bcrypt.compare as jest.Mock).mockResolvedValue(true);
             (PodModel.getManagedPodIds as jest.Mock).mockResolvedValue(['pod-1']);
 
@@ -305,7 +305,7 @@ describe('AuthService', () => {
                 createdAt: new Date(),
                 updatedAt: new Date()
             };
-            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserByGoogleId as jest.Mock).mockResolvedValue(mockUser);
 
             const result = await AuthService.loginOrSignupWithGoogle(
                 'google@example.com',
@@ -315,7 +315,7 @@ describe('AuthService', () => {
 
             expect(result.user.email).toBe('google@example.com');
             expect(result.tokens.accessToken).toBeDefined();
-            expect(UserModel.findByGoogleId).toHaveBeenCalledWith('google-123');
+            expect(UserModel.findUserByGoogleId).toHaveBeenCalledWith('google-123');
         });
 
         it('should link account if user exists by email', async () => {
@@ -327,10 +327,10 @@ describe('AuthService', () => {
                 managedPodIds: []
             };
 
-            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(existingUser);
-            (UserModel.linkGoogle as jest.Mock).mockResolvedValue({ ...existingUser, google_id: 'google-123' });
-            (UserModel.findById as jest.Mock).mockResolvedValue(existingUser); // Fetch full user
+            (UserModel.findUserByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(existingUser);
+            (UserModel.linkUserGoogle as jest.Mock).mockResolvedValue({ ...existingUser, google_id: 'google-123' });
+            (UserModel.findUserById as jest.Mock).mockResolvedValue(existingUser); // Fetch full user
             (PodModel.getManagedPodIds as jest.Mock).mockResolvedValue(['pod-1']);
 
             const result = await AuthService.loginOrSignupWithGoogle(
@@ -339,14 +339,14 @@ describe('AuthService', () => {
                 'Existing User'
             );
 
-            expect(UserModel.linkGoogle).toHaveBeenCalledWith('user-1', 'google-123');
+            expect(UserModel.linkUserGoogle).toHaveBeenCalledWith('user-1', 'google-123');
             expect(result.user.role).toBe(UserRole.MANAGER); // Role preserved
             expect(result.tokens.accessToken).toBeDefined();
         });
 
         it('should create new user if not found', async () => {
-            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(null);
 
             const newUser = {
                 id: 'new-user',
@@ -356,8 +356,8 @@ describe('AuthService', () => {
                 managedPodIds: []
             };
 
-            (UserModel.create as jest.Mock).mockResolvedValue(newUser); // Return safe user
-            (UserModel.findById as jest.Mock).mockResolvedValue(newUser); // Return full user
+            (UserModel.createUser as jest.Mock).mockResolvedValue(newUser); // Return safe user
+            (UserModel.findUserById as jest.Mock).mockResolvedValue(newUser); // Return full user
 
             const result = await AuthService.loginOrSignupWithGoogle(
                 'new@example.com',
@@ -365,7 +365,7 @@ describe('AuthService', () => {
                 'New User'
             );
 
-            expect(UserModel.create).toHaveBeenCalledWith({
+            expect(UserModel.createUser).toHaveBeenCalledWith({
                 email: 'new@example.com',
                 name: 'New User',
                 role: UserRole.DEVELOPER,
@@ -379,9 +379,9 @@ describe('AuthService', () => {
                 id: 'user-1',
                 email: 'existing@example.com'
             };
-            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(existingUser);
-            (UserModel.linkGoogle as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(existingUser);
+            (UserModel.linkUserGoogle as jest.Mock).mockResolvedValue(null);
 
             await expect(AuthService.loginOrSignupWithGoogle(
                 'existing@example.com',
@@ -395,10 +395,10 @@ describe('AuthService', () => {
                 id: 'user-1',
                 email: 'existing@example.com'
             };
-            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(existingUser);
-            (UserModel.linkGoogle as jest.Mock).mockResolvedValue({ ...existingUser, google_id: 'google-123' });
-            (UserModel.findById as jest.Mock).mockResolvedValue(null); // Full user fetch fails
+            (UserModel.findUserByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(existingUser);
+            (UserModel.linkUserGoogle as jest.Mock).mockResolvedValue({ ...existingUser, google_id: 'google-123' });
+            (UserModel.findUserById as jest.Mock).mockResolvedValue(null); // Full user fetch fails
 
             await expect(AuthService.loginOrSignupWithGoogle(
                 'existing@example.com',
@@ -408,10 +408,10 @@ describe('AuthService', () => {
         });
 
         it('should throw NotFoundError if user not found after creation', async () => {
-            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(null);
-            (UserModel.findByEmail as jest.Mock).mockResolvedValue(null);
-            (UserModel.create as jest.Mock).mockResolvedValue({ id: 'new-user' });
-            (UserModel.findById as jest.Mock).mockResolvedValue(null); // Full user fetch fails
+            (UserModel.findUserByGoogleId as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserByEmail as jest.Mock).mockResolvedValue(null);
+            (UserModel.createUser as jest.Mock).mockResolvedValue({ id: 'new-user' });
+            (UserModel.findUserById as jest.Mock).mockResolvedValue(null); // Full user fetch fails
 
             await expect(AuthService.loginOrSignupWithGoogle(
                 'new@example.com',
@@ -431,7 +431,7 @@ describe('AuthService', () => {
                 createdAt: new Date(),
                 updatedAt: new Date()
             };
-            (UserModel.findByGoogleId as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserByGoogleId as jest.Mock).mockResolvedValue(mockUser);
 
             const result = await AuthService.loginOrSignupWithGoogle(
                 'manager@example.com',
@@ -457,7 +457,7 @@ describe('AuthService', () => {
                 managedPodIds: []
             };
 
-            (UserModel.findByIdSafe as jest.Mock).mockResolvedValue(mockUser);
+            (UserModel.findUserByIdSafe as jest.Mock).mockResolvedValue(mockUser);
 
             const result = await AuthService.getProfile('user-123');
 
@@ -465,7 +465,7 @@ describe('AuthService', () => {
         });
 
         it('should throw NotFoundError if user not found', async () => {
-            (UserModel.findByIdSafe as jest.Mock).mockResolvedValue(null);
+            (UserModel.findUserByIdSafe as jest.Mock).mockResolvedValue(null);
 
             await expect(AuthService.getProfile('invalid'))
                 .rejects.toThrow(NotFoundError);

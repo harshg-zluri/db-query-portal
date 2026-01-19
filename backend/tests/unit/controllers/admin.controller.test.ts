@@ -1,7 +1,7 @@
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 import * as AdminController from '../../../src/controllers/admin.controller';
-import { UserModel } from '../../../src/models/User';
-import { PodModel } from '../../../src/models/Pod';
+import * as UserModel from '../../../src/models/User';
+import * as PodModel from '../../../src/models/Pod';
 import { UserRole } from '../../../src/types';
 import bcrypt from 'bcrypt';
 
@@ -32,14 +32,14 @@ describe('AdminController', () => {
 
     describe('getUsers', () => {
         it('should get all users with default pagination', async () => {
-            (UserModel.findAll as any).mockResolvedValue({
+            (UserModel.findAllUsers as any).mockResolvedValue({
                 users: [{ id: '1' }],
                 total: 10
             });
 
             await AdminController.getUsers(mockReq, mockRes, mockNext);
 
-            expect(UserModel.findAll).toHaveBeenCalledWith({
+            expect(UserModel.findAllUsers).toHaveBeenCalledWith({
                 search: undefined,
                 page: 1,
                 limit: 20
@@ -52,11 +52,11 @@ describe('AdminController', () => {
 
         it('should handle search and pagination', async () => {
             mockReq.query = { page: '2', limit: '5', search: 'alice' };
-            (UserModel.findAll as any).mockResolvedValue({ users: [], total: 0 });
+            (UserModel.findAllUsers as any).mockResolvedValue({ users: [], total: 0 });
 
             await AdminController.getUsers(mockReq, mockRes, mockNext);
 
-            expect(UserModel.findAll).toHaveBeenCalledWith({
+            expect(UserModel.findAllUsers).toHaveBeenCalledWith({
                 search: 'alice',
                 page: 2,
                 limit: 5
@@ -65,7 +65,7 @@ describe('AdminController', () => {
 
         it('should handle errors', async () => {
             const error = new Error('DB Error');
-            (UserModel.findAll as any).mockRejectedValue(error);
+            (UserModel.findAllUsers as any).mockRejectedValue(error);
 
             await AdminController.getUsers(mockReq, mockRes, mockNext);
 
@@ -76,7 +76,7 @@ describe('AdminController', () => {
     describe('getUser', () => {
         it('should get user by ID', async () => {
             mockReq.params.id = 'user-1';
-            (UserModel.findByIdSafe as any).mockResolvedValue({ id: 'user-1' });
+            (UserModel.findUserByIdSafe as any).mockResolvedValue({ id: 'user-1' });
 
             await AdminController.getUser(mockReq, mockRes, mockNext);
 
@@ -85,7 +85,7 @@ describe('AdminController', () => {
 
         it('should return 404 if not found', async () => {
             mockReq.params.id = 'user-1';
-            (UserModel.findByIdSafe as any).mockResolvedValue(null);
+            (UserModel.findUserByIdSafe as any).mockResolvedValue(null);
 
             await AdminController.getUser(mockReq, mockRes, mockNext);
 
@@ -94,7 +94,7 @@ describe('AdminController', () => {
         });
 
         it('should handle errors', async () => {
-            (UserModel.findByIdSafe as any).mockRejectedValue(new Error('Err'));
+            (UserModel.findUserByIdSafe as any).mockRejectedValue(new Error('Err'));
             await AdminController.getUser(mockReq, mockRes, mockNext);
             expect(mockNext).toHaveBeenCalled();
         });
@@ -111,19 +111,19 @@ describe('AdminController', () => {
         });
 
         it('should create user', async () => {
-            (UserModel.findByEmail as any).mockResolvedValue(null);
+            (UserModel.findUserByEmail as any).mockResolvedValue(null);
             (bcrypt.hash as any).mockResolvedValue('hashed');
-            (UserModel.create as any).mockResolvedValue({ id: 'new-id' });
+            (UserModel.createUser as any).mockResolvedValue({ id: 'new-id' });
 
             await AdminController.createUser(mockReq, mockRes, mockNext);
 
-            expect(UserModel.create).toHaveBeenCalled();
+            expect(UserModel.createUser).toHaveBeenCalled();
             expect(mockRes.status).toHaveBeenCalledWith(201);
             expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
 
         it('should fail if email exists', async () => {
-            (UserModel.findByEmail as any).mockResolvedValue({ id: 'existing' });
+            (UserModel.findUserByEmail as any).mockResolvedValue({ id: 'existing' });
 
             await AdminController.createUser(mockReq, mockRes, mockNext);
 
@@ -133,7 +133,7 @@ describe('AdminController', () => {
 
         it('should fail if invalid role', async () => {
             mockReq.body.role = 'INVALID';
-            (UserModel.findByEmail as any).mockResolvedValue(null);
+            (UserModel.findUserByEmail as any).mockResolvedValue(null);
 
             await AdminController.createUser(mockReq, mockRes, mockNext);
             expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -142,8 +142,8 @@ describe('AdminController', () => {
 
         it('should fail if invalid pods', async () => {
             mockReq.body.managedPodIds = ['pod-1'];
-            (UserModel.findByEmail as any).mockResolvedValue(null);
-            (PodModel.findAll as any).mockResolvedValue([{ id: 'pod-2' }]); // valid is pod-2
+            (UserModel.findUserByEmail as any).mockResolvedValue(null);
+            (PodModel.findAllPods as any).mockResolvedValue([{ id: 'pod-2' }]); // valid is pod-2
 
             await AdminController.createUser(mockReq, mockRes, mockNext);
 
@@ -152,7 +152,7 @@ describe('AdminController', () => {
         });
 
         it('should handle errors', async () => {
-            (UserModel.findByEmail as any).mockRejectedValue(new Error('Err'));
+            (UserModel.findUserByEmail as any).mockRejectedValue(new Error('Err'));
             await AdminController.createUser(mockReq, mockRes, mockNext);
             expect(mockNext).toHaveBeenCalled();
         });
@@ -165,48 +165,48 @@ describe('AdminController', () => {
         });
 
         it('should update user', async () => {
-            (UserModel.findById as any).mockResolvedValue({ id: 'user-1' });
-            (UserModel.update as any).mockResolvedValue({ id: 'user-1', name: 'Updated' });
+            (UserModel.findUserById as any).mockResolvedValue({ id: 'user-1' });
+            (UserModel.updateUser as any).mockResolvedValue({ id: 'user-1', name: 'Updated' });
 
             await AdminController.updateUser(mockReq, mockRes, mockNext);
 
-            expect(UserModel.update).toHaveBeenCalledWith('user-1', { name: 'Updated', role: undefined, managedPodIds: undefined });
+            expect(UserModel.updateUser).toHaveBeenCalledWith('user-1', { name: 'Updated', role: undefined, managedPodIds: undefined });
             expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
 
         it('should update password if provided', async () => {
             mockReq.body.password = 'newpass';
-            (UserModel.findById as any).mockResolvedValue({ id: 'user-1' });
+            (UserModel.findUserById as any).mockResolvedValue({ id: 'user-1' });
             (bcrypt.hash as any).mockResolvedValue('hashed');
 
             await AdminController.updateUser(mockReq, mockRes, mockNext);
 
-            expect(UserModel.updatePassword).toHaveBeenCalledWith('user-1', 'hashed');
+            expect(UserModel.updateUserPassword).toHaveBeenCalledWith('user-1', 'hashed');
         });
 
         it('should fail if user not found', async () => {
-            (UserModel.findById as any).mockResolvedValue(null);
+            (UserModel.findUserById as any).mockResolvedValue(null);
             await AdminController.updateUser(mockReq, mockRes, mockNext);
             expect(mockRes.status).toHaveBeenCalledWith(404);
         });
 
         it('should fail if invalid role', async () => {
             mockReq.body.role = 'BAD';
-            (UserModel.findById as any).mockResolvedValue({ id: 'u' });
+            (UserModel.findUserById as any).mockResolvedValue({ id: 'u' });
             await AdminController.updateUser(mockReq, mockRes, mockNext);
             expect(mockRes.status).toHaveBeenCalledWith(400);
         });
 
         it('should fail if invalid pods', async () => {
             mockReq.body.managedPodIds = ['bad'];
-            (UserModel.findById as any).mockResolvedValue({ id: 'u' });
-            (PodModel.findAll as any).mockResolvedValue([]);
+            (UserModel.findUserById as any).mockResolvedValue({ id: 'u' });
+            (PodModel.findAllPods as any).mockResolvedValue([]);
             await AdminController.updateUser(mockReq, mockRes, mockNext);
             expect(mockRes.status).toHaveBeenCalledWith(400);
         });
 
         it('should handle errors', async () => {
-            (UserModel.findById as any).mockRejectedValue(new Error('Err'));
+            (UserModel.findUserById as any).mockRejectedValue(new Error('Err'));
             await AdminController.updateUser(mockReq, mockRes, mockNext);
             expect(mockNext).toHaveBeenCalled();
         });
@@ -215,12 +215,12 @@ describe('AdminController', () => {
     describe('deleteUser', () => {
         it('should delete user', async () => {
             mockReq.params.id = 'user-2'; // different from admin-id
-            (UserModel.findById as any).mockResolvedValue({ id: 'user-2' });
-            (UserModel.delete as any).mockResolvedValue(true);
+            (UserModel.findUserById as any).mockResolvedValue({ id: 'user-2' });
+            (UserModel.deleteUser as any).mockResolvedValue(true);
 
             await AdminController.deleteUser(mockReq, mockRes, mockNext);
 
-            expect(UserModel.delete).toHaveBeenCalledWith('user-2');
+            expect(UserModel.deleteUser).toHaveBeenCalledWith('user-2');
             expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
 
@@ -229,26 +229,26 @@ describe('AdminController', () => {
 
             await AdminController.deleteUser(mockReq, mockRes, mockNext);
             expect(mockRes.status).toHaveBeenCalledWith(400);
-            expect(UserModel.delete).not.toHaveBeenCalled();
+            expect(UserModel.deleteUser).not.toHaveBeenCalled();
         });
 
         it('should fail if user not found', async () => {
             mockReq.params.id = 'u2';
-            (UserModel.findById as any).mockResolvedValue(null);
+            (UserModel.findUserById as any).mockResolvedValue(null);
             await AdminController.deleteUser(mockReq, mockRes, mockNext);
             expect(mockRes.status).toHaveBeenCalledWith(404);
         });
 
         it('should fail if delete returns false', async () => {
             mockReq.params.id = 'u2';
-            (UserModel.findById as any).mockResolvedValue({ id: 'u2' });
-            (UserModel.delete as any).mockResolvedValue(false);
+            (UserModel.findUserById as any).mockResolvedValue({ id: 'u2' });
+            (UserModel.deleteUser as any).mockResolvedValue(false);
             await AdminController.deleteUser(mockReq, mockRes, mockNext);
             expect(mockRes.status).toHaveBeenCalledWith(500);
         });
 
         it('should handle errors', async () => {
-            (UserModel.findById as any).mockRejectedValue(new Error('Err'));
+            (UserModel.findUserById as any).mockRejectedValue(new Error('Err'));
             await AdminController.deleteUser(mockReq, mockRes, mockNext);
             expect(mockNext).toHaveBeenCalled();
         });
@@ -256,13 +256,13 @@ describe('AdminController', () => {
 
     describe('getPods', () => {
         it('should list pods', async () => {
-            (PodModel.findAll as any).mockResolvedValue([]);
+            (PodModel.findAllPods as any).mockResolvedValue([]);
             await AdminController.getPods(mockReq, mockRes, mockNext);
             expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
 
         it('should handle errors', async () => {
-            (PodModel.findAll as any).mockRejectedValue(new Error('Err'));
+            (PodModel.findAllPods as any).mockRejectedValue(new Error('Err'));
             await AdminController.getPods(mockReq, mockRes, mockNext);
             expect(mockNext).toHaveBeenCalled();
         });

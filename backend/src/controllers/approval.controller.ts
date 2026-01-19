@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { QueryRequestModel } from '../models/QueryRequest';
+import { findRequestById, approveRequest, rejectRequest, findRequestsWithFilters } from '../models/QueryRequest';
 import { ExecutionService } from '../services/execution.service';
 import { UserRole, RequestStatus } from '../types';
 import { sendSuccess, sendPaginated } from '../utils/responseHelper';
@@ -39,7 +39,7 @@ export class ApprovalController {
 
         try {
             // Get request
-            const request = await QueryRequestModel.findById(id);
+            const request = await findRequestById(id);
 
             if (!request) {
                 throw new NotFoundError('Request');
@@ -73,7 +73,7 @@ export class ApprovalController {
             }
 
             // Approve the request
-            const approvedRequest = await QueryRequestModel.approve(id, user.email);
+            const approvedRequest = await approveRequest(id, user.email);
 
             if (!approvedRequest) {
                 throw new NotFoundError('Request');
@@ -130,7 +130,7 @@ export class ApprovalController {
             });
 
             // Get updated request with execution result
-            const finalRequest = await QueryRequestModel.findById(id);
+            const finalRequest = await findRequestById(id);
 
             // TODO: Week 2 - FR4.1: Send Slack notifications on approval
             // - DM to requester with execution results
@@ -172,7 +172,7 @@ export class ApprovalController {
 
         try {
             // Get request
-            const request = await QueryRequestModel.findById(id);
+            const request = await findRequestById(id);
 
             if (!request) {
                 throw new NotFoundError('Request');
@@ -206,7 +206,7 @@ export class ApprovalController {
             }
 
             // Reject the request
-            const rejectedRequest = await QueryRequestModel.reject(id, user.email, reason);
+            const rejectedRequest = await rejectRequest(id, user.email, reason);
 
             if (!rejectedRequest) {
                 throw new NotFoundError('Request');
@@ -271,7 +271,7 @@ export class ApprovalController {
                 filters.allowedPodIds = user.managedPodIds;
             }
 
-            const { requests, total } = await QueryRequestModel.findWithFilters(
+            const { requests, total } = await findRequestsWithFilters(
                 filters,
                 page,
                 limit

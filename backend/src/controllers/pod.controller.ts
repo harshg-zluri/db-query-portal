@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { PodModel } from '../models/Pod';
+import { findAllPods, findPodById } from '../models/Pod';
 import { sendSuccess } from '../utils/responseHelper';
 
 /**
@@ -11,7 +11,7 @@ import { sendSuccess } from '../utils/responseHelper';
  */
 export async function getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const pods = await PodModel.findAll();
+        const pods = await findAllPods();
 
         // Return POD data for dropdown
         const result = pods.map(pod => ({
@@ -31,7 +31,7 @@ export async function getAll(req: Request, res: Response, next: NextFunction): P
  */
 export async function getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const pod = await PodModel.findById(req.params.id);
+        const pod = await findPodById(req.params.id);
 
         if (!pod) {
             sendSuccess(res, null, 'POD not found');

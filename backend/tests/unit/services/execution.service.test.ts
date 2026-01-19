@@ -32,15 +32,11 @@ jest.mock('../../../src/services/script.executor', () => ({
 }));
 
 jest.mock('../../../src/models/DatabaseInstance', () => ({
-    DatabaseInstanceModel: {
-        findById: jest.fn()
-    }
+    findInstanceById: jest.fn()
 }));
 
 jest.mock('../../../src/models/QueryRequest', () => ({
-    QueryRequestModel: {
-        setExecutionResult: jest.fn().mockResolvedValue(null)
-    }
+    setRequestExecutionResult: jest.fn().mockResolvedValue(null)
 }));
 
 jest.mock('../../../src/utils/logger', () => ({
@@ -64,8 +60,8 @@ process.env.TARGET_POSTGRES_URL = 'postgresql://localhost:5432/test';
 process.env.TARGET_MONGODB_URL = 'mongodb://localhost:27017/test';
 
 import { ScriptExecutor } from '../../../src/services/script.executor';
-import { DatabaseInstanceModel } from '../../../src/models/DatabaseInstance';
-import { QueryRequestModel } from '../../../src/models/QueryRequest';
+import * as DatabaseInstanceModel from '../../../src/models/DatabaseInstance';
+import * as QueryRequestModel from '../../../src/models/QueryRequest';
 import { PostgresExecutor } from '../../../src/services/postgres.executor';
 import { createMongoExecutor } from '../../../src/services/mongo.executor';
 import { shouldCompress, compressResult, getByteSize, formatBytes } from '../../../src/utils/compression';
@@ -114,17 +110,17 @@ describe('ExecutionService', () => {
     describe('executeRequest', () => {
         it('should execute query request successfully', async () => {
             const request = createMockRequest();
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
 
             const result = await ExecutionService.executeRequest(request);
 
             expect(result.success).toBe(true);
-            expect(QueryRequestModel.setExecutionResult).toHaveBeenCalled();
+            expect(QueryRequestModel.setRequestExecutionResult).toHaveBeenCalled();
         });
 
         it('should compress large results', async () => {
             const request = createMockRequest();
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
 
             // Mock compression utils
             (shouldCompress as jest.Mock).mockReturnValue(true);
@@ -148,7 +144,7 @@ describe('ExecutionService', () => {
                 scriptContent: 'console.log("test")',
                 scriptFileName: 'test.js'
             });
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
 
             const result = await ExecutionService.executeRequest(request);
 
@@ -158,13 +154,13 @@ describe('ExecutionService', () => {
 
         it('should handle execution error', async () => {
             const request = createMockRequest();
-            (DatabaseInstanceModel.findById as jest.Mock).mockRejectedValue(new Error('Database error'));
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockRejectedValue(new Error('Database error'));
 
             const result = await ExecutionService.executeRequest(request);
 
             expect(result.success).toBe(false);
             expect(result.error).toBe('Database error');
-            expect(QueryRequestModel.setExecutionResult).toHaveBeenCalledWith(
+            expect(QueryRequestModel.setRequestExecutionResult).toHaveBeenCalledWith(
                 'req-1',
                 false,
                 undefined,
@@ -174,7 +170,7 @@ describe('ExecutionService', () => {
 
         it('should handle unknown error type', async () => {
             const request = createMockRequest();
-            (DatabaseInstanceModel.findById as jest.Mock).mockRejectedValue('String error');
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockRejectedValue('String error');
 
             const result = await ExecutionService.executeRequest(request);
 
@@ -195,7 +191,7 @@ describe('ExecutionService', () => {
 
         it('should reject when database instance not found', async () => {
             const request = createMockRequest();
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(null);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(null);
 
             const result = await ExecutionService.executeRequest(request);
 
@@ -205,7 +201,7 @@ describe('ExecutionService', () => {
 
         it('should execute PostgreSQL query', async () => {
             const request = createMockRequest({ databaseType: DatabaseType.POSTGRESQL });
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
 
             const result = await ExecutionService.executeRequest(request);
 
@@ -218,7 +214,7 @@ describe('ExecutionService', () => {
                 query: 'db["users"].find({})'
             });
             const mongoInstance = { ...mockDatabaseInstance, type: DatabaseType.MONGODB, port: 27017 };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mongoInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mongoInstance);
 
             const result = await ExecutionService.executeRequest(request);
 
@@ -228,14 +224,14 @@ describe('ExecutionService', () => {
 
         it('should reuse existing connection', async () => {
             const request = createMockRequest();
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
 
             // Execute twice to test connection reuse
             await ExecutionService.executeRequest(request);
             await ExecutionService.executeRequest(request);
 
             // PostgresExecutor should reuse connection from previous call
-            expect(DatabaseInstanceModel.findById).toHaveBeenCalledTimes(2);
+            expect(DatabaseInstanceModel.findInstanceById).toHaveBeenCalledTimes(2);
         });
 
         it('should throw when TARGET_POSTGRES_URL is not configured', async () => {
@@ -245,7 +241,7 @@ describe('ExecutionService', () => {
                 instanceId: 'db-no-pg-url-query'
             });
             const mockInstance = { ...mockDatabaseInstance, id: 'db-no-pg-url-query' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockInstance);
 
             process.env.TARGET_POSTGRES_URL = "";
 
@@ -261,7 +257,7 @@ describe('ExecutionService', () => {
                 instanceId: 'db-no-mongo-url-query'
             });
             const mockInstance = { ...mockDatabaseInstance, id: 'db-no-mongo-url-query' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockInstance);
 
             process.env.TARGET_MONGODB_URL = "";
 
@@ -310,7 +306,7 @@ describe('ExecutionService', () => {
                 instanceId: 'db-no-pg-url-script'
             });
             const mockInstance = { ...mockDatabaseInstance, id: 'db-no-pg-url-script' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockInstance);
             (ScriptExecutor.validate as jest.Mock).mockReturnValue({ valid: true, errors: [] });
 
             process.env.TARGET_POSTGRES_URL = "";
@@ -329,7 +325,7 @@ describe('ExecutionService', () => {
                 instanceId: 'db-no-mongo-url-script'
             });
             const mockInstance = { ...mockDatabaseInstance, id: 'db-no-mongo-url-script' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockInstance);
             (ScriptExecutor.validate as jest.Mock).mockReturnValue({ valid: true, errors: [] });
 
             process.env.TARGET_MONGODB_URL = "";
@@ -350,7 +346,7 @@ describe('ExecutionService', () => {
                 scriptContent: 'console.log(1)'
             });
             (ScriptExecutor.validate as jest.Mock).mockReturnValue({ valid: true, errors: [] });
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
 
             const result = await ExecutionService.executeRequest(request);
 
@@ -374,7 +370,7 @@ describe('ExecutionService', () => {
             });
             const mongoInstance = { ...mockDatabaseInstance, type: DatabaseType.MONGODB, port: 27017 };
             (ScriptExecutor.validate as jest.Mock).mockReturnValue({ valid: true, errors: [] });
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mongoInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mongoInstance);
 
             const result = await ExecutionService.executeRequest(request);
 

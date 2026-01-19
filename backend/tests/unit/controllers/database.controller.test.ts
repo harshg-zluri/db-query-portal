@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseController } from '../../../src/controllers/database.controller';
-import { DatabaseInstanceModel } from '../../../src/models/DatabaseInstance';
+import * as DatabaseInstanceModel from '../../../src/models/DatabaseInstance';
 import { NotFoundError } from '../../../src/utils/errors';
 import { logger } from '../../../src/utils/logger';
 
@@ -88,7 +88,7 @@ describe('DatabaseController', () => {
     describe('getInstances', () => {
         it('should handle errors', async () => {
             const error = new Error('Database error');
-            (DatabaseInstanceModel.findAll as jest.Mock).mockRejectedValue(error);
+            (DatabaseInstanceModel.findAllInstances as jest.Mock).mockRejectedValue(error);
 
             await DatabaseController.getInstances(req as Request, res as Response, next);
 
@@ -96,11 +96,11 @@ describe('DatabaseController', () => {
         });
 
         it('should list all instances', async () => {
-            (DatabaseInstanceModel.findAll as jest.Mock).mockResolvedValue([mockInstance]);
+            (DatabaseInstanceModel.findAllInstances as jest.Mock).mockResolvedValue([mockInstance]);
 
             await DatabaseController.getInstances(req as Request, res as Response, next);
 
-            expect(DatabaseInstanceModel.findAll).toHaveBeenCalled();
+            expect(DatabaseInstanceModel.findAllInstances).toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(200);
             const data = (res.json as jest.Mock).mock.calls[0][0].data;
             expect(data[0]).toEqual({
@@ -112,11 +112,11 @@ describe('DatabaseController', () => {
 
         it('should filter by type', async () => {
             req.query = { type: 'postgresql' };
-            (DatabaseInstanceModel.findByType as jest.Mock).mockResolvedValue([mockInstance]);
+            (DatabaseInstanceModel.findInstancesByType as jest.Mock).mockResolvedValue([mockInstance]);
 
             await DatabaseController.getInstances(req as Request, res as Response, next);
 
-            expect(DatabaseInstanceModel.findByType).toHaveBeenCalledWith('postgresql');
+            expect(DatabaseInstanceModel.findInstancesByType).toHaveBeenCalledWith('postgresql');
             expect(res.status).toHaveBeenCalledWith(200);
         });
     });
@@ -124,7 +124,7 @@ describe('DatabaseController', () => {
     describe('getDatabases', () => {
         it('should list databases for instance', async () => {
             req.params = { instanceId: 'inst-1' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockInstance);
 
             await DatabaseController.getDatabases(req as Request, res as Response, next);
 
@@ -135,7 +135,7 @@ describe('DatabaseController', () => {
 
         it('should throw NotFoundError if instance missing', async () => {
             req.params = { instanceId: 'inst-1' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(null);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(null);
 
             await DatabaseController.getDatabases(req as Request, res as Response, next);
 
@@ -145,7 +145,7 @@ describe('DatabaseController', () => {
         it('should use dynamic discovery for PostgreSQL', async () => {
             req.params = { instanceId: 'inst-pg' };
             const pgInstance = { ...mockInstance, type: 'postgresql' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(pgInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(pgInstance);
             (DiscoveryService.getPostgresSchemas as jest.Mock).mockResolvedValue(['public', 'users']);
 
             await DatabaseController.getDatabases(req as Request, res as Response, next);
@@ -158,7 +158,7 @@ describe('DatabaseController', () => {
         it('should use dynamic discovery for MongoDB', async () => {
             req.params = { instanceId: 'inst-mongo' };
             const mongoInstance = { ...mockInstance, type: 'mongodb' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mongoInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mongoInstance);
             (DiscoveryService.getMongoDatabases as jest.Mock).mockResolvedValue(['local', 'admin']);
 
             await DatabaseController.getDatabases(req as Request, res as Response, next);
@@ -171,7 +171,7 @@ describe('DatabaseController', () => {
         it('should fallback to static list if config missing (PG)', async () => {
             req.params = { instanceId: 'inst-pg-fallback' };
             const pgInstance = { ...mockInstance, type: 'postgresql', databases: ['static_db'] };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(pgInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(pgInstance);
 
             // Temporarily unset config
             const originalUrl = config.targetDatabases.postgresUrl;
@@ -189,7 +189,7 @@ describe('DatabaseController', () => {
         it('should fallback to static list if config missing (Mongo)', async () => {
             req.params = { instanceId: 'inst-mongo-fallback' };
             const mongoInstance = { ...mockInstance, type: 'mongodb', databases: ['static_mongo'] };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mongoInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mongoInstance);
 
             // Temporarily unset config
             const originalUrl = config.targetDatabases.mongodbUrl;
@@ -208,17 +208,17 @@ describe('DatabaseController', () => {
     describe('getInstanceById', () => {
         it('should return instance if found', async () => {
             req.params = { instanceId: 'inst-1' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mockInstance);
 
             await DatabaseController.getInstanceById(req as Request, res as Response, next);
 
-            expect(DatabaseInstanceModel.findById).toHaveBeenCalledWith('inst-1');
+            expect(DatabaseInstanceModel.findInstanceById).toHaveBeenCalledWith('inst-1');
             expect(res.status).toHaveBeenCalledWith(200);
         });
 
         it('should throw NotFoundError if not found', async () => {
             req.params = { instanceId: 'inst-1' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(null);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(null);
 
             await DatabaseController.getInstanceById(req as Request, res as Response, next);
 
@@ -230,7 +230,7 @@ describe('DatabaseController', () => {
         it('should fallback to static list when discovery fails with error', async () => {
             req.params = { instanceId: 'inst-pg-err' };
             const pgInstance = { ...mockInstance, type: 'postgresql', databases: ['fallback_db'] };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(pgInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(pgInstance);
             (DiscoveryService.getPostgresSchemas as jest.Mock).mockRejectedValue(new Error('Discovery failed'));
 
             await DatabaseController.getDatabases(req as Request, res as Response, next);
@@ -243,7 +243,7 @@ describe('DatabaseController', () => {
         it('should fallback when discovery returns empty array (PG)', async () => {
             req.params = { instanceId: 'inst-pg-empty' };
             const pgInstance = { ...mockInstance, type: 'postgresql', databases: ['static_db'] };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(pgInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(pgInstance);
             (DiscoveryService.getPostgresSchemas as jest.Mock).mockResolvedValue([]);
 
             await DatabaseController.getDatabases(req as Request, res as Response, next);
@@ -255,7 +255,7 @@ describe('DatabaseController', () => {
         it('should fallback when discovery returns empty array (Mongo)', async () => {
             req.params = { instanceId: 'inst-mongo-empty' };
             const mongoInstance = { ...mockInstance, type: 'mongodb', databases: ['static_mongo'] };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mongoInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(mongoInstance);
             (DiscoveryService.getMongoDatabases as jest.Mock).mockResolvedValue([]);
 
             await DatabaseController.getDatabases(req as Request, res as Response, next);
@@ -267,7 +267,7 @@ describe('DatabaseController', () => {
         it('should use safety fallback if discovery fails and instance has no databases', async () => {
             req.params = { instanceId: 'inst-pg-no-db' };
             const fallbackInstance = { ...mockInstance, type: 'postgresql', databases: [] as string[] };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(fallbackInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(fallbackInstance);
 
             // Mock discovery to fail
             (DiscoveryService.getPostgresSchemas as jest.Mock).mockRejectedValue(new Error('Discovery error'));
@@ -284,7 +284,7 @@ describe('DatabaseController', () => {
         it('should use safety fallback for MongoDB when discovery fails', async () => {
             req.params = { instanceId: 'inst-mongo-no-db' };
             const fallbackInstance = { ...mockInstance, type: 'mongodb', databases: [] as string[] };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(fallbackInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(fallbackInstance);
 
             (DiscoveryService.getMongoDatabases as jest.Mock).mockRejectedValue(new Error('Discovery error'));
 
@@ -299,7 +299,7 @@ describe('DatabaseController', () => {
         it('should handle non-Error exception during discovery', async () => {
             req.params = { instanceId: 'inst-pg' };
             const pgInstance = { ...mockInstance, type: 'postgresql' };
-            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(pgInstance);
+            (DatabaseInstanceModel.findInstanceById as jest.Mock).mockResolvedValue(pgInstance);
             (DiscoveryService.getPostgresSchemas as jest.Mock).mockRejectedValue('String Error');
 
             await DatabaseController.getDatabases(req as Request, res as Response, next);

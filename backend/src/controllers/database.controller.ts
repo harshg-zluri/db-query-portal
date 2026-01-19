@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { DatabaseInstanceModel } from '../models/DatabaseInstance';
+import { findAllInstances, findInstancesByType, findInstanceById } from '../models/DatabaseInstance';
 import { DatabaseType } from '../types';
 import { sendSuccess } from '../utils/responseHelper';
 import { NotFoundError } from '../utils/errors';
@@ -39,9 +39,9 @@ export class DatabaseController {
 
             let instances;
             if (type && Object.values(DatabaseType).includes(type)) {
-                instances = await DatabaseInstanceModel.findByType(type);
+                instances = await findInstancesByType(type);
             } else {
-                instances = await DatabaseInstanceModel.findAll();
+                instances = await findAllInstances();
             }
 
             // Return simplified instance data for dropdown
@@ -65,7 +65,7 @@ export class DatabaseController {
         try {
             const { instanceId } = req.params;
 
-            const instance = await DatabaseInstanceModel.findById(instanceId);
+            const instance = await findInstanceById(instanceId);
 
             if (!instance) {
                 throw new NotFoundError('Database instance');
@@ -126,7 +126,7 @@ export class DatabaseController {
         try {
             const { instanceId } = req.params;
 
-            const instance = await DatabaseInstanceModel.findById(instanceId);
+            const instance = await findInstanceById(instanceId);
 
             if (!instance) {
                 throw new NotFoundError('Database instance');

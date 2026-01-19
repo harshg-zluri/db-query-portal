@@ -12,6 +12,7 @@ export class AppError extends Error {
         isOperational: boolean = true
     ) {
         super(message);
+        Object.setPrototypeOf(this, new.target.prototype);
         this.statusCode = statusCode;
         this.code = code;
         this.isOperational = isOperational;
@@ -20,6 +21,7 @@ export class AppError extends Error {
         Error.captureStackTrace(this, this.constructor);
     }
 }
+
 
 export class ValidationError extends AppError {
     constructor(message: string) {

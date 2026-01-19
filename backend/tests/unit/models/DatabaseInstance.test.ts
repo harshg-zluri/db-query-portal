@@ -1,5 +1,5 @@
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
-import { DatabaseInstanceModel } from '../../../src/models/DatabaseInstance';
+import * as DatabaseInstanceModel from '../../../src/models/DatabaseInstance';
 import { DatabaseType } from '../../../src/types';
 
 import { getEm } from '../../../src/config/database';
@@ -30,7 +30,7 @@ describe('DatabaseInstanceModel', () => {
             ];
             mockEm.find.mockResolvedValue(mockInstances);
 
-            const result = await DatabaseInstanceModel.findAll();
+            const result = await DatabaseInstanceModel.findAllInstances();
 
             expect(result).toHaveLength(2);
             expect(mockEm.find).toHaveBeenCalledWith(DatabaseInstance, {}, { orderBy: { name: 'ASC' } });
@@ -42,7 +42,7 @@ describe('DatabaseInstanceModel', () => {
             const mockInstances = [{ name: 'PG', type: 'postgresql' }];
             mockEm.find.mockResolvedValue(mockInstances);
 
-            const result = await DatabaseInstanceModel.findByType(DatabaseType.POSTGRESQL);
+            const result = await DatabaseInstanceModel.findInstancesByType(DatabaseType.POSTGRESQL);
 
             expect(result).toHaveLength(1);
             expect(mockEm.find).toHaveBeenCalledWith(DatabaseInstance, { type: DatabaseType.POSTGRESQL }, expect.any(Object));
@@ -54,7 +54,7 @@ describe('DatabaseInstanceModel', () => {
             const mockInstance = { id: 'db-1', name: 'DB' };
             mockEm.findOne.mockResolvedValue(mockInstance);
 
-            const result = await DatabaseInstanceModel.findById('db-1');
+            const result = await DatabaseInstanceModel.findInstanceById('db-1');
 
             expect(result).toEqual(mockInstance);
             expect(mockEm.findOne).toHaveBeenCalledWith(DatabaseInstance, { id: 'db-1' });
@@ -62,7 +62,7 @@ describe('DatabaseInstanceModel', () => {
 
         it('should return null when not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await DatabaseInstanceModel.findById('nonexistent');
+            const result = await DatabaseInstanceModel.findInstanceById('nonexistent');
             expect(result).toBeNull();
         });
     });
@@ -72,21 +72,21 @@ describe('DatabaseInstanceModel', () => {
             const mockInstance = { id: 'db-1', databases: ['db1', 'db2'] };
             mockEm.findOne.mockResolvedValue(mockInstance);
 
-            const result = await DatabaseInstanceModel.getDatabases('db-1');
+            const result = await DatabaseInstanceModel.getInstanceDatabases('db-1');
 
             expect(result).toEqual(['db1', 'db2']);
         });
 
         it('should return empty array when instance not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await DatabaseInstanceModel.getDatabases('nonexistent');
+            const result = await DatabaseInstanceModel.getInstanceDatabases('nonexistent');
             expect(result).toEqual([]);
         });
     });
 
     describe('create', () => {
         it('should create new database instance', async () => {
-            const result = await DatabaseInstanceModel.create({
+            const result = await DatabaseInstanceModel.createInstance({
                 name: 'New Instance',
                 type: DatabaseType.MONGODB,
                 host: '1.2.3.4',

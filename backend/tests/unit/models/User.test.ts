@@ -1,5 +1,5 @@
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
-import { UserModel } from '../../../src/models/User';
+import * as UserModel from '../../../src/models/User';
 import { UserRole } from '../../../src/types';
 
 import { getEm } from '../../../src/config/database';
@@ -35,7 +35,7 @@ describe('UserModel', () => {
             };
             mockEm.findOne.mockResolvedValue(mockUser);
 
-            const result = await UserModel.findByEmail('test@example.com');
+            const result = await UserModel.findUserByEmail('test@example.com');
 
             expect(result).not.toBeNull();
             expect(result?.email).toBe('test@example.com');
@@ -45,7 +45,7 @@ describe('UserModel', () => {
         it('should return null when not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
 
-            const result = await UserModel.findByEmail('notfound@example.com');
+            const result = await UserModel.findUserByEmail('notfound@example.com');
 
             expect(result).toBeNull();
         });
@@ -59,7 +59,7 @@ describe('UserModel', () => {
             };
             mockEm.findOne.mockResolvedValue(mockUser);
 
-            const result = await UserModel.findById('user-1');
+            const result = await UserModel.findUserById('user-1');
 
             expect(result).not.toBeNull();
             expect(result?.id).toBe('user-1');
@@ -76,7 +76,7 @@ describe('UserModel', () => {
                 role: UserRole.DEVELOPER
             };
 
-            const result = await UserModel.create(data);
+            const result = await UserModel.createUser(data);
 
             expect(mockEm.persistAndFlush).toHaveBeenCalled();
             expect(result.email).toBe('new@example.com');
@@ -90,7 +90,7 @@ describe('UserModel', () => {
                 googleId: 'g-123'
             };
 
-            const result = await UserModel.create(data);
+            const result = await UserModel.createUser(data);
 
             expect(result.googleId).toBe('g-123');
             expect(mockEm.persistAndFlush).toHaveBeenCalledWith(
@@ -106,7 +106,7 @@ describe('UserModel', () => {
             ];
             mockEm.findAndCount.mockResolvedValue([mockUsers, 1]);
 
-            const result = await UserModel.findAll({ page: 1, limit: 10 });
+            const result = await UserModel.findAllUsers({ page: 1, limit: 10 });
 
             expect(result.users).toHaveLength(1);
             expect(result.total).toBe(1);
@@ -120,7 +120,7 @@ describe('UserModel', () => {
         it('should use default pagination options', async () => {
             mockEm.findAndCount.mockResolvedValue([[], 0]);
 
-            await UserModel.findAll();
+            await UserModel.findAllUsers();
 
             expect(mockEm.findAndCount).toHaveBeenCalledWith(
                 User,
@@ -132,7 +132,7 @@ describe('UserModel', () => {
         it('should filter by search term', async () => {
             mockEm.findAndCount.mockResolvedValue([[], 0]);
 
-            await UserModel.findAll({ search: 'test' });
+            await UserModel.findAllUsers({ search: 'test' });
 
             expect(mockEm.findAndCount).toHaveBeenCalledWith(
                 User,
@@ -152,7 +152,7 @@ describe('UserModel', () => {
             };
             mockEm.findOne.mockResolvedValue(mockUser);
 
-            const result = await UserModel.findByIdSafe('user-1');
+            const result = await UserModel.findUserByIdSafe('user-1');
 
             expect(result).not.toBeNull();
             expect(result).not.toHaveProperty('password');
@@ -160,7 +160,7 @@ describe('UserModel', () => {
 
         it('should return null when not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await UserModel.findByIdSafe('nonexistent');
+            const result = await UserModel.findUserByIdSafe('nonexistent');
             expect(result).toBeNull();
         });
     });
@@ -170,7 +170,7 @@ describe('UserModel', () => {
             const mockUser = { id: 'user-1', googleId: 'g-123' };
             mockEm.findOne.mockResolvedValue(mockUser);
 
-            const result = await UserModel.findByGoogleId('g-123');
+            const result = await UserModel.findUserByGoogleId('g-123');
             expect(result).toEqual(mockUser);
             expect(mockEm.findOne).toHaveBeenCalledWith(User, { googleId: 'g-123' });
         });
@@ -181,7 +181,7 @@ describe('UserModel', () => {
             const mockUser = { id: 'user-1' };
             mockEm.findOne.mockResolvedValue(mockUser);
 
-            const result = await UserModel.linkGoogle('user-1', 'g-123');
+            const result = await UserModel.linkUserGoogle('user-1', 'g-123');
 
             expect(mockUser).toHaveProperty('googleId', 'g-123');
             expect(mockEm.flush).toHaveBeenCalled();
@@ -190,7 +190,7 @@ describe('UserModel', () => {
 
         it('should return null if user not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await UserModel.linkGoogle('nonexistent', 'g-123');
+            const result = await UserModel.linkUserGoogle('nonexistent', 'g-123');
             expect(result).toBeNull();
         });
     });
@@ -200,7 +200,7 @@ describe('UserModel', () => {
             const mockUser = { id: 'user-1', name: 'Old' };
             mockEm.findOne.mockResolvedValue(mockUser);
 
-            const result = await UserModel.update('user-1', { name: 'New' });
+            const result = await UserModel.updateUser('user-1', { name: 'New' });
 
             expect(mockUser).toHaveProperty('name', 'New');
             expect(mockEm.flush).toHaveBeenCalled();
@@ -211,7 +211,7 @@ describe('UserModel', () => {
             const mockUser = { id: 'user-1', name: 'Old', role: 'developer', managedPodIds: [] };
             mockEm.findOne.mockResolvedValue(mockUser);
 
-            await UserModel.update('user-1', {
+            await UserModel.updateUser('user-1', {
                 name: 'New Name',
                 role: UserRole.ADMIN,
                 managedPodIds: ['pod-1']
@@ -224,7 +224,7 @@ describe('UserModel', () => {
 
         it('should return null if user not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await UserModel.update('nonexistent', { name: 'New' });
+            const result = await UserModel.updateUser('nonexistent', { name: 'New' });
             expect(result).toBeNull();
         });
     });
@@ -234,7 +234,7 @@ describe('UserModel', () => {
             const mockUser = { id: 'user-1', password: 'old' };
             mockEm.findOne.mockResolvedValue(mockUser);
 
-            const result = await UserModel.updatePassword('user-1', 'new-hash');
+            const result = await UserModel.updateUserPassword('user-1', 'new-hash');
 
             expect(mockUser).toHaveProperty('password', 'new-hash');
             expect(mockEm.flush).toHaveBeenCalled();
@@ -243,7 +243,7 @@ describe('UserModel', () => {
 
         it('should return false if user not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await UserModel.updatePassword('nonexistent', 'hash');
+            const result = await UserModel.updateUserPassword('nonexistent', 'hash');
             expect(result).toBe(false);
         });
     });
@@ -253,7 +253,7 @@ describe('UserModel', () => {
             const mockUser = { id: 'user-1' };
             mockEm.findOne.mockResolvedValue(mockUser);
 
-            const result = await UserModel.delete('user-1');
+            const result = await UserModel.deleteUser('user-1');
 
             expect(mockEm.removeAndFlush).toHaveBeenCalledWith(mockUser);
             expect(result).toBe(true);
@@ -261,7 +261,7 @@ describe('UserModel', () => {
 
         it('should return false if user not found', async () => {
             mockEm.findOne.mockResolvedValue(null);
-            const result = await UserModel.delete('nonexistent');
+            const result = await UserModel.deleteUser('nonexistent');
             expect(result).toBe(false);
         });
     });
