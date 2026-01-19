@@ -1,0 +1,67 @@
+
+> db-query-portal@1.0.0 test
+> jest --coverage --coverage --coverageReporters=text
+
+  console.error
+    Debug discovery error: Error: Unexpected
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/tests/unit/controllers/database.controller.test.ts:353:74)
+        at /Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:397:39
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:404:13)
+        at Object.mockConstructor [as json] (/Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:148:19)
+        at Function.json [as debugDiscovery] (/Users/harshgoyal/Desktop/db-query-portal/backend/src/controllers/database.controller.ts:182:17)
+        at processTicksAndRejections (node:internal/process/task_queues:95:5)
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/tests/unit/controllers/database.controller.test.ts:355:13)
+
+      182 |             res.json({ success: true, checks });
+      183 |         } catch (error) {
+    > 184 |             console.error('Debug discovery error:', error);
+          |                     ^
+      185 |             next(error);
+      186 |         }
+      187 |     }
+
+      at Function.error [as debugDiscovery] (src/controllers/database.controller.ts:184:21)
+      at Object.<anonymous> (tests/unit/controllers/database.controller.test.ts:355:13)
+
+-----------------------------|---------|----------|---------|---------|-------------------
+File                         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-----------------------------|---------|----------|---------|---------|-------------------
+All files                    |   98.45 |    95.63 |   95.62 |   98.64 |                   
+ config                      |     100 |      100 |     100 |     100 |                   
+  environment.ts             |     100 |      100 |     100 |     100 |                   
+ controllers                 |   96.46 |     86.5 |   97.36 |   97.07 |                   
+  admin.controller.ts        |   98.79 |      100 |      90 |     100 |                   
+  approval.controller.ts     |     100 |      100 |     100 |     100 |                   
+  auth.controller.ts         |     100 |      100 |     100 |     100 |                   
+  database.controller.ts     |   94.59 |    78.78 |     100 |   94.52 | 107-110           
+  pod.controller.ts          |     100 |      100 |     100 |     100 |                   
+  request.controller.ts      |   92.61 |    76.19 |     100 |   93.87 | 67-68,70-75,80-83 
+ entities                    |    90.9 |      100 |       0 |   88.13 |                   
+  DatabaseInstance.ts        |   94.11 |      100 |       0 |   91.66 | 13                
+  QueryRequest.ts            |   89.74 |      100 |       0 |    87.5 | 16,28,49,76       
+  User.ts                    |   90.47 |      100 |       0 |   86.66 | 19,31             
+ middleware                  |     100 |      100 |     100 |     100 |                   
+  auth.middleware.ts         |     100 |      100 |     100 |     100 |                   
+  errorHandler.middleware.ts |     100 |      100 |     100 |     100 |                   
+  rbac.middleware.ts         |     100 |      100 |     100 |     100 |                   
+  validation.middleware.ts   |     100 |      100 |     100 |     100 |                   
+ models                      |     100 |      100 |     100 |     100 |                   
+  DatabaseInstance.ts        |     100 |      100 |     100 |     100 |                   
+  Pod.ts                     |     100 |      100 |     100 |     100 |                   
+  QueryRequest.ts            |     100 |      100 |     100 |     100 |                   
+  User.ts                    |     100 |      100 |     100 |     100 |                   
+ services                    |   99.81 |    98.16 |     100 |     100 |                   
+  auth.service.ts            |     100 |      100 |     100 |     100 |                   
+  discovery.service.ts       |     100 |      100 |     100 |     100 |                   
+  execution.service.ts       |     100 |      100 |     100 |     100 |                   
+  mongo.executor.ts          |     100 |      100 |     100 |     100 |                   
+  postgres.executor.ts       |     100 |    95.83 |     100 |     100 | 91                
+  script.executor.ts         |     100 |      100 |     100 |     100 |                   
+  slack.service.ts           |   99.24 |    96.66 |     100 |     100 | 136-162,568       
+ utils                       |     100 |      100 |     100 |     100 |                   
+  compression.ts             |     100 |      100 |     100 |     100 |                   
+  errors.ts                  |     100 |      100 |     100 |     100 |                   
+  pagination.ts              |     100 |      100 |     100 |     100 |                   
+  responseHelper.ts          |     100 |      100 |     100 |     100 |                   
+  sanitizer.ts               |     100 |      100 |     100 |     100 |                   
+-----------------------------|---------|----------|---------|---------|-------------------

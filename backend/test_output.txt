@@ -1,0 +1,206 @@
+
+> db-query-portal@1.0.0 test
+> jest --coverage tests/unit/controllers/database.controller.test.ts tests/unit/services/postgres.executor.test.ts tests/unit/services/slack.service.test.ts
+
+PASS tests/unit/services/postgres.executor.test.ts
+  PostgresExecutor
+    connect
+      ✓ should create client on first connect (8 ms)
+      ✓ should reuse client on subsequent connects (1 ms)
+    close
+      ✓ should close client
+      ✓ should handle close without connect
+    execute
+      ✓ should execute SELECT query and return rows (1 ms)
+      ✓ should execute UPDATE and return affected rows
+      ✓ should handle empty result (1 ms)
+      ✓ should allow DDL statements (warnings handled at submission)
+      ✓ should execute valid DELETE queries (DML)
+      ✓ should handle query error (1 ms)
+      ✓ should set search path when schema provided
+      ✓ should handle null/undefined result from driver (1 ms)
+      ✓ should handle non-Error exception
+      ✓ should handle result with missing count/length
+      ✓ should block query that exceeds row limit (37 ms)
+      ✓ should allow query with exactly MAX_ROWS (1 ms)
+      ✓ should handle malformed count result gracefully
+      ✓ should fallback to 0 rows if count query returns empty (e.g. driver weirdness)
+    testConnection
+      ✓ should return true for valid connection
+      ✓ should return false for failed connection (1 ms)
+    createPostgresExecutor
+      ✓ should create executor from connection string
+      ✓ should throw for invalid connection string (19 ms)
+    constructor
+      ✓ should configure connection string with ssl by default
+      ✓ should disable ssl when explicitly set to false (1 ms)
+
+FAIL tests/unit/services/slack.service.test.ts
+  ● Test suite failed to run
+
+    [96msrc/services/slack.service.ts[0m:[93m139[0m:[93m19[0m - [91merror[0m[90m TS2451: [0mCannot redeclare block-scoped variable 'filename'.
+
+    [7m139[0m             const filename = `result_${request.id.slice(0, 8)}.json`;
+    [7m   [0m [91m                  ~~~~~~~~[0m
+    [96msrc/services/slack.service.ts[0m:[93m139[0m:[93m40[0m - [91merror[0m[90m TS2552: [0mCannot find name 'request'. Did you mean 'Request'?
+
+    [7m139[0m             const filename = `result_${request.id.slice(0, 8)}.json`;
+    [7m   [0m [91m                                       ~~~~~~~[0m
+
+      [96mnode_modules/@types/node/web-globals/fetch.d.ts[0m:[93m35[0m:[93m9[0m
+        [7m35[0m     var Request: typeof globalThis extends { onmessage: any; Request: infer T } ? T : typeof undici.Request;
+        [7m  [0m [96m        ~~~~~~~[0m
+        'Request' is declared here.
+    [96msrc/services/slack.service.ts[0m:[93m140[0m:[93m19[0m - [91merror[0m[90m TS2451: [0mCannot redeclare block-scoped variable 'filename'.
+
+    [7m140[0m             const filename = `result_${request.id.slice(0, 8)}.json`;
+    [7m   [0m [91m                  ~~~~~~~~[0m
+    [96msrc/services/slack.service.ts[0m:[93m140[0m:[93m40[0m - [91merror[0m[90m TS2552: [0mCannot find name 'request'. Did you mean 'Request'?
+
+    [7m140[0m             const filename = `result_${request.id.slice(0, 8)}.json`;
+    [7m   [0m [91m                                       ~~~~~~~[0m
+
+      [96mnode_modules/@types/node/web-globals/fetch.d.ts[0m:[93m35[0m:[93m9[0m
+        [7m35[0m     var Request: typeof globalThis extends { onmessage: any; Request: infer T } ? T : typeof undici.Request;
+        [7m  [0m [96m        ~~~~~~~[0m
+        'Request' is declared here.
+    [96msrc/services/slack.service.ts[0m:[93m147[0m:[93m54[0m - [91merror[0m[90m TS2552: [0mCannot find name 'request'. Did you mean 'Request'?
+
+    [7m147[0m                 title: `Execution Result - Request ${request.id.slice(0, 8)}`,
+    [7m   [0m [91m                                                     ~~~~~~~[0m
+
+      [96mnode_modules/@types/node/web-globals/fetch.d.ts[0m:[93m35[0m:[93m9[0m
+        [7m35[0m     var Request: typeof globalThis extends { onmessage: any; Request: infer T } ? T : typeof undici.Request;
+        [7m  [0m [96m        ~~~~~~~[0m
+        'Request' is declared here.
+    [96msrc/services/slack.service.ts[0m:[93m148[0m:[93m69[0m - [91merror[0m[90m TS2552: [0mCannot find name 'request'. Did you mean 'Request'?
+
+    [7m148[0m                 initial_comment: `📁 Execution result for request ${request.id.slice(0, 8)} (${request.databaseType} - ${request.instanceName})`
+    [7m   [0m [91m                                                                    ~~~~~~~[0m
+
+      [96mnode_modules/@types/node/web-globals/fetch.d.ts[0m:[93m35[0m:[93m9[0m
+        [7m35[0m     var Request: typeof globalThis extends { onmessage: any; Request: infer T } ? T : typeof undici.Request;
+        [7m  [0m [96m        ~~~~~~~[0m
+        'Request' is declared here.
+    [96msrc/services/slack.service.ts[0m:[93m148[0m:[93m96[0m - [91merror[0m[90m TS2552: [0mCannot find name 'request'. Did you mean 'Request'?
+
+    [7m148[0m                 initial_comment: `📁 Execution result for request ${request.id.slice(0, 8)} (${request.databaseType} - ${request.instanceName})`
+    [7m   [0m [91m                                                                                               ~~~~~~~[0m
+
+      [96mnode_modules/@types/node/web-globals/fetch.d.ts[0m:[93m35[0m:[93m9[0m
+        [7m35[0m     var Request: typeof globalThis extends { onmessage: any; Request: infer T } ? T : typeof undici.Request;
+        [7m  [0m [96m        ~~~~~~~[0m
+        'Request' is declared here.
+    [96msrc/services/slack.service.ts[0m:[93m148[0m:[93m122[0m - [91merror[0m[90m TS2552: [0mCannot find name 'request'. Did you mean 'Request'?
+
+    [7m148[0m                 initial_comment: `📁 Execution result for request ${request.id.slice(0, 8)} (${request.databaseType} - ${request.instanceName})`
+    [7m   [0m [91m                                                                                                                         ~~~~~~~[0m
+
+      [96mnode_modules/@types/node/web-globals/fetch.d.ts[0m:[93m35[0m:[93m9[0m
+        [7m35[0m     var Request: typeof globalThis extends { onmessage: any; Request: infer T } ? T : typeof undici.Request;
+        [7m  [0m [96m        ~~~~~~~[0m
+        'Request' is declared here.
+    [96msrc/services/slack.service.ts[0m:[93m152[0m:[93m28[0m - [91merror[0m[90m TS2552: [0mCannot find name 'request'. Did you mean 'Request'?
+
+    [7m152[0m                 requestId: request.id,
+    [7m   [0m [91m                           ~~~~~~~[0m
+
+      [96mnode_modules/@types/node/web-globals/fetch.d.ts[0m:[93m35[0m:[93m9[0m
+        [7m35[0m     var Request: typeof globalThis extends { onmessage: any; Request: infer T } ? T : typeof undici.Request;
+        [7m  [0m [96m        ~~~~~~~[0m
+        'Request' is declared here.
+    [96msrc/services/slack.service.ts[0m:[93m158[0m:[93m28[0m - [91merror[0m[90m TS2552: [0mCannot find name 'request'. Did you mean 'Request'?
+
+    [7m158[0m                 requestId: request.id,
+    [7m   [0m [91m                           ~~~~~~~[0m
+
+      [96mnode_modules/@types/node/web-globals/fetch.d.ts[0m:[93m35[0m:[93m9[0m
+        [7m35[0m     var Request: typeof globalThis extends { onmessage: any; Request: infer T } ? T : typeof undici.Request;
+        [7m  [0m [96m        ~~~~~~~[0m
+        'Request' is declared here.
+    [96msrc/services/slack.service.ts[0m:[93m195[0m:[93m21[0m - [91merror[0m[90m TS2554: [0mExpected 2 arguments, but got 3.
+
+    [7m195[0m                     executionResult.output
+    [7m   [0m [91m                    ~~~~~~~~~~~~~~~~~~~~~~[0m
+    [96msrc/services/slack.service.ts[0m:[93m238[0m:[93m21[0m - [91merror[0m[90m TS2554: [0mExpected 2 arguments, but got 3.
+
+    [7m238[0m                     executionResult.output
+    [7m   [0m [91m                    ~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  console.error
+    Debug discovery error: Error: Unexpected
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/tests/unit/controllers/database.controller.test.ts:385:74)
+        at /Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:397:39
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:404:13)
+        at Object.mockConstructor [as json] (/Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:148:19)
+        at Function.json [as debugDiscovery] (/Users/harshgoyal/Desktop/db-query-portal/backend/src/controllers/database.controller.ts:182:17)
+        at processTicksAndRejections (node:internal/process/task_queues:95:5)
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/tests/unit/controllers/database.controller.test.ts:387:13)
+
+      182 |             res.json({ success: true, checks });
+      183 |         } catch (error) {
+    > 184 |             console.error('Debug discovery error:', error);
+          |                     ^
+      185 |             next(error);
+      186 |         }
+      187 |     }
+
+      at Function.error [as debugDiscovery] (src/controllers/database.controller.ts:184:21)
+      at Object.<anonymous> (tests/unit/controllers/database.controller.test.ts:387:13)
+
+PASS tests/unit/controllers/database.controller.test.ts
+  DatabaseController
+    getTypes
+      ✓ should return database types (4 ms)
+      ✓ should handle errors
+    getInstances
+      ✓ should handle errors (1 ms)
+      ✓ should list all instances
+      ✓ should filter by type (1 ms)
+    getDatabases
+      ✓ should list databases for instance
+      ✓ should throw NotFoundError if instance missing
+      ✓ should use dynamic discovery for PostgreSQL (1 ms)
+      ✓ should use dynamic discovery for MongoDB
+      ✓ should fallback to static list if config missing (PG)
+      ✓ should fallback to static list if config missing (Mongo)
+    getInstanceById
+      ✓ should return instance if found (1 ms)
+      ✓ should throw NotFoundError if not found
+    getDatabases - discovery failure fallback
+      ✓ should fallback to static list when discovery fails with error
+      ✓ should fallback when discovery returns empty array (PG)
+      ✓ should fallback when discovery returns empty array (Mongo) (1 ms)
+      ✓ should use safety fallback if discovery fails and instance has no databases
+      ✓ should use safety fallback for MongoDB when discovery fails
+    debugDiscovery
+      ✓ should return success for both postgres and mongo (1 ms)
+      ✓ should handle postgres discovery error
+      ✓ should handle mongo discovery error
+      ✓ should skip postgres when URL not set
+      ✓ should skip mongo when URL not set
+      ✓ should call next with error on unexpected failure (27 ms)
+
+-------------------------|---------|----------|---------|---------|-------------------
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------------|---------|----------|---------|---------|-------------------
+All files                |   85.05 |    75.63 |   53.84 |   86.17 |                   
+ config                  |    62.5 |    64.81 |       0 |    62.5 |                   
+  environment.ts         |    62.5 |    64.81 |       0 |    62.5 | 80-82             
+ controllers             |     100 |     90.9 |     100 |     100 |                   
+  database.controller.ts |     100 |     90.9 |     100 |     100 | 101,167,179       
+ entities                |   76.47 |      100 |       0 |   91.66 |                   
+  DatabaseInstance.ts    |   76.47 |      100 |       0 |   91.66 | 13                
+ models                  |      15 |        0 |       0 |      15 |                   
+  DatabaseInstance.ts    |      15 |        0 |       0 |      15 | 10-57             
+ services                |     100 |      100 |     100 |     100 |                   
+  postgres.executor.ts   |     100 |      100 |     100 |     100 |                   
+ utils                   |   72.22 |    16.66 |   28.57 |   72.22 |                   
+  errors.ts              |   72.22 |    16.66 |   28.57 |   72.22 | 26,32,38,50,56    
+-------------------------|---------|----------|---------|---------|-------------------
+Jest: "global" coverage threshold for functions (60%) not met: 53.84%
+Test Suites: 1 failed, 2 passed, 3 total
+Tests:       48 passed, 48 total
+Snapshots:   0 total
+Time:        3.315 s, estimated 8 s
+Ran all test suites matching /tests\/unit\/controllers\/database.controller.test.ts|tests\/unit\/services\/postgres.executor.test.ts|tests\/unit\/services\/slack.service.test.ts/i.

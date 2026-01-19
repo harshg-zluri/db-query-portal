@@ -3,24 +3,33 @@ import { RequestController } from '../../../src/controllers/request.controller';
 import { QueryRequestModel } from '../../../src/models/QueryRequest';
 import { DatabaseInstanceModel } from '../../../src/models/DatabaseInstance';
 import { PodModel } from '../../../src/models/Pod';
-import { UserRole, SubmissionType, RequestStatus } from '../../../src/types';
+import { UserRole, SubmissionType, RequestStatus, DatabaseType } from '../../../src/types';
 import { NotFoundError, ValidationError, ForbiddenError } from '../../../src/utils/errors';
 import { logger } from '../../../src/utils/logger';
 import { sendSlackNotification } from '../../../src/services/slack.service';
+import { DiscoveryService } from '../../../src/services/discovery.service';
+import { sendCreated } from '../../../src/utils/responseHelper';
 
 // Mock dependencies
 jest.mock('../../../src/models/QueryRequest');
 jest.mock('../../../src/models/DatabaseInstance');
 jest.mock('../../../src/models/Pod');
 jest.mock('../../../src/utils/logger', () => ({
-    logger: { audit: jest.fn() },
+    logger: {
+        audit: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn()
+    },
     AuditCategory: { REQUEST: 'request', ACCESS: 'access' },
     AuditAction: { REQUEST_CREATED: 'request_created', FORBIDDEN_ACCESS: 'forbidden', REQUEST_WITHDRAWN: 'request_withdrawn' }
 }));
 jest.mock('../../../src/services/slack.service');
+jest.mock('../../../src/services/discovery.service');
 jest.mock('../../../src/config/environment', () => ({
     config: {
-        requestLimits: { maxPendingPerUser: 5 }
+        requestLimits: { maxPendingPerUser: 5 },
+        targetDatabases: { postgresUrl: 'postgres://localhost:5432', mongodbUrl: 'mongodb://localhost:27017' }
     }
 }));
 
@@ -73,7 +82,7 @@ describe('RequestController', () => {
 
     const validBody = {
         instanceId: 'inst-1',
-        databaseType: 'postgres',
+        databaseType: DatabaseType.POSTGRESQL,
         databaseName: 'db1',
         podId: 'pod-1',
         submissionType: SubmissionType.QUERY,
@@ -84,7 +93,7 @@ describe('RequestController', () => {
     const mockInstance = {
         id: 'inst-1',
         name: 'Instance 1',
-        type: 'postgres',
+        type: DatabaseType.POSTGRESQL,
         databases: ['db1']
     };
 
@@ -220,6 +229,105 @@ describe('RequestController', () => {
             expect(QueryRequestModel.create).toHaveBeenCalledWith(expect.objectContaining({
                 warnings: expect.arrayContaining([expect.stringContaining('MongoDB method')])
             }));
+        });
+
+        it('should validate against safety fallback if discovery fails', async () => {
+            req.body = {
+                ...validBody,
+                databaseName: 'load_testing' // In fallback list
+            };
+
+            // Instance with no static DBs
+            const emptyInstance = { ...mockInstance, databases: [] as string[] };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(emptyInstance);
+
+            // Fail discovery
+            (DiscoveryService.getPostgresSchemas as jest.Mock).mockRejectedValue(new Error('Discovery failed'));
+
+            await RequestController.create(req as Request, res as Response, next);
+
+            // Should succeed (not call next with error) because load_testing is in fallback
+            expect(QueryRequestModel.create).toHaveBeenCalled();
+            expect(sendCreated).toHaveBeenCalled();
+        });
+
+        it('should validate against safety fallback for MongoDB', async () => {
+            req.body = {
+                instanceId: 'inst-2',
+                databaseType: DatabaseType.MONGODB,
+                databaseName: 'test_db', // In fallback list
+                submissionType: SubmissionType.QUERY,
+                query: 'db.collection.find()',
+                comments: 'test',
+                podId: 'pod-1'
+            };
+
+            const mongoInstance = {
+                id: 'inst-2',
+                type: DatabaseType.MONGODB,
+                databases: [] as string[],
+                name: 'Mongo'
+            };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mongoInstance);
+            (PodModel.findById as jest.Mock).mockResolvedValue(mockPod);
+
+            // Fail discovery
+            (DiscoveryService.getMongoDatabases as jest.Mock).mockRejectedValue(new Error('Discovery failed'));
+
+            await RequestController.create(req as Request, res as Response, next);
+
+            expect(QueryRequestModel.create).toHaveBeenCalled();
+        });
+
+        it('should validate using discovered databases for MongoDB', async () => {
+            req.body = {
+                instanceId: 'inst-2',
+                databaseType: DatabaseType.MONGODB,
+                databaseName: 'discovered_db',
+                submissionType: SubmissionType.QUERY,
+                query: 'db.collection.find()',
+                comments: 'test',
+                podId: 'pod-1'
+            };
+
+            const mongoInstance = {
+                id: 'inst-2',
+                type: DatabaseType.MONGODB,
+                databases: [] as string[],
+                name: 'Mongo'
+            };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mongoInstance);
+            (PodModel.findById as jest.Mock).mockResolvedValue(mockPod);
+
+            // Success discovery
+            (DiscoveryService.getMongoDatabases as jest.Mock).mockResolvedValueOnce(['discovered_db']);
+
+            await RequestController.create(req as Request, res as Response, next);
+
+            expect(QueryRequestModel.create).toHaveBeenCalled();
+        });
+
+        it('should validate using discovered databases for Postgres', async () => {
+            req.body = {
+                ...validBody,
+                instanceId: 'inst-discovery',
+                databaseName: 'discovered_pg_db'
+            };
+
+            const pgInstance = {
+                id: 'inst-discovery',
+                type: DatabaseType.POSTGRESQL,
+                databases: [] as string[], // Static list empty
+                name: 'Postgres Discovered'
+            };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(pgInstance);
+
+            // Success discovery
+            (DiscoveryService.getPostgresSchemas as jest.Mock).mockResolvedValueOnce(['discovered_pg_db']);
+
+            await RequestController.create(req as Request, res as Response, next);
+
+            expect(QueryRequestModel.create).toHaveBeenCalled();
         });
 
         it('should handle undefined query and script by defaulting to empty string for warnings', async () => {

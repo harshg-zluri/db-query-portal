@@ -1,0 +1,84 @@
+
+> db-query-portal@1.0.0 test
+> jest --coverage tests/unit/controllers/request.controller.test.ts
+
+FAIL tests/unit/controllers/request.controller.test.ts
+  ● Test suite failed to run
+
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m226[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'mockRequest'.
+
+    [7m226[0m             mockRequest.body = {
+    [7m   [0m [91m            ~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m227[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'validSqlRequest'.
+
+    [7m227[0m                 ...validSqlRequest,
+    [7m   [0m [91m                   ~~~~~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m236[0m:[93m14[0m - [91merror[0m[90m TS2304: [0mCannot find name 'DiscoveryService'.
+
+    [7m236[0m             (DiscoveryService.getPostgresSchemas as jest.Mock).mockRejectedValue(new Error('Discovery failed'));
+    [7m   [0m [91m             ~~~~~~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m238[0m:[93m44[0m - [91merror[0m[90m TS2304: [0mCannot find name 'mockRequest'.
+
+    [7m238[0m             await RequestController.create(mockRequest as Request, mockResponse as Response, nextFunction);
+    [7m   [0m [91m                                           ~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m238[0m:[93m68[0m - [91merror[0m[90m TS2552: [0mCannot find name 'mockResponse'. Did you mean 'Response'?
+
+    [7m238[0m             await RequestController.create(mockRequest as Request, mockResponse as Response, nextFunction);
+    [7m   [0m [91m                                                                   ~~~~~~~~~~~~[0m
+
+      [96mnode_modules/@types/node/web-globals/fetch.d.ts[0m:[93m40[0m:[93m9[0m
+        [7m40[0m     var Response: typeof globalThis extends { onmessage: any; Response: infer T } ? T : typeof undici.Response;
+        [7m  [0m [96m        ~~~~~~~~[0m
+        'Response' is declared here.
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m238[0m:[93m94[0m - [91merror[0m[90m TS2552: [0mCannot find name 'nextFunction'. Did you mean 'Function'?
+
+    [7m238[0m             await RequestController.create(mockRequest as Request, mockResponse as Response, nextFunction);
+    [7m   [0m [91m                                                                                             ~~~~~~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.es5.d.ts[0m:[93m319[0m:[93m13[0m
+        [7m319[0m declare var Function: FunctionConstructor;
+        [7m   [0m [96m            ~~~~~~~~[0m
+        'Function' is declared here.
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m242[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'responseHelper'.
+
+    [7m242[0m             expect(responseHelper.sendCreated).toHaveBeenCalled();
+    [7m   [0m [91m                   ~~~~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m246[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'mockRequest'.
+
+    [7m246[0m             mockRequest.body = {
+    [7m   [0m [91m            ~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m248[0m:[93m31[0m - [91merror[0m[90m TS2304: [0mCannot find name 'DatabaseType'.
+
+    [7m248[0m                 databaseType: DatabaseType.MONGODB,
+    [7m   [0m [91m                              ~~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m258[0m:[93m23[0m - [91merror[0m[90m TS2304: [0mCannot find name 'DatabaseType'.
+
+    [7m258[0m                 type: DatabaseType.MONGODB,
+    [7m   [0m [91m                      ~~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m266[0m:[93m14[0m - [91merror[0m[90m TS2304: [0mCannot find name 'DiscoveryService'.
+
+    [7m266[0m             (DiscoveryService.getMongoDatabases as jest.Mock).mockRejectedValue(new Error('Discovery failed'));
+    [7m   [0m [91m             ~~~~~~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m268[0m:[93m44[0m - [91merror[0m[90m TS2304: [0mCannot find name 'mockRequest'.
+
+    [7m268[0m             await RequestController.create(mockRequest as Request, mockResponse as Response, nextFunction);
+    [7m   [0m [91m                                           ~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m268[0m:[93m68[0m - [91merror[0m[90m TS2304: [0mCannot find name 'mockResponse'.
+
+    [7m268[0m             await RequestController.create(mockRequest as Request, mockResponse as Response, nextFunction);
+    [7m   [0m [91m                                                                   ~~~~~~~~~~~~[0m
+    [96mtests/unit/controllers/request.controller.test.ts[0m:[93m268[0m:[93m94[0m - [91merror[0m[90m TS2304: [0mCannot find name 'nextFunction'.
+
+    [7m268[0m             await RequestController.create(mockRequest as Request, mockResponse as Response, nextFunction);
+    [7m   [0m [91m                                                                                             ~~~~~~~~~~~~[0m
+
+----------|---------|----------|---------|---------|-------------------
+File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+----------|---------|----------|---------|---------|-------------------
+All files |       0 |        0 |       0 |       0 |                   
+----------|---------|----------|---------|---------|-------------------
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        1.707 s, estimated 7 s
+Ran all test suites matching /tests\/unit\/controllers\/request.controller.test.ts/i.

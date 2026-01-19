@@ -204,6 +204,33 @@ describe('SlackService', () => {
                     ])
                 }));
             });
+
+            it('should silently skip if client is not valid in new request', async () => {
+                (SlackService as any).client = null;
+                await SlackService.notifyNewRequest(mockRequest as any);
+                expect(logger.info).not.toHaveBeenCalledWith(expect.stringContaining('New request notification sent'));
+            });
+
+            it('should handle compressed result without original size', async () => {
+                const result = {
+                    success: true,
+                    isCompressed: true,
+                    // originalSize missing
+                    output: 'Compressed...'
+                };
+
+                await SlackService.notifyRequesterApproved(mockRequest as any, 'approver@z.com', result);
+
+                expect(mockWebClient.chat.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+                    blocks: expect.arrayContaining([
+                        expect.objectContaining({
+                            text: expect.objectContaining({
+                                text: expect.not.stringContaining('KB')
+                            })
+                        })
+                    ])
+                }));
+            });
         });
 
         describe('notifyRequesterApproved', () => {
@@ -344,6 +371,12 @@ describe('SlackService', () => {
                     expect.objectContaining({ error: 'Unknown error' })
                 );
             });
+
+            it('should silently skip if client is not valid in approval', async () => {
+                (SlackService as any).client = null;
+                await SlackService.notifyRequesterApproved(mockRequest as any, 'approver@z.com', { success: true });
+                expect(logger.error).not.toHaveBeenCalled();
+            });
         });
 
         describe('notifyChannelExecutionResult', () => {
@@ -439,6 +472,22 @@ describe('SlackService', () => {
                 expect(mockWebClient.files.uploadV2).not.toHaveBeenCalled();
             });
 
+            it('should handle non-Error exceptions during file upload', async () => {
+                const largeOutput = 'a'.repeat(3000);
+                // Mock upload failure with non-Error
+                mockWebClient.files = { uploadV2: jest.fn().mockRejectedValue('Upload String Error') };
+
+                await SlackService.notifyChannelExecutionResult(mockRequest as any, 'approver@z.com', {
+                    success: true,
+                    output: largeOutput
+                });
+
+                expect(logger.error).toHaveBeenCalledWith(
+                    expect.stringContaining('Failed to upload result file'),
+                    expect.objectContaining({ error: 'Unknown error' })
+                );
+            });
+
             it('should handle file upload errors gracefully', async () => {
                 const largeOutput = 'a'.repeat(3000);
                 mockWebClient.files = { uploadV2: jest.fn().mockRejectedValue(new Error('Upload failed')) };
@@ -489,6 +538,27 @@ describe('SlackService', () => {
                         expect.objectContaining({
                             text: expect.objectContaining({
                                 text: expect.stringContaining('See attached JSON file')
+                            })
+                        })
+                    ])
+                }));
+            });
+
+            it('should handle compressed result without original size', async () => {
+                const result = {
+                    success: true,
+                    isCompressed: true,
+                    // originalSize missing
+                    output: 'Compressed...'
+                };
+
+                await SlackService.notifyChannelExecutionResult(mockRequest as any, 'approver@z.com', result);
+
+                expect(mockWebClient.chat.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+                    blocks: expect.arrayContaining([
+                        expect.objectContaining({
+                            text: expect.objectContaining({
+                                text: expect.not.stringContaining('KB')
                             })
                         })
                     ])
@@ -612,6 +682,12 @@ describe('SlackService', () => {
                 const req = { ...mockRequest, query: undefined, scriptContent: undefined };
                 await SlackService.notifyRequesterRejected(req as any, 'rejector@z.com', 'reason');
                 expect(mockWebClient.chat.postMessage).toHaveBeenCalled();
+            });
+
+            it('should silently skip if client is not valid in rejection', async () => {
+                (SlackService as any).client = null;
+                await SlackService.notifyRequesterRejected(mockRequest as any, 'rejector@z.com', 'reason');
+                expect(logger.error).not.toHaveBeenCalled();
             });
         });
     });

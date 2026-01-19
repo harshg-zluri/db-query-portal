@@ -10,9 +10,6 @@ import { logger, AuditCategory, AuditAction } from './utils/logger';
 import { RequestContext } from '@mikro-orm/core';
 import { closeDatabase, getPool, initDatabase, getOrm } from './config/database';
 import { ExecutionService } from './services/execution.service';
-import { QueueService } from './services/queue.service';
-import { WorkerService } from './services/worker.service';
-import { LockService } from './services/lock.service';
 import { SlackService } from './services/slack.service';
 import './config/passport'; // Initialize Passport strategies
 
@@ -63,14 +60,7 @@ app.use(errorHandler);
 async function shutdown(): Promise<void> {
     logger.info('Shutting down...');
 
-    // Stop worker first (waits for active jobs)
-    await WorkerService.stop();
 
-    // Release all locks
-    await LockService.releaseAllLocks();
-
-    // Shutdown queue
-    await QueueService.shutdown();
 
     // Cleanup database connections
     await Promise.all([
@@ -95,19 +85,8 @@ if (require.main === module) {
             await initDatabase();
 
             // Initialize lock service with database pool
-            const pool = getPool();
-            LockService.initialize(pool);
-
             // Initialize Slack service
             SlackService.initialize();
-
-            // Initialize queue service (needed for enqueuing jobs)
-            await QueueService.initialize();
-
-            // Start worker only if not in API-only mode
-            if (!apiOnly) {
-                await WorkerService.start();
-            }
 
             // Start HTTP server
             app.listen(config.port, () => {
@@ -123,8 +102,7 @@ if (require.main === module) {
                     }
                 });
                 logger.info(`Server running on port ${config.port}`, {
-                    env: config.nodeEnv,
-                    queueEnabled: true
+                    env: config.nodeEnv
                 });
             });
         } catch (error) {

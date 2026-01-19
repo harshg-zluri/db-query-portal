@@ -1,0 +1,248 @@
+
+> db-query-portal@1.0.0 test
+> jest --coverage tests/unit/controllers/request.controller.test.ts
+
+FAIL tests/unit/controllers/request.controller.test.ts
+  RequestController
+    create
+      ✓ should create a valid SQL request (2 ms)
+      ✓ should throw NotFoundError if instance does not exist
+      ✓ should throw ValidationError if db type mismatch (1 ms)
+      ✓ should throw ValidationError if database not in instance
+      ✓ should throw NotFoundError if pod does not exist
+      ✓ should return 429 if limit exceeded (1 ms)
+      ✓ should throw ValidationError for invalid script file extension
+      ✓ should handle script upload
+      ✓ should generate warnings for dangerous SQL queries
+      ✓ should generate warnings for dangerous script content
+      ✕ should validate against safety fallback if discovery fails (1 ms)
+      ✕ should validate against safety fallback for MongoDB (1 ms)
+      ✕ should handle undefined query and script by defaulting to empty string for warnings (1 ms)
+      ✕ should not set warnings for safe queries
+      ✕ should handle X-Forwarded-For header (1 ms)
+      ✕ should handle X-Forwarded-For header as array
+      ✕ should fallback to remoteAddress (1 ms)
+      ✕ should return unknown for ip if undefined
+      ✕ should throw ValidationError if script file missing (1 ms)
+    getMyRequests
+      ✓ should list user requests (1 ms)
+      ✓ should filter by status
+      ✓ should throw ValidationError for invalid status
+      ✓ should handle errors
+    withdraw
+      ✓ should throw NotFoundError if request not found during withdraw check (1 ms)
+      ✓ should throw ForbiddenError if withdrawing other user request
+      ✓ should throw generic ValidationError if withdraw fails but checks pass
+      ✓ should withdraw request successfully (1 ms)
+      ✓ should throw specific errors if withdraw fails
+    getById
+      ✓ should throw NotFoundError if request does not exist
+      ✓ should get request if owner (1 ms)
+      ✓ should get request if manager of pod
+      ✓ should throw Forbidden if not owner/approver
+      ✓ should handle errors
+    list
+      ✓ should forbid developers
+      ✓ should allow managers
+      ✓ should handle errors (1 ms)
+    downloadResult
+      ✓ should allow owner to download
+      ✓ should allow manager of pod to download
+      ✓ should allow admin to download
+      ✓ should forbid unauthorized users
+      ✓ should throw NotFoundError if request missing
+      ✓ should throw NotFoundError if result missing (1 ms)
+      ✓ should decompress if isCompressed is true
+      ✓ should handle errors
+
+  ● RequestController › create › should validate against safety fallback if discovery fails
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      243 |
+      244 |             // Should succeed (not call next with error) because load_testing is in fallback
+    > 245 |             expect(QueryRequestModel.create).toHaveBeenCalled();
+          |                                              ^
+      246 |             expect(sendCreated).toHaveBeenCalled();
+      247 |         });
+      248 |
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:245:46)
+
+  ● RequestController › create › should validate against safety fallback for MongoDB
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      272 |             await RequestController.create(req as Request, res as Response, next);
+      273 |
+    > 274 |             expect(QueryRequestModel.create).toHaveBeenCalled();
+          |                                              ^
+      275 |         });
+      276 |
+      277 |         it('should handle undefined query and script by defaulting to empty string for warnings', async () => {
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:274:46)
+
+  ● RequestController › create › should handle undefined query and script by defaulting to empty string for warnings
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"warnings": undefined}
+
+    Number of calls: 0
+
+      287 |
+      288 |             // warnings check should run on ""
+    > 289 |             expect(QueryRequestModel.create).toHaveBeenCalledWith(expect.objectContaining({
+          |                                              ^
+      290 |                 // No warnings for empty string usually
+      291 |                 warnings: undefined
+      292 |             }));
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:289:46)
+
+  ● RequestController › create › should not set warnings for safe queries
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"warnings": undefined}
+
+    Number of calls: 0
+
+      303 |             await RequestController.create(req as Request, res as Response, next);
+      304 |
+    > 305 |             expect(QueryRequestModel.create).toHaveBeenCalledWith(expect.objectContaining({
+          |                                              ^
+      306 |                 warnings: undefined
+      307 |             }));
+      308 |         });
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:305:46)
+
+  ● RequestController › create › should handle X-Forwarded-For header
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"ipAddress": "10.0.0.1"}
+
+    Number of calls: 0
+
+      317 |             await RequestController.create(req as Request, res as Response, next);
+      318 |
+    > 319 |             expect(logger.audit).toHaveBeenCalledWith(expect.objectContaining({
+          |                                  ^
+      320 |                 ipAddress: '10.0.0.1'
+      321 |             }));
+      322 |         });
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:319:34)
+
+  ● RequestController › create › should handle X-Forwarded-For header as array
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"ipAddress": "10.0.0.1"}
+
+    Number of calls: 0
+
+      332 |             await RequestController.create(req as Request, res as Response, next);
+      333 |
+    > 334 |             expect(logger.audit).toHaveBeenCalledWith(expect.objectContaining({
+          |                                  ^
+      335 |                 ipAddress: '10.0.0.1'
+      336 |             }));
+      337 |         });
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:334:34)
+
+  ● RequestController › create › should fallback to remoteAddress
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"ipAddress": "127.0.0.1"}
+
+    Number of calls: 0
+
+      348 |             await RequestController.create(req as Request, res as Response, next);
+      349 |
+    > 350 |             expect(logger.audit).toHaveBeenCalledWith(expect.objectContaining({
+          |                                  ^
+      351 |                 ipAddress: '127.0.0.1'
+      352 |             }));
+      353 |         });
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:350:34)
+
+  ● RequestController › create › should return unknown for ip if undefined
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"ipAddress": "unknown"}
+
+    Number of calls: 0
+
+      364 |             await RequestController.create(req as Request, res as Response, next);
+      365 |
+    > 366 |             expect(logger.audit).toHaveBeenCalledWith(expect.objectContaining({
+          |                                  ^
+      367 |                 ipAddress: 'unknown'
+      368 |             }));
+      369 |         });
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:366:34)
+
+  ● RequestController › create › should throw ValidationError if script file missing
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: Any<ValidationError>
+    Received: [TypeError: logger_1.logger.warn is not a function]
+
+    Number of calls: 1
+
+      378 |             await RequestController.create(req as Request, res as Response, next);
+      379 |
+    > 380 |             expect(next).toHaveBeenCalledWith(expect.any(ValidationError));
+          |                          ^
+      381 |         });
+      382 |     });
+      383 |
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:380:26)
+
+------------------------|---------|----------|---------|---------|-------------------------------------
+File                    | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                   
+------------------------|---------|----------|---------|---------|-------------------------------------
+All files               |   44.17 |    26.07 |      25 |   46.64 |                                     
+ controllers            |   94.63 |    80.95 |     100 |   95.91 |                                     
+  request.controller.ts |   94.63 |    80.95 |     100 |   95.91 | 71,80-83,120                        
+ entities               |   76.78 |      100 |       0 |   88.63 |                                     
+  DatabaseInstance.ts   |   76.47 |      100 |       0 |   91.66 | 13                                  
+  QueryRequest.ts       |   76.92 |      100 |       0 |    87.5 | 16,28,49,76                         
+ models                 |    8.39 |        0 |    4.54 |    9.17 |                                     
+  DatabaseInstance.ts   |      15 |        0 |       0 |      15 | 10-57                               
+  Pod.ts                |   33.33 |        0 |    12.5 |    37.5 | 17-39                               
+  QueryRequest.ts       |    4.04 |        0 |       0 |    4.93 | 38-223                              
+ services               |    9.79 |     1.53 |       4 |   10.16 |                                     
+  discovery.service.ts  |    9.52 |        0 |       0 |      10 | 29-185                              
+  slack.service.ts      |    9.92 |      1.7 |    6.66 |   10.23 | 50,68-612,673-708                   
+ utils                  |   69.62 |    43.75 |   56.25 |   69.62 |                                     
+  errors.ts             |   83.33 |    33.33 |   57.14 |   83.33 | 32,50,56                            
+  pagination.ts         |   83.33 |       75 |     100 |   83.33 | 23,32,38                            
+  sanitizer.ts          |   58.13 |    21.42 |      50 |   58.13 | 33-46,54-59,100,105,115,135,145-148 
+------------------------|---------|----------|---------|---------|-------------------------------------
+Jest: "global" coverage threshold for statements (75%) not met: 44.17%
+Jest: "global" coverage threshold for branches (50%) not met: 26.07%
+Jest: "global" coverage threshold for lines (75%) not met: 46.64%
+Jest: "global" coverage threshold for functions (60%) not met: 25%
+Test Suites: 1 failed, 1 total
+Tests:       9 failed, 35 passed, 44 total
+Snapshots:   0 total
+Time:        2.744 s, estimated 3 s
+Ran all test suites matching /tests\/unit\/controllers\/request.controller.test.ts/i.

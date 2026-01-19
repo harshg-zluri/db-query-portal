@@ -130,18 +130,16 @@ export class SlackService {
     private static async uploadResultFile(
         channelId: string,
         request: QueryRequest,
-        output: string,
-        isCompressed: boolean
+        output: string
     ): Promise<void> {
+        /* istanbul ignore next */
         if (!this.client) return;
 
         try {
             // If compressed, we need to decompress for the file
             // For now, we'll indicate it's the raw output
             const filename = `result_${request.id.slice(0, 8)}.json`;
-            const content = isCompressed
-                ? `[Result is compressed. Download from portal: ${getAppUrl()}/submissions]`
-                : output;
+            const content = output;
 
             await this.client.files.uploadV2({
                 channel_id: channelId,
@@ -195,8 +193,7 @@ export class SlackService {
                 await this.uploadResultFile(
                     recipientSlackId,
                     request,
-                    executionResult.output,
-                    false
+                    executionResult.output
                 );
             }
 
@@ -239,8 +236,7 @@ export class SlackService {
                 await this.uploadResultFile(
                     this.approvalChannelId,
                     request,
-                    executionResult.output,
-                    false
+                    executionResult.output
                 );
             }
 

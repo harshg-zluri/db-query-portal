@@ -42,19 +42,16 @@ The **DB Query Portal** is a secure, role-based web application that allows deve
 │  │                     MIDDLEWARE LAYER                          │   │
 │  │  Rate Limiting → Auth → RBAC → Validation → Error Handler    │   │
 │  └──────────────────────────────────────────────────────────────┘   │
-│  ┌─────────────────┬─────────────┬──────────────────────────────┐   │
-│  │  Auth Service   │ Queue Svc   │     Execution Service        │   │
-│  │  (JWT, OAuth)   │ (pg-boss)   │  (PostgreSQL, MongoDB, JS)   │   │
-│  └─────────────────┴──────┬──────┴──────────────────────────────┘   │
-                           │                                          │
-│  ┌────────────────────────▼─────────────────────────────────────┐   │
-│  │              WORKER SERVICE (Background Jobs)                 │   │
-│  │  Processes approved queries with database-level locking       │   │
-│  └───────────────────────────────────────────────────────────────┘   │
-└───────────────────────────────┬─────────────────────────────────────┘
-                                │
-           ┌────────────────────┼────────────────────┐
-           ▼                    ▼                    ▼
+│  ┌─────────────────┬────────────────────────────────────────────┐   │
+│  │  Auth Service   │            Execution Service               │   │
+│  │  (JWT, OAuth)   │      (PostgreSQL, MongoDB, JS)             │   │
+│  └─────────────────┴──────┬─────────────────────────────────────┘   │
+│                           │                                          │
+│                           │                                          │
+└───────────────────────────┼──────────────────────────────────────────┘
+                            │
+           ┌────────────────┼────────────────────┐
+           ▼                ▼                    ▼
     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
     │ PostgreSQL  │     │  MongoDB    │     │   Slack     │
     │ (Target DB) │     │ (Target DB) │     │ (Notifs)    │
@@ -328,7 +325,7 @@ JWT_SECRET=supersecret
 1. **Developer** submits query.
 2. **Backend** validates & stores request (status: pending).
 3. **Manager** receives notification & approves.
-4. **Worker** executes query against target DB.
+4. **Backend** executes query immediately against target DB.
 5. **System** notifies Developer of result.
 
 ---

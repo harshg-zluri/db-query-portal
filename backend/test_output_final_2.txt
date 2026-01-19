@@ -1,0 +1,192 @@
+
+> db-query-portal@1.0.0 test
+> jest --coverage tests/unit/controllers/database.controller.test.ts tests/unit/services/postgres.executor.test.ts tests/unit/services/slack.service.test.ts
+
+PASS tests/unit/services/postgres.executor.test.ts
+  PostgresExecutor
+    connect
+      ✓ should create client on first connect (6 ms)
+      ✓ should reuse client on subsequent connects
+    close
+      ✓ should close client
+      ✓ should handle close without connect (1 ms)
+    execute
+      ✓ should execute SELECT query and return rows
+      ✓ should execute UPDATE and return affected rows (1 ms)
+      ✓ should handle empty result
+      ✓ should allow DDL statements (warnings handled at submission) (1 ms)
+      ✓ should execute valid DELETE queries (DML)
+      ✓ should handle query error
+      ✓ should set search path when schema provided (1 ms)
+      ✓ should handle null/undefined result from driver
+      ✓ should handle non-Error exception
+      ✓ should handle result with missing count/length (1 ms)
+      ✓ should block query that exceeds row limit (36 ms)
+      ✓ should allow query with exactly MAX_ROWS
+      ✓ should handle malformed count result gracefully
+      ✓ should fallback to 0 rows if count query returns empty (e.g. driver weirdness)
+    testConnection
+      ✓ should return true for valid connection (1 ms)
+      ✓ should return false for failed connection
+    createPostgresExecutor
+      ✓ should create executor from connection string
+      ✓ should throw for invalid connection string (15 ms)
+    constructor
+      ✓ should configure connection string with ssl by default
+      ✓ should disable ssl when explicitly set to false
+
+  console.error
+    Debug discovery error: Error: Unexpected
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/tests/unit/controllers/database.controller.test.ts:413:74)
+        at /Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:397:39
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:404:13)
+        at Object.mockConstructor [as json] (/Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:148:19)
+        at Function.json [as debugDiscovery] (/Users/harshgoyal/Desktop/db-query-portal/backend/src/controllers/database.controller.ts:182:17)
+        at processTicksAndRejections (node:internal/process/task_queues:95:5)
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/tests/unit/controllers/database.controller.test.ts:415:13)
+
+      182 |             res.json({ success: true, checks });
+      183 |         } catch (error) {
+    > 184 |             console.error('Debug discovery error:', error);
+          |                     ^
+      185 |             next(error);
+      186 |         }
+      187 |     }
+
+      at Function.error [as debugDiscovery] (src/controllers/database.controller.ts:184:21)
+      at Object.<anonymous> (tests/unit/controllers/database.controller.test.ts:415:13)
+
+PASS tests/unit/controllers/database.controller.test.ts
+  DatabaseController
+    getTypes
+      ✓ should return database types (4 ms)
+      ✓ should handle errors (1 ms)
+    getInstances
+      ✓ should handle errors
+      ✓ should list all instances (1 ms)
+      ✓ should filter by type
+    getDatabases
+      ✓ should list databases for instance
+      ✓ should throw NotFoundError if instance missing (1 ms)
+      ✓ should use dynamic discovery for PostgreSQL
+      ✓ should use dynamic discovery for MongoDB
+      ✓ should fallback to static list if config missing (PG)
+      ✓ should fallback to static list if config missing (Mongo) (1 ms)
+    getInstanceById
+      ✓ should return instance if found
+      ✓ should throw NotFoundError if not found
+    getDatabases - discovery failure fallback
+      ✓ should fallback to static list when discovery fails with error
+      ✓ should fallback when discovery returns empty array (PG) (1 ms)
+      ✓ should fallback when discovery returns empty array (Mongo)
+      ✓ should use safety fallback if discovery fails and instance has no databases
+      ✓ should use safety fallback for MongoDB when discovery fails
+      ✓ should handle non-Error exception during discovery
+    debugDiscovery
+      ✓ should return success for both postgres and mongo (1 ms)
+      ✓ should handle postgres discovery error
+      ✓ should handle non-Error exceptions for debug discovery
+      ✓ should handle mongo discovery error
+      ✓ should skip postgres when URL not set
+      ✓ should skip mongo when URL not set
+      ✓ should call next with error on unexpected failure (29 ms)
+
+PASS tests/unit/services/slack.service.test.ts
+  SlackService
+    initialize
+      ✓ should warn and disable if token is missing (3 ms)
+      ✓ should initialize client if token is present
+    Notification Methods
+      notifyNewRequest
+        ✓ should send notification to channel with correct blocks (18 ms)
+        ✓ should include app link for approval in new request notification
+        ✓ should skip if approval channel not configured
+        ✓ should handle errors gracefully (1 ms)
+        ✓ should skip if service disabled
+        ✓ should handle non-Error exceptions
+        ✓ should handle missing databaseName (1 ms)
+        ✓ should handle missing comments
+        ✓ should truncate long query in new request
+        ✓ should truncate long script in new request (1 ms)
+        ✓ should silently skip if client is not valid in new request
+        ✓ should handle compressed result without original size
+      notifyRequesterApproved
+        ✓ should send DM to requester
+        ✓ should log warning if user not found (1 ms)
+        ✓ should include error details in DM if execution failed
+        ✓ should include retry link in DM if execution failed
+        ✓ should skip if service disabled
+        ✓ should include short output in DM (1 ms)
+        ✓ should handle compressed execution result
+        ✓ should handle compressed execution result without originalSize
+        ✓ should handle errors gracefully
+        ✓ should handle non-Error exceptions
+        ✓ should silently skip if client is not valid in approval
+      notifyChannelExecutionResult
+        ✓ should send execution result to channel
+        ✓ should include error details if execution failed
+        ✓ should include output preview if successful and output exists
+        ✓ should skip if no channel
+        ✓ should skip if service disabled
+        ✓ should handle errors gracefully (1 ms)
+        ✓ should handle non-Error exceptions
+        ✓ should upload file for large outputs (> 2500 chars)
+        ✓ should NOT upload file for compressed results
+        ✓ should handle non-Error exceptions during file upload
+        ✓ should handle file upload errors gracefully
+        ✓ should show compressed result message in channel blocks (1 ms)
+        ✓ should show "See attached file" message for large uncompressed output
+        ✓ should handle compressed result without original size
+      notifyRequesterRejected
+        ✓ should send rejection DM
+        ✓ should include app link in rejection DM
+        ✓ should skip if service disabled
+        ✓ should log warning if user not found
+        ✓ should handle errors gracefully (1 ms)
+        ✓ should handle non-Error exceptions (1 ms)
+        ✓ should send rejection without reason
+        ✓ should truncate long query in rejection
+        ✓ should truncate long script in rejection (1 ms)
+        ✓ should handle short script in rejection
+        ✓ should handle both query and script missing in rejection
+        ✓ should handle both query and script missing in rejection
+        ✓ should silently skip if client is not valid in rejection
+    helper methods (lookupSlackUserId)
+      ✓ should return null on lookup error
+      ✓ should handle non-Error exceptions in lookup (1 ms)
+      ✓ should return null if client is null
+    block builders
+      ✓ should truncate long output in approval result
+      ✓ should handle both query and script missing in new request logic
+      ✓ should handle script content in preview if query is missing
+    sendSlackNotification wrapper
+      ✓ should route REQUEST_SUBMITTED
+      ✓ should route REQUEST_APPROVED with execution results (1 ms)
+      ✓ should route EXECUTION_SUCCESS
+      ✓ should route REQUEST_REJECTED
+      ✓ should catch global errors
+      ✓ should handle non-Error catch in global wrapper
+
+-------------------------|---------|----------|---------|---------|-------------------
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------------|---------|----------|---------|---------|-------------------
+All files                |   90.82 |    88.18 |   70.73 |   91.77 |                   
+ config                  |    62.5 |    64.81 |       0 |    62.5 |                   
+  environment.ts         |    62.5 |    64.81 |       0 |    62.5 | 80-82             
+ controllers             |     100 |      100 |     100 |     100 |                   
+  database.controller.ts |     100 |      100 |     100 |     100 |                   
+ entities                |   76.47 |      100 |       0 |   91.66 |                   
+  DatabaseInstance.ts    |   76.47 |      100 |       0 |   91.66 | 13                
+ models                  |      15 |        0 |       0 |      15 |                   
+  DatabaseInstance.ts    |      15 |        0 |       0 |      15 | 10-57             
+ services                |   99.47 |    98.59 |     100 |     100 |                   
+  postgres.executor.ts   |     100 |      100 |     100 |     100 |                   
+  slack.service.ts       |   99.24 |     98.3 |     100 |     100 | 135,563           
+ utils                   |   72.22 |    16.66 |   28.57 |   72.22 |                   
+  errors.ts              |   72.22 |    16.66 |   28.57 |   72.22 | 26,32,38,50,56    
+-------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 3 passed, 3 total
+Tests:       114 passed, 114 total
+Snapshots:   0 total
+Time:        2.96 s, estimated 3 s
+Ran all test suites matching /tests\/unit\/controllers\/database.controller.test.ts|tests\/unit\/services\/postgres.executor.test.ts|tests\/unit\/services\/slack.service.test.ts/i.

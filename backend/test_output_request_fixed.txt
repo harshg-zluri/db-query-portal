@@ -1,0 +1,121 @@
+
+> db-query-portal@1.0.0 test
+> jest --coverage tests/unit/controllers/request.controller.test.ts
+
+FAIL tests/unit/controllers/request.controller.test.ts
+  RequestController
+    create
+      ✓ should create a valid SQL request (3 ms)
+      ✓ should throw NotFoundError if instance does not exist (1 ms)
+      ✓ should throw ValidationError if db type mismatch
+      ✓ should throw ValidationError if database not in instance
+      ✓ should throw NotFoundError if pod does not exist (1 ms)
+      ✓ should return 429 if limit exceeded
+      ✓ should throw ValidationError for invalid script file extension
+      ✓ should handle script upload (1 ms)
+      ✓ should generate warnings for dangerous SQL queries
+      ✓ should generate warnings for dangerous script content (1 ms)
+      ✕ should validate against safety fallback if discovery fails
+      ✕ should validate against safety fallback for MongoDB (1 ms)
+      ✓ should handle undefined query and script by defaulting to empty string for warnings
+      ✓ should not set warnings for safe queries
+      ✓ should handle X-Forwarded-For header
+      ✓ should handle X-Forwarded-For header as array
+      ✓ should fallback to remoteAddress (1 ms)
+      ✓ should return unknown for ip if undefined
+      ✓ should throw ValidationError if script file missing
+    getMyRequests
+      ✓ should list user requests
+      ✓ should filter by status (1 ms)
+      ✓ should throw ValidationError for invalid status
+      ✓ should handle errors
+    withdraw
+      ✓ should throw NotFoundError if request not found during withdraw check
+      ✓ should throw ForbiddenError if withdrawing other user request
+      ✓ should throw generic ValidationError if withdraw fails but checks pass (1 ms)
+      ✓ should withdraw request successfully
+      ✓ should throw specific errors if withdraw fails
+    getById
+      ✓ should throw NotFoundError if request does not exist
+      ✓ should get request if owner
+      ✓ should get request if manager of pod (1 ms)
+      ✓ should throw Forbidden if not owner/approver
+      ✓ should handle errors
+    list
+      ✓ should forbid developers
+      ✓ should allow managers
+      ✓ should handle errors
+    downloadResult
+      ✓ should allow owner to download (1 ms)
+      ✓ should allow manager of pod to download
+      ✓ should allow admin to download
+      ✓ should forbid unauthorized users
+      ✓ should throw NotFoundError if request missing
+      ✓ should throw NotFoundError if result missing
+      ✓ should decompress if isCompressed is true (1 ms)
+      ✓ should handle errors
+
+  ● RequestController › create › should validate against safety fallback if discovery fails
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      242 |
+      243 |             // Should succeed (not call next with error) because load_testing is in fallback
+    > 244 |             expect(QueryRequestModel.create).toHaveBeenCalled();
+          |                                              ^
+      245 |             expect(sendCreated).toHaveBeenCalled();
+      246 |         });
+      247 |
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:244:46)
+
+  ● RequestController › create › should validate against safety fallback for MongoDB
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      271 |             await RequestController.create(req as Request, res as Response, next);
+      272 |
+    > 273 |             expect(QueryRequestModel.create).toHaveBeenCalled();
+          |                                              ^
+      274 |         });
+      275 |
+      276 |         it('should handle undefined query and script by defaulting to empty string for warnings', async () => {
+
+      at Object.<anonymous> (tests/unit/controllers/request.controller.test.ts:273:46)
+
+------------------------|---------|----------|---------|---------|-------------------------------------
+File                    | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                   
+------------------------|---------|----------|---------|---------|-------------------------------------
+All files               |   44.17 |    26.07 |      25 |   46.64 |                                     
+ controllers            |   94.63 |    80.95 |     100 |   95.91 |                                     
+  request.controller.ts |   94.63 |    80.95 |     100 |   95.91 | 67-68,70-71,81,83                   
+ entities               |   76.78 |      100 |       0 |   88.63 |                                     
+  DatabaseInstance.ts   |   76.47 |      100 |       0 |   91.66 | 13                                  
+  QueryRequest.ts       |   76.92 |      100 |       0 |    87.5 | 16,28,49,76                         
+ models                 |    8.39 |        0 |    4.54 |    9.17 |                                     
+  DatabaseInstance.ts   |      15 |        0 |       0 |      15 | 10-57                               
+  Pod.ts                |   33.33 |        0 |    12.5 |    37.5 | 17-39                               
+  QueryRequest.ts       |    4.04 |        0 |       0 |    4.93 | 38-223                              
+ services               |    9.79 |     1.53 |       4 |   10.16 |                                     
+  discovery.service.ts  |    9.52 |        0 |       0 |      10 | 29-185                              
+  slack.service.ts      |    9.92 |      1.7 |    6.66 |   10.23 | 50,68-612,673-708                   
+ utils                  |   69.62 |    43.75 |   56.25 |   69.62 |                                     
+  errors.ts             |   83.33 |    33.33 |   57.14 |   83.33 | 32,50,56                            
+  pagination.ts         |   83.33 |       75 |     100 |   83.33 | 23,32,38                            
+  sanitizer.ts          |   58.13 |    21.42 |      50 |   58.13 | 33-46,54-59,100,105,115,135,145-148 
+------------------------|---------|----------|---------|---------|-------------------------------------
+Jest: "global" coverage threshold for statements (75%) not met: 44.17%
+Jest: "global" coverage threshold for branches (50%) not met: 26.07%
+Jest: "global" coverage threshold for lines (75%) not met: 46.64%
+Jest: "global" coverage threshold for functions (60%) not met: 25%
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 42 passed, 44 total
+Snapshots:   0 total
+Time:        2.696 s
+Ran all test suites matching /tests\/unit\/controllers\/request.controller.test.ts/i.

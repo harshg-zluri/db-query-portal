@@ -263,6 +263,52 @@ describe('DatabaseController', () => {
             const data = (res.json as jest.Mock).mock.calls[0][0].data;
             expect(data).toEqual(['static_mongo']);
         });
+
+        it('should use safety fallback if discovery fails and instance has no databases', async () => {
+            req.params = { instanceId: 'inst-pg-no-db' };
+            const fallbackInstance = { ...mockInstance, type: 'postgresql', databases: [] as string[] };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(fallbackInstance);
+
+            // Mock discovery to fail
+            (DiscoveryService.getPostgresSchemas as jest.Mock).mockRejectedValue(new Error('Discovery error'));
+
+            await DatabaseController.getDatabases(req as Request, res as Response, next);
+
+            // Should return fallback list
+            expect(require('../../../src/utils/responseHelper').sendSuccess).toHaveBeenCalledWith(
+                res,
+                expect.arrayContaining(['public', 'load_testing'])
+            );
+        });
+
+        it('should use safety fallback for MongoDB when discovery fails', async () => {
+            req.params = { instanceId: 'inst-mongo-no-db' };
+            const fallbackInstance = { ...mockInstance, type: 'mongodb', databases: [] as string[] };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(fallbackInstance);
+
+            (DiscoveryService.getMongoDatabases as jest.Mock).mockRejectedValue(new Error('Discovery error'));
+
+            await DatabaseController.getDatabases(req as Request, res as Response, next);
+
+            expect(require('../../../src/utils/responseHelper').sendSuccess).toHaveBeenCalledWith(
+                res,
+                expect.arrayContaining(['test_db'])
+            );
+        });
+
+        it('should handle non-Error exception during discovery', async () => {
+            req.params = { instanceId: 'inst-pg' };
+            const pgInstance = { ...mockInstance, type: 'postgresql' };
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(pgInstance);
+            (DiscoveryService.getPostgresSchemas as jest.Mock).mockRejectedValue('String Error');
+
+            await DatabaseController.getDatabases(req as Request, res as Response, next);
+
+            expect(logger.warn).toHaveBeenCalledWith('Database discovery failed, using static list', expect.objectContaining({
+                error: 'String Error'
+            }));
+            expect(require('../../../src/utils/responseHelper').sendSuccess).toHaveBeenCalled();
+        });
     });
 
     describe('debugDiscovery', () => {
@@ -294,6 +340,20 @@ describe('DatabaseController', () => {
                     mongo: { status: 'success', databases: ['admin'] }
                 })
             });
+        });
+
+        it('should handle non-Error exceptions for debug discovery', async () => {
+            (DiscoveryService.getPostgresSchemas as jest.Mock).mockRejectedValue('PG String Error');
+            (DiscoveryService.getMongoDatabases as jest.Mock).mockRejectedValue('Mongo String Error');
+
+            await DatabaseController.debugDiscovery(req as Request, res as Response, next);
+
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                checks: expect.objectContaining({
+                    postgres: expect.objectContaining({ error: 'PG String Error' }),
+                    mongo: expect.objectContaining({ error: 'Mongo String Error' })
+                })
+            }));
         });
 
         it('should handle mongo discovery error', async () => {
