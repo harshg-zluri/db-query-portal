@@ -69,9 +69,9 @@ describe('PostgresExecutor', () => {
 
     describe('execute', () => {
         it('should execute SELECT query and return rows', async () => {
-            // First call is COUNT check, second is actual query
+            // First call sets timeout, second is actual query
             mockClient.unsafe
-                .mockResolvedValueOnce([{ cnt: '1' }])  // COUNT returns 1 row
+                .mockResolvedValueOnce(undefined)  // SET statement_timeout
                 .mockResolvedValueOnce([{ id: 1, name: 'test' }]);
 
             const result = await executor.execute('SELECT * FROM users');
@@ -129,25 +129,25 @@ describe('PostgresExecutor', () => {
         });
 
         it('should set search path when schema provided', async () => {
-            // Mock: 1. search_path, 2. COUNT query, 3. actual query
+            // Mock: 1. timeout, 2. search_path, 3. actual query
             mockClient.unsafe
+                .mockResolvedValueOnce(undefined)  // SET statement_timeout
                 .mockResolvedValueOnce(undefined)  // SET search_path
-                .mockResolvedValueOnce([{ cnt: '0' }])  // COUNT returns 0
                 .mockResolvedValueOnce([]);  // actual SELECT
 
             await executor.execute('SELECT * FROM users', 'my_schema');
 
-            // First call sets search_path
-            expect(mockClient.unsafe).toHaveBeenNthCalledWith(1, 'SET search_path TO my_schema, public');
-            // Second call is the COUNT
-            expect(mockClient.unsafe).toHaveBeenNthCalledWith(2, expect.stringContaining('SELECT COUNT'));
+            // First call sets timeout
+            expect(mockClient.unsafe).toHaveBeenNthCalledWith(1, expect.stringContaining('statement_timeout'));
+            // Second call sets search_path
+            expect(mockClient.unsafe).toHaveBeenNthCalledWith(2, 'SET search_path TO my_schema, public');
             // Third call is the actual query
             expect(mockClient.unsafe).toHaveBeenNthCalledWith(3, 'SELECT * FROM users');
         });
         it('should handle null/undefined result from driver', async () => {
-            // Mock COUNT returning 0, then null for actual result
+            // Mock timeout setting then null for actual result
             mockClient.unsafe
-                .mockResolvedValueOnce([{ cnt: '0' }])  // COUNT
+                .mockResolvedValueOnce(undefined)  // SET statement_timeout
                 .mockResolvedValueOnce(null as any);    // actual query
 
             const result = await executor.execute('SELECT 1');
@@ -176,53 +176,14 @@ describe('PostgresExecutor', () => {
             expect(result.rowCount).toBe(0);
         });
 
-        it('should block query that exceeds row limit', async () => {
-            // Mock COUNT returning more than MAX_ROWS (10000)
-            mockClient.unsafe.mockResolvedValueOnce([{ cnt: '50000' }]);
+        it('should handle query timeout error', async () => {
+            mockClient.unsafe.mockRejectedValue(new Error('canceling statement due to statement timeout'));
 
             const result = await executor.execute('SELECT * FROM large_table');
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('exceeds the maximum limit');
-            expect(result.error).toContain('50,000');
-            // Should only call unsafe once (for COUNT), not for actual query
-            expect(mockClient.unsafe).toHaveBeenCalledTimes(1);
-        });
-
-        it('should allow query with exactly MAX_ROWS', async () => {
-            mockClient.unsafe
-                .mockResolvedValueOnce([{ cnt: '10000' }])
-                .mockResolvedValueOnce([]); // Actual query
-
-            const result = await executor.execute('SELECT * FROM large_table');
-
-            expect(result.success).toBe(true);
-            expect(mockClient.unsafe).toHaveBeenCalledTimes(2);
-        });
-
-        it('should handle malformed count result gracefully', async () => {
-            mockClient.unsafe.mockResolvedValueOnce([{ cnt: 'invalid' }]);
-
-            // Should probably fail specific parsing or fallback to 0/error? 
-            // Assuming validation relies on parse failure resulting in some behavior. 
-            // If parseInt returns NaN, logic might break or proceed. 
-            // Let's assume it proceeds with NaN or throws.
-            // Checking implementation: parseInt('invalid') -> NaN. NaN > 10000 is false.
-            // So it proceeds to execute.
-
-            mockClient.unsafe.mockResolvedValueOnce([]);
-
-            const result = await executor.execute('SELECT 1');
-            expect(result.success).toBe(true);
-        });
-
-        it('should fallback to 0 rows if count query returns empty (e.g. driver weirdness)', async () => {
-            mockClient.unsafe.mockResolvedValueOnce([]); // Empty count result
-            mockClient.unsafe.mockResolvedValueOnce([{ id: 1 }]); // Actual query
-
-            const result = await executor.execute('SELECT 1');
-            expect(result.success).toBe(true);
-            expect(mockClient.unsafe).toHaveBeenCalledTimes(2);
+            expect(result.error).toContain('60 second timeout');
+            expect(result.error).toContain('optimize your query');
         });
     });
 

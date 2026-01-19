@@ -1,15 +1,12 @@
 import postgres from 'postgres';
 import { ExecutionResult } from '../types';
 import { logger } from '../utils/logger';
-import { config } from '../config/environment';
 
-const MAX_ROWS = config.resultStorage.maxRows;
+const QUERY_TIMEOUT_MS = 60000; // 60 seconds
 
 // Log configuration at module load
 logger.info('[POSTGRES_EXECUTOR] Module loaded', {
-    MAX_ROWS,
-    envValue: process.env.MAX_RESULT_ROWS,
-    configValue: config.resultStorage.maxRows
+    QUERY_TIMEOUT_MS
 });
 
 /**
@@ -57,7 +54,7 @@ export class PostgresExecutor {
     }
 
     /**
-     * Execute a SQL query using Drizzle ORM
+     * Execute a SQL query
      * Note: This executes raw SQL - ensure validation was done before calling
      * @param sqlQuery - The SQL query to execute
      * @param schemaName - Optional schema name to set search_path before executing
@@ -70,39 +67,18 @@ export class PostgresExecutor {
                 await this.connect();
             }
 
+            // Set statement timeout to prevent long-running queries
+            await this.client!.unsafe(`SET statement_timeout = ${QUERY_TIMEOUT_MS}`);
+
             // Set search_path if schemaName is provided
             if (schemaName) {
                 await this.client!.unsafe(`SET search_path TO ${schemaName}, public`);
             }
 
-            // Check if this is a SELECT query - enforce row limit
-            const isSelectQuery = sqlQuery.trim().toUpperCase().startsWith('SELECT');
-
             logger.debug('Query analysis', {
-                isSelectQuery,
-                maxRows: MAX_ROWS,
-                queryPreview: sqlQuery.substring(0, 100)
+                queryPreview: sqlQuery.substring(0, 100),
+                timeoutMs: QUERY_TIMEOUT_MS
             });
-
-            if (isSelectQuery) {
-                // First, check the count of rows the query would return
-                const countQuery = `SELECT COUNT(*) as cnt FROM (${sqlQuery}) AS subquery`;
-                const countResult = await this.client!.unsafe(countQuery);
-                const rowCount = parseInt(countResult[0]?.cnt || '0', 10);
-
-                logger.info('Row count check', { rowCount, maxRows: MAX_ROWS, willBlock: rowCount > MAX_ROWS });
-
-                if (rowCount > MAX_ROWS) {
-                    const duration = Date.now() - startTime;
-                    logger.warn('Query BLOCKED - exceeded row limit', { rowCount, maxRows: MAX_ROWS, duration });
-
-                    return {
-                        success: false,
-                        error: `Query would return ${rowCount.toLocaleString()} rows, which exceeds the maximum limit of ${MAX_ROWS.toLocaleString()} rows. Please add filters or LIMIT clause to reduce the result set.`,
-                        executedAt: new Date()
-                    };
-                }
-            }
 
             // Execute the actual query
             const result = await this.client!.unsafe(sqlQuery);
@@ -136,6 +112,19 @@ export class PostgresExecutor {
         } catch (error) {
             const duration = Date.now() - startTime;
             const errorMessage = error instanceof Error ? error.message : String(error);
+
+            // Check for timeout errors
+            const isTimeout = errorMessage.includes('statement timeout') ||
+                errorMessage.includes('canceling statement due to statement timeout');
+
+            if (isTimeout) {
+                logger.warn('PostgreSQL query TIMED OUT', { duration, timeoutMs: QUERY_TIMEOUT_MS });
+                return {
+                    success: false,
+                    error: `Query exceeded ${QUERY_TIMEOUT_MS / 1000} second timeout. Please optimize your query or add filters to reduce execution time.`,
+                    executedAt: new Date()
+                };
+            }
 
             logger.error('PostgreSQL query failed', {
                 error: errorMessage,

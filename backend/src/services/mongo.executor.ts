@@ -2,9 +2,8 @@ import mongoose from 'mongoose';
 import { ExecutionResult } from '../types';
 import { logger } from '../utils/logger';
 import { sanitizeMongoInput } from '../utils/sanitizer';
-import { config } from '../config/environment';
 
-const MAX_ROWS = config.resultStorage.maxRows;
+const QUERY_TIMEOUT_MS = 60000; // 60 seconds
 
 /**
  * MongoDB Query Executor using Mongoose
@@ -74,7 +73,6 @@ export class MongoExecutor {
             }
 
             // Parse and execute the query
-            // Expected format: db.collectionName.operation({...})
             const result = await this.executeQuery(db, queryString);
             const duration = Date.now() - startTime;
 
@@ -92,6 +90,19 @@ export class MongoExecutor {
         } catch (error) {
             const duration = Date.now() - startTime;
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+            // Check for timeout errors
+            const isTimeout = errorMessage.includes('operation exceeded time limit') ||
+                errorMessage.includes('MaxTimeMSExpired');
+
+            if (isTimeout) {
+                logger.warn('MongoDB query TIMED OUT', { duration, timeoutMs: QUERY_TIMEOUT_MS });
+                return {
+                    success: false,
+                    error: `Query exceeded ${QUERY_TIMEOUT_MS / 1000} second timeout. Please optimize your query or add filters to reduce execution time.`,
+                    executedAt: new Date()
+                };
+            }
 
             logger.error('MongoDB query failed', {
                 error: errorMessage,
@@ -138,33 +149,19 @@ export class MongoExecutor {
             }
         }
 
-        // Execute based on method
+        // Execute based on method with timeout
         switch (method) {
             case 'find': {
-                // First check count before fetching results
                 const filter = args[0] as object || {};
-                const count = await collection.countDocuments(filter);
-
-                if (count > MAX_ROWS) {
-                    throw new Error(`Query would return ${count.toLocaleString()} documents, which exceeds the maximum limit of ${MAX_ROWS.toLocaleString()} documents. Please add filters or use .limit() to reduce the result set.`);
-                }
-
-                return collection.find(filter).toArray();
+                return collection.find(filter, { maxTimeMS: QUERY_TIMEOUT_MS }).toArray();
             }
 
             case 'findOne':
-                return collection.findOne(args[0] as object || {});
+                return collection.findOne(args[0] as object || {}, { maxTimeMS: QUERY_TIMEOUT_MS });
 
             case 'aggregate': {
-                // For aggregate, we need to check result size after running
                 const pipeline = args[0] as object[] || [];
-                const results = await collection.aggregate(pipeline).toArray();
-
-                if (results.length > MAX_ROWS) {
-                    throw new Error(`Aggregation returned ${results.length.toLocaleString()} documents, which exceeds the maximum limit of ${MAX_ROWS.toLocaleString()} documents. Please add $limit stage to reduce the result set.`);
-                }
-
-                return results;
+                return collection.aggregate(pipeline, { maxTimeMS: QUERY_TIMEOUT_MS }).toArray();
             }
 
             case 'insertOne':
@@ -173,13 +170,7 @@ export class MongoExecutor {
 
             case 'insertMany': {
                 if (!args[0]) throw new Error('insertMany requires documents array');
-                const docs = args[0] as object[];
-
-                if (docs.length > MAX_ROWS) {
-                    throw new Error(`Cannot insert ${docs.length.toLocaleString()} documents. Maximum batch size is ${MAX_ROWS.toLocaleString()} documents.`);
-                }
-
-                return collection.insertMany(docs);
+                return collection.insertMany(args[0] as object[]);
             }
 
             case 'updateOne':
@@ -199,7 +190,7 @@ export class MongoExecutor {
                 return collection.deleteMany(args[0] as object);
 
             case 'countDocuments':
-                return collection.countDocuments(args[0] as object || {});
+                return collection.countDocuments(args[0] as object || {}, { maxTimeMS: QUERY_TIMEOUT_MS });
 
             default:
                 throw new Error(`Unsupported MongoDB method: ${method}`);

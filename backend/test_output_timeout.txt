@@ -1,0 +1,964 @@
+
+> db-query-portal@1.0.0 test
+> jest --coverage
+
+PASS tests/unit/middleware/auth.middleware.test.ts (5.063 s)
+  Auth Middleware
+    authenticate
+      ✓ should pass with valid token (20 ms)
+      ✓ should fail without token (1 ms)
+      ✓ should fail with invalid token format (1 ms)
+      ✓ should fail with invalid token
+      ✓ should fail with expired token (16 ms)
+      ✓ should fail with wrong secret (1 ms)
+      ✓ should pass non-JWT errors to next (1 ms)
+    optionalAuthenticate
+      ✓ should pass with valid token and attach user (2 ms)
+      ✓ should pass without token (no user attached) (1 ms)
+      ✓ should pass with invalid token (silently)
+
+PASS tests/unit/services/slack.service.test.ts (5.313 s)
+  SlackService
+    initialize
+      ✓ should warn and disable if token is missing (9 ms)
+      ✓ should initialize client if token is present (2 ms)
+    Notification Methods
+      notifyNewRequest
+        ✓ should send notification to channel with correct blocks (81 ms)
+        ✓ should include app link for approval in new request notification (1 ms)
+        ✓ should skip if approval channel not configured
+        ✓ should handle errors gracefully (1 ms)
+        ✓ should skip if service disabled
+        ✓ should handle non-Error exceptions
+        ✓ should handle missing databaseName (1 ms)
+        ✓ should handle missing comments
+        ✓ should truncate long query in new request (1 ms)
+        ✓ should truncate long script in new request
+        ✓ should silently skip if client is not valid in new request (1 ms)
+        ✓ should handle compressed result without original size
+      notifyRequesterApproved
+        ✓ should send DM to requester (1 ms)
+        ✓ should log warning if user not found (1 ms)
+        ✓ should include error details in DM if execution failed (1 ms)
+        ✓ should include retry link in DM if execution failed (2 ms)
+        ✓ should skip if service disabled
+        ✓ should include short output in DM
+        ✓ should handle compressed execution result (1 ms)
+        ✓ should handle compressed execution result without originalSize
+        ✓ should handle errors gracefully (10 ms)
+        ✓ should handle non-Error exceptions (1 ms)
+        ✓ should silently skip if client is not valid in approval
+      notifyChannelExecutionResult
+        ✓ should send execution result to channel
+        ✓ should include error details if execution failed
+        ✓ should include output preview if successful and output exists (1 ms)
+        ✓ should skip if no channel
+        ✓ should skip if service disabled
+        ✓ should handle errors gracefully
+        ✓ should handle non-Error exceptions
+        ✓ should upload file for large outputs (> 2500 chars)
+        ✓ should NOT upload file for compressed results (1 ms)
+        ✓ should handle non-Error exceptions during file upload
+        ✓ should handle file upload errors gracefully
+        ✓ should show compressed result message in channel blocks
+        ✓ should show "See attached file" message for large uncompressed output
+        ✓ should handle compressed result without original size
+      notifyRequesterRejected
+        ✓ should send rejection DM (1 ms)
+        ✓ should include app link in rejection DM
+        ✓ should skip if service disabled
+        ✓ should log warning if user not found
+        ✓ should handle errors gracefully
+        ✓ should handle non-Error exceptions (2 ms)
+        ✓ should send rejection without reason
+        ✓ should truncate long query in rejection
+        ✓ should truncate long script in rejection
+        ✓ should handle short script in rejection (1 ms)
+        ✓ should handle both query and script missing in rejection
+        ✓ should handle both query and script missing in rejection
+        ✓ should silently skip if client is not valid in rejection
+    helper methods (lookupSlackUserId)
+      ✓ should return null on lookup error
+      ✓ should handle non-Error exceptions in lookup (1 ms)
+      ✓ should return null if client is null
+    block builders
+      ✓ should truncate long output in approval result
+      ✓ should handle both query and script missing in new request logic (4 ms)
+      ✓ should handle script content in preview if query is missing
+    sendSlackNotification wrapper
+      ✓ should route REQUEST_SUBMITTED (1 ms)
+      ✓ should route REQUEST_APPROVED with execution results
+      ✓ should route EXECUTION_SUCCESS
+      ✓ should route REQUEST_REJECTED (1 ms)
+      ✓ should catch global errors
+      ✓ should handle non-Error catch in global wrapper
+
+PASS tests/unit/controllers/auth.controller.test.ts (5.394 s)
+  AuthController
+    login
+      ✓ should login successfully (8 ms)
+      ✓ should login with x-forwarded-for string header
+      ✓ should login with x-forwarded-for array header
+      ✓ should handle login error (1 ms)
+      ✓ should handle login error with non-Error type
+      ✓ should handle undefined socket.remoteAddress
+    logout
+      ✓ should logout successfully (1 ms)
+      ✓ should handle logout error
+    refresh
+      ✓ should refresh tokens successfully (1 ms)
+      ✓ should handle refresh error
+      ✓ should handle refresh error with non-Error type
+    getProfile
+      ✓ should get profile successfully (1 ms)
+      ✓ should handle get profile error
+    googleCallback
+      ✓ should redirect with tokens on successful auth (24 ms)
+      ✓ should redirect to login with error when auth fails (1 ms)
+      ✓ should call next with error when passport returns error (1 ms)
+
+  console.error
+    Debug discovery error: Error: Unexpected
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/tests/unit/controllers/database.controller.test.ts:413:74)
+        at /Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:397:39
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:404:13)
+        at Object.mockConstructor [as json] (/Users/harshgoyal/Desktop/db-query-portal/backend/node_modules/jest-mock/build/index.js:148:19)
+        at Function.json [as debugDiscovery] (/Users/harshgoyal/Desktop/db-query-portal/backend/src/controllers/database.controller.ts:182:17)
+        at processTicksAndRejections (node:internal/process/task_queues:95:5)
+        at Object.<anonymous> (/Users/harshgoyal/Desktop/db-query-portal/backend/tests/unit/controllers/database.controller.test.ts:415:13)
+
+      182 |             res.json({ success: true, checks });
+      183 |         } catch (error) {
+    > 184 |             console.error('Debug discovery error:', error);
+          |                     ^
+      185 |             next(error);
+      186 |         }
+      187 |     }
+
+      at Function.error [as debugDiscovery] (src/controllers/database.controller.ts:184:21)
+      at Object.<anonymous> (tests/unit/controllers/database.controller.test.ts:415:13)
+
+PASS tests/unit/controllers/database.controller.test.ts (5.551 s)
+  DatabaseController
+    getTypes
+      ✓ should return database types (6 ms)
+      ✓ should handle errors (1 ms)
+    getInstances
+      ✓ should handle errors (1 ms)
+      ✓ should list all instances (1 ms)
+      ✓ should filter by type (1 ms)
+    getDatabases
+      ✓ should list databases for instance
+      ✓ should throw NotFoundError if instance missing (1 ms)
+      ✓ should use dynamic discovery for PostgreSQL (1 ms)
+      ✓ should use dynamic discovery for MongoDB (1 ms)
+      ✓ should fallback to static list if config missing (PG)
+      ✓ should fallback to static list if config missing (Mongo) (1 ms)
+    getInstanceById
+      ✓ should return instance if found (1 ms)
+      ✓ should throw NotFoundError if not found
+    getDatabases - discovery failure fallback
+      ✓ should fallback to static list when discovery fails with error
+      ✓ should fallback when discovery returns empty array (PG)
+      ✓ should fallback when discovery returns empty array (Mongo) (1 ms)
+      ✓ should use safety fallback if discovery fails and instance has no databases
+      ✓ should use safety fallback for MongoDB when discovery fails
+      ✓ should handle non-Error exception during discovery (1 ms)
+    debugDiscovery
+      ✓ should return success for both postgres and mongo (17 ms)
+      ✓ should handle postgres discovery error
+      ✓ should handle non-Error exceptions for debug discovery (4 ms)
+      ✓ should handle mongo discovery error
+      ✓ should skip postgres when URL not set (1 ms)
+      ✓ should skip mongo when URL not set
+      ✓ should call next with error on unexpected failure (56 ms)
+
+PASS tests/unit/services/auth.service.test.ts (5.574 s)
+  AuthService
+    hashPassword
+      ✓ should hash password with bcrypt (12 ms)
+    comparePassword
+      ✓ should return true for matching password
+      ✓ should return false for non-matching password
+    generateTokens
+      ✓ should generate access and refresh tokens (5 ms)
+    verifyAccessToken
+      ✓ should verify valid token (1 ms)
+    refreshAccessToken
+      ✓ should verify refresh token and return new tokens (4 ms)
+      ✓ should throw AuthenticationError for invalid token (3 ms)
+      ✓ should get managed pods for manager (4 ms)
+      ✓ should use existing managedPodIds if present on user for refresh token (1 ms)
+      ✓ should throw AuthenticationError for invalid token type (not refresh)
+      ✓ should throw AuthenticationError when user not found after token verification (1 ms)
+      ✓ should re-throw non-JWT errors (4 ms)
+    login
+      ✓ should fail if user has no password (e.g. Google auth only) (1 ms)
+      ✓ should use existing managedPodIds if present on user object
+      ✓ should login with valid credentials (5 ms)
+      ✓ should fail if user not found
+      ✓ should fail with invalid password (1 ms)
+      ✓ should get managed pods for manager
+    loginOrSignupWithGoogle
+      ✓ should login existing google user (1 ms)
+      ✓ should link account if user exists by email
+      ✓ should create new user if not found (1 ms)
+      ✓ should throw error if linking fails (1 ms)
+      ✓ should throw NotFoundError if user not found after linking
+      ✓ should throw NotFoundError if user not found after creation
+      ✓ should use existing managedPodIds if present on user object (1 ms)
+    getProfile
+      ✓ should return user profile
+      ✓ should throw NotFoundError if user not found
+
+PASS tests/unit/controllers/admin.controller.test.ts (5.647 s)
+  AdminController
+    getUsers
+      ✓ should get all users with default pagination (11 ms)
+      ✓ should handle search and pagination (2 ms)
+      ✓ should handle errors
+    getUser
+      ✓ should get user by ID (3 ms)
+      ✓ should return 404 if not found (1 ms)
+      ✓ should handle errors
+    createUser
+      ✓ should create user (1 ms)
+      ✓ should fail if email exists (2 ms)
+      ✓ should fail if invalid role (1 ms)
+      ✓ should fail if invalid pods
+      ✓ should handle errors (1 ms)
+    updateUser
+      ✓ should update user
+      ✓ should update password if provided
+      ✓ should fail if user not found
+      ✓ should fail if invalid role
+      ✓ should fail if invalid pods (1 ms)
+      ✓ should handle errors
+    deleteUser
+      ✓ should delete user
+      ✓ should prevent self-deletion
+      ✓ should fail if user not found (1 ms)
+      ✓ should fail if delete returns false (1 ms)
+      ✓ should handle errors
+    getPods
+      ✓ should list pods (5 ms)
+      ✓ should handle errors
+
+PASS tests/unit/models/QueryRequest.test.ts
+  QueryRequestModel
+    create
+      ✓ should create a new query request (1 ms)
+      ✓ should create a new query request with optional fields
+    findById
+      ✓ should return request when found
+      ✓ should return null when not found (1 ms)
+    findByUserId
+      ✓ should return paginated results (6 ms)
+      ✓ should use default pagination
+      ✓ should filter by status
+    findWithFilters
+      ✓ should filter by status (1 ms)
+      ✓ should filter by date range
+      ✓ should filter by date range and status
+      ✓ should filter by specific fields (podId, approverEmail, allowedPodIds)
+    approve
+      ✓ should approve request
+      ✓ should return null when request not found
+    reject
+      ✓ should reject request with reason (1 ms)
+      ✓ should return null when request not found
+    setExecutionResult
+      ✓ should set successful execution result (21 ms)
+      ✓ should set failed execution result with error
+      ✓ should set compressed flag (1 ms)
+      ✓ should return null if request not found
+    withdraw
+      ✓ should withdraw request
+      ✓ should return null if request not found
+    countPendingByUser
+      ✓ should return pending count
+
+PASS tests/unit/services/discovery.service.test.ts (5.719 s)
+  DiscoveryService
+    getPostgresDatabases
+      ✓ should discover databases and cache result (10 ms)
+      ✓ should handle query failure (9 ms)
+      ✓ should handle non-Error exceptions (1 ms)
+    getMongoDatabases
+      ✓ should discover databases, filter system dbs, and cache (2 ms)
+      ✓ should throw if no db object on connection (8 ms)
+      ✓ should handle errors (1 ms)
+      ✓ should handle non-Error exceptions
+    getPostgresSchemas
+      ✓ should discover schemas and cache
+      ✓ should handle errors (1 ms)
+      ✓ should handle non-Error exceptions
+    Cache expiration
+      ✓ should expire cache after TTL (1 ms)
+
+PASS tests/unit/models/User.test.ts
+  UserModel
+    findByEmail
+      ✓ should return user when found (1 ms)
+      ✓ should return null when not found
+    findById
+      ✓ should return user when found
+    create
+      ✓ should create a new user (1 ms)
+      ✓ should create user with googleId
+    findAll
+      ✓ should return paginated users
+      ✓ should use default pagination options
+      ✓ should filter by search term
+    findByIdSafe
+      ✓ should return safe user (no password)
+      ✓ should return null when not found
+    findByGoogleId
+      ✓ should find user by google id (1 ms)
+    linkGoogle
+      ✓ should link google id to user
+      ✓ should return null if user not found
+    update
+      ✓ should update user fields
+      ✓ should update all optional fields
+      ✓ should return null if user not found (1 ms)
+    updatePassword
+      ✓ should update password
+      ✓ should return false if user not found
+    delete
+      ✓ should remove user
+      ✓ should return false if user not found
+
+PASS tests/unit/models/DatabaseInstance.test.ts
+  DatabaseInstanceModel
+    findAll
+      ✓ should return all database instances (2 ms)
+    findByType
+      ✓ should return instances of specific type (1 ms)
+    findById
+      ✓ should return instance when found
+      ✓ should return null when not found
+    getDatabases
+      ✓ should return databases for instance
+      ✓ should return empty array when instance not found (1 ms)
+    create
+      ✓ should create new database instance (1 ms)
+
+PASS tests/unit/entities/entities.coverage.test.ts
+  Entities Coverage
+    ✓ should instantiate User with defaults
+    ✓ should instantiate QueryRequest with defaults
+    ✓ should instantiate DatabaseInstance with defaults
+    ✓ should verify Enums are correctly assigned
+
+PASS tests/unit/middleware/validation.middleware.test.ts
+  Validation Middleware
+    validate
+      ✓ should pass valid body data (2 ms)
+      ✓ should fail invalid body data (1 ms)
+      ✓ should validate query params
+      ✓ should validate params (1 ms)
+      ✓ should handle non-Zod errors
+    validateMultiple
+      ✓ should validate multiple locations
+      ✓ should collect errors from multiple locations (25 ms)
+      ✓ should pass when schemas are empty
+      ✓ should handle non-Zod errors in multiple validation (1 ms)
+
+PASS tests/security/security.test.ts
+  Security Tests
+    SQL Injection Protection
+      ✓ should use parameterized queries for all database operations
+      ✓ should detect common SQL injection patterns (3 ms)
+    NoSQL Injection Protection
+      ✓ should reject dangerous MongoDB operators (28 ms)
+    XSS Protection
+      ✓ should sanitize output for display (1 ms)
+    Path Traversal Protection
+      ✓ should sanitize file names
+      ✓ should reject non-JS files (1 ms)
+    Script Sandbox Validation
+      ✓ should reject dangerous Node.js APIs (17 ms)
+    Authentication Security
+      ✓ should use strong bcrypt salt rounds (1 ms)
+      ✓ should have JWT secret validation in production (65 ms)
+    RBAC Security
+      ✓ should enforce role hierarchy
+
+PASS tests/unit/middleware/errorHandler.middleware.test.ts
+  Error Handler Middleware
+    getClientIp extraction
+      ✓ should handle x-forwarded-for as string (5 ms)
+      ✓ should handle x-forwarded-for as array (1 ms)
+      ✓ should handle missing x-forwarded-for and socket address
+    errorHandler
+      ✓ should handle ValidationError
+      ✓ should handle AuthenticationError (1 ms)
+      ✓ should handle ForbiddenError
+      ✓ should handle NotFoundError
+      ✓ should handle generic AppError
+      ✓ should handle ZodError (1 ms)
+      ✓ should handle JsonWebTokenError
+      ✓ should handle TokenExpiredError (16 ms)
+      ✓ should handle MulterError
+      ✓ should handle duplicate key error (1 ms)
+      ✓ should handle unknown errors with message in development
+      ✓ should hide error details in production (1 ms)
+    notFoundHandler
+      ✓ should return 404 with route info (1 ms)
+
+PASS tests/unit/utils/errors.test.ts
+  Error Classes
+    AppError
+      ✓ should create with default values
+      ✓ should create with custom values (1 ms)
+      ✓ should have proper stack trace (7 ms)
+    ValidationError
+      ✓ should create validation error
+    AuthenticationError
+      ✓ should create with default message
+      ✓ should create with custom message
+    ForbiddenError
+      ✓ should create with default message (1 ms)
+      ✓ should create with custom message
+    NotFoundError
+      ✓ should create with default resource (28 ms)
+      ✓ should create with custom resource
+    ConflictError
+      ✓ should create conflict error (1 ms)
+    RateLimitError
+      ✓ should create rate limit error
+
+PASS tests/unit/services/sanitizer.test.ts
+  Sanitizer Utils
+    sanitizeMongoInput
+      ✓ should pass safe input
+      ✓ should reject $where operator (19 ms)
+      ✓ should reject $function operator (1 ms)
+      ✓ should reject $accumulator operator (1 ms)
+      ✓ should reject mapReduce (1 ms)
+      ✓ should reject $expr operator (1 ms)
+      ✓ should reject JavaScript functions
+      ✓ should reject JavaScript functions with space
+    detectSqlInjection
+      ✓ should return false for safe input (1 ms)
+      ✓ should detect comment injection
+      ✓ should detect UNION injection
+      ✓ should detect OR 1=1 pattern
+      ✓ should detect AND 1=1 pattern
+      ✓ should detect DROP TABLE (1 ms)
+      ✓ should detect semicolon injection
+      ✓ should detect block comment
+  isDangerousDDL
+    ✓ should detect DROP TABLE (1 ms)
+    ✓ should detect TRUNCATE TABLE
+    ✓ should detect ALTER TABLE
+    ✓ should detect CREATE VIEW (1 ms)
+    ✓ should allow SELECT
+    ✓ should allow DELETE (DML)
+    ✓ should allow INSERT (DML)
+  isDangerousMongoMethod
+    ✓ should detect .drop()
+    ✓ should detect .dropDatabase() (1 ms)
+    ✓ should detect .remove()
+    ✓ should allow .find()
+    ✓ should allow .insertOne()
+  getSecurityWarnings
+    ✓ should return empty array for safe queries
+    ✓ should warn about DROP TABLE (1 ms)
+    ✓ should warn about MongoDB drop (17 ms)
+    ✓ should warn about DELETE without WHERE (10 ms)
+    ✓ should warn about UPDATE without WHERE
+    ✓ should not warn about DELETE with WHERE (1 ms)
+    ✓ should return multiple warnings
+  sanitizeForDisplay
+    ✓ should escape HTML entities (2 ms)
+    ✓ should escape ampersand
+    ✓ should escape single quotes
+    ✓ should handle normal text
+  sanitizeFileName
+    ✓ should pass valid filename
+    ✓ should allow underscores and hyphens
+    ✓ should remove path traversal
+    ✓ should remove slashes
+    ✓ should replace invalid characters
+    ✓ should reject non-js files (3 ms)
+    ✓ should reject files without extension (6 ms)
+  truncate
+    ✓ should not truncate short strings (17 ms)
+    ✓ should truncate long strings (1 ms)
+    ✓ should use default max length
+    ✓ should handle exact length
+
+PASS tests/unit/middleware/rbac.middleware.test.ts
+  RBAC Middleware
+    requireRole
+      ✓ should pass when user has required role (1 ms)
+      ✓ should pass when user has one of multiple allowed roles
+      ✓ should fail when user lacks required role
+      ✓ should fail when no user present (1 ms)
+    requireMinRole
+      ✓ should pass when user has higher role
+      ✓ should pass when user has exact role
+      ✓ should fail when user has lower role
+      ✓ should fail when no user present (1 ms)
+    requirePodAccess
+      ✓ should pass for admin (all POD access)
+      ✓ should pass for developer (access handled elsewhere)
+      ✓ should pass for manager with POD access
+      ✓ should fail for manager without POD access (1 ms)
+      ✓ should fail when POD ID cannot be determined (1 ms)
+      ✓ should fail when no user present
+    requireOwnershipOrRole
+      ✓ should pass when user is owner
+      ✓ should pass when user has override role (1 ms)
+      ✓ should fail when not owner and no override role
+      ✓ should fail when no user present
+
+PASS tests/integration/config/environment.integration.test.ts
+  Environment Config - Integration Tests
+    testing env var fallback branches (|| operators)
+      ✓ should use all defaults when no env vars are set (4 ms)
+      ✓ should use custom values when env vars are set (4 ms)
+    validateConfig
+      ✓ should throw in production when JWT_SECRET is default (7 ms)
+      ✓ should not throw in production when JWT_SECRET is set (1 ms)
+      ✓ should not throw in development mode (2 ms)
+      ✓ should not throw when NODE_ENV is not production (1 ms)
+
+PASS tests/unit/config/environment.test.ts
+  Environment Config
+    config structure
+      ✓ should have port as a number (1 ms)
+      ✓ should have nodeEnv as a string
+      ✓ should have jwt config with all required properties
+      ✓ should have database config with url
+      ✓ should have rateLimit config with all required properties
+      ✓ should have scriptExecution config with all required properties
+      ✓ should have bcrypt config with saltRounds
+    validateConfig
+      ✓ should not throw in non-production modes
+      ✓ should check that jwt secret is not default in production
+    environment variable parsing
+      ✓ should parse PORT as integer (1 ms)
+      ✓ should parse RATE_LIMIT_WINDOW_MS as integer
+      ✓ should parse RATE_LIMIT_MAX_REQUESTS as integer
+      ✓ should parse AUTH_RATE_LIMIT_MAX as integer
+      ✓ should parse SCRIPT_TIMEOUT_MS as integer
+      ✓ should parse SCRIPT_MAX_MEMORY_MB as integer
+
+PASS tests/unit/controllers/pod.controller.test.ts
+  PodController
+    getAll
+      ✓ should list all pods (1 ms)
+      ✓ should handle errors
+    getById
+      ✓ should return pod if found
+      ✓ should return null if not found (1 ms)
+      ✓ should handle errors
+
+PASS tests/unit/services/script.executor.test.ts
+  ScriptExecutor
+    validate
+      ✓ should pass valid script (1 ms)
+      ✓ should reject require() (1 ms)
+      ✓ should reject ES imports
+      ✓ should reject process access
+      ✓ should reject child_process
+      ✓ should reject fs access (1 ms)
+      ✓ should reject eval (1 ms)
+      ✓ should reject Function constructor
+      ✓ should collect multiple errors
+    execute
+      ✓ should execute script successfully (1 ms)
+      ✓ should pass database config
+      ✓ should handle script timeout
+      ✓ should handle memory limit exceeded (1 ms)
+      ✓ should handle script errors (1 ms)
+      ✓ should always dispose isolate
+      ✓ should handle complex log and error outputs (1 ms)
+
+PASS tests/unit/utils/compression.test.ts
+  Compression Utils
+    compressResult & decompressResult
+      ✓ should compress and decompress data correctly (29 ms)
+      ✓ should handle empty string (9 ms)
+      ✓ should compress large data (1 ms)
+    shouldCompress
+      ✓ should return true if data size > threshold (1 ms)
+      ✓ should return false if data size <= threshold
+    getByteSize
+      ✓ should return correct byte size
+    formatBytes
+      ✓ should format bytes correctly
+
+PASS tests/unit/utils/responseHelper.test.ts
+  Response Helper
+    sendSuccess
+      ✓ should send success response with default status 200 (1 ms)
+      ✓ should send success response with message (1 ms)
+      ✓ should send success response with custom status code
+      ✓ should handle null data (1 ms)
+      ✓ should handle array data (6 ms)
+    sendCreated
+      ✓ should send 201 created response
+      ✓ should send 201 with message
+    sendPaginated
+      ✓ should send paginated response
+      ✓ should calculate totalPages correctly
+      ✓ should handle empty data array
+      ✓ should handle fractional pages (round up)
+    sendError
+      ✓ should send error response with default 500 status
+      ✓ should send error response with custom status
+      ✓ should send error response with code (1 ms)
+      ✓ should handle 401 unauthorized
+      ✓ should handle 403 forbidden
+
+PASS tests/unit/utils/pagination.test.ts
+  Pagination Utils
+    getPaginationParams
+      ✓ should return default values if no query provided (1 ms)
+      ✓ should use provided custom options for defaults
+      ✓ should parse valid page and limit
+      ✓ should handle number inputs for page and limit
+      ✓ should throw ValidationError for invalid page number (5 ms)
+      ✓ should throw ValidationError for invalid limit number
+      ✓ should throw ValidationError if limit exceeds maxLimit (1 ms)
+      ✓ should floor decimal page and limit
+
+PASS tests/unit/models/Pod.test.ts
+  PodModel
+    findAll
+      ✓ should return all pods
+    findById
+      ✓ should return pod when found
+      ✓ should return null when not found (1 ms)
+    findByManagerEmail
+      ✓ should return pods managed by email
+      ✓ should return empty array when no pods found
+    getManagedPodIds
+      ✓ should return pod IDs managed by email
+      ✓ should return empty array when no managed pods
+
+PASS tests/unit/controllers/request.controller.test.ts
+  RequestController
+    create
+      ✓ should create a valid SQL request (3 ms)
+      ✓ should throw NotFoundError if instance does not exist (2 ms)
+      ✓ should throw ValidationError if db type mismatch
+      ✓ should throw ValidationError if database not in instance (1 ms)
+      ✓ should throw NotFoundError if pod does not exist
+      ✓ should return 429 if limit exceeded
+      ✓ should throw ValidationError for invalid script file extension
+      ✓ should handle script upload (1 ms)
+      ✓ should generate warnings for dangerous SQL queries (12 ms)
+      ✓ should generate warnings for dangerous script content (158 ms)
+      ✓ should validate against safety fallback if discovery fails (1 ms)
+      ✓ should validate against safety fallback for MongoDB (1 ms)
+      ✓ should validate using discovered databases for MongoDB
+      ✓ should validate using discovered databases for Postgres
+      ✓ should handle undefined query and script by defaulting to empty string for warnings (1 ms)
+      ✓ should not set warnings for safe queries (19 ms)
+      ✓ should handle X-Forwarded-For header (6 ms)
+      ✓ should handle X-Forwarded-For header as array (2 ms)
+      ✓ should fallback to remoteAddress (1 ms)
+      ✓ should return unknown for ip if undefined (1 ms)
+      ✓ should throw ValidationError if script file missing
+    getMyRequests
+      ✓ should list user requests (1 ms)
+      ✓ should filter by status
+      ✓ should throw ValidationError for invalid status
+      ✓ should handle errors (1 ms)
+    withdraw
+      ✓ should throw NotFoundError if request not found during withdraw check
+      ✓ should throw ForbiddenError if withdrawing other user request
+      ✓ should throw generic ValidationError if withdraw fails but checks pass
+      ✓ should withdraw request successfully (1 ms)
+      ✓ should throw specific errors if withdraw fails
+    getById
+      ✓ should throw NotFoundError if request does not exist
+      ✓ should get request if owner
+      ✓ should get request if manager of pod
+      ✓ should throw Forbidden if not owner/approver
+      ✓ should handle errors
+    list
+      ✓ should forbid developers
+      ✓ should allow managers (1 ms)
+      ✓ should handle errors
+    downloadResult
+      ✓ should allow owner to download (1 ms)
+      ✓ should allow manager of pod to download (1 ms)
+      ✓ should allow admin to download
+      ✓ should forbid unauthorized users (1 ms)
+      ✓ should throw NotFoundError if request missing
+      ✓ should throw NotFoundError if result missing (1 ms)
+      ✓ should decompress if isCompressed is true (1 ms)
+      ✓ should handle errors
+
+FAIL tests/unit/services/mongo.executor.test.ts
+  MongoExecutor
+    connect
+      ✓ should connect to MongoDB via Mongoose (2 ms)
+      ✓ should reuse connection
+    close
+      ✓ should close connection
+      ✓ should handle close without connect
+    execute
+      ✓ should execute find query (bracket notation) (1 ms)
+      ✓ should execute find query (dot notation)
+      ✓ should execute find query (single quote bracket) (1 ms)
+      ✓ should execute findOne query
+      ✓ should execute aggregate query
+      ✓ should execute insertOne
+      ✓ should execute insertMany (1 ms)
+      ✓ should execute updateOne
+      ✓ should execute updateMany
+      ✓ should execute deleteOne
+      ✓ should execute deleteMany
+      ✓ should execute countDocuments (1 ms)
+      ✓ should reject dangerous operators
+      ✓ should reject invalid query format (1 ms)
+      ✓ should reject unsupported method (1 ms)
+      ✓ should require document for insertOne
+      ✓ should require filter for deleteOne (1 ms)
+      ✓ should handle single JSON object argument (fallback parsing)
+      ✓ should reject invalid JSON arguments
+      ✓ should execute find query with empty args
+      ✕ should execute aggregate with empty args (1 ms)
+      ✓ should execute countDocuments with empty args
+      ✓ should require documents for insertMany (1 ms)
+      ✓ should require filter and update for updateOne
+      ✓ should require filter and update for updateMany
+      ✓ should require filter for deleteMany
+      ✓ should fail if getDb called without connection (1 ms)
+      ✓ should fail if db is not available after connection
+      ✕ should execute findOne with empty args
+      ✓ should handle non-Error exceptions (3 ms)
+      ✓ should handle query timeout error
+    testConnection
+      ✓ should return true for valid connection (1 ms)
+      ✓ should return false if testConnection connects but db is missing
+      ✓ should return false for failed connection
+    createMongoExecutor
+      ✓ should create executor
+
+  ● MongoExecutor › execute › should execute aggregate with empty args
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    - Expected
+    + Received
+
+      [],
+    + {"maxTimeMS": 60000},
+
+    Number of calls: 1
+
+      255 |             const result = await executor.execute('db.users.aggregate()');
+      256 |             expect(result.success).toBe(true);
+    > 257 |             expect(mockCollection.aggregate).toHaveBeenCalledWith([]);
+          |                                              ^
+      258 |         });
+      259 |
+      260 |         it('should execute countDocuments with empty args', async () => {
+
+      at Object.<anonymous> (tests/unit/services/mongo.executor.test.ts:257:46)
+
+  ● MongoExecutor › execute › should execute findOne with empty args
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    - Expected
+    + Received
+
+      {},
+    + {"maxTimeMS": 60000},
+
+    Number of calls: 1
+
+      318 |             const result = await executor.execute('db.users.findOne()');
+      319 |             expect(result.success).toBe(true);
+    > 320 |             expect(mockCollection.findOne).toHaveBeenCalledWith({});
+          |                                            ^
+      321 |         });
+      322 |
+      323 |         it('should handle non-Error exceptions', async () => {
+
+      at Object.<anonymous> (tests/unit/services/mongo.executor.test.ts:320:44)
+
+PASS tests/unit/services/postgres.executor.test.ts
+  PostgresExecutor
+    connect
+      ✓ should create client on first connect (1 ms)
+      ✓ should reuse client on subsequent connects
+    close
+      ✓ should close client
+      ✓ should handle close without connect
+    execute
+      ✓ should execute SELECT query and return rows (1 ms)
+      ✓ should execute UPDATE and return affected rows
+      ✓ should handle empty result
+      ✓ should allow DDL statements (warnings handled at submission)
+      ✓ should execute valid DELETE queries (DML)
+      ✓ should handle query error
+      ✓ should set search path when schema provided
+      ✓ should handle null/undefined result from driver (1 ms)
+      ✓ should handle non-Error exception
+      ✓ should handle result with missing count/length
+      ✓ should handle query timeout error
+    testConnection
+      ✓ should return true for valid connection
+      ✓ should return false for failed connection (1 ms)
+    createPostgresExecutor
+      ✓ should create executor from connection string
+      ✓ should throw for invalid connection string (7 ms)
+    constructor
+      ✓ should configure connection string with ssl by default
+      ✓ should disable ssl when explicitly set to false
+
+PASS tests/unit/services/execution.service.test.ts
+  ExecutionService
+    executeRequest
+      ✓ should execute query request successfully (3 ms)
+      ✓ should compress large results
+      ✓ should execute script request successfully
+      ✓ should handle execution error (1 ms)
+      ✓ should handle unknown error type
+    executeQuery (via executeRequest)
+      ✓ should reject when no query provided
+      ✓ should reject when database instance not found (1 ms)
+      ✓ should execute PostgreSQL query
+      ✓ should execute MongoDB query
+      ✓ should reuse existing connection (1 ms)
+      ✓ should throw when TARGET_POSTGRES_URL is not configured
+      ✓ should throw when TARGET_MONGODB_URL is not configured
+    executeScript (via executeRequest)
+      ✓ should reject when no script content provided (1 ms)
+      ✓ should reject invalid script
+      ✓ should throw when TARGET_POSTGRES_URL is not configured for script (1 ms)
+      ✓ should throw when TARGET_MONGODB_URL is not configured for script (1 ms)
+      ✓ should execute script with PostgreSQL config
+      ✓ should execute script with MongoDB config (1 ms)
+    cleanup
+      ✓ should close all connections
+
+PASS tests/unit/controllers/approval.controller.test.ts
+  ApprovalController
+    getClientIp edge cases
+      ✓ should handle x-forwarded-for as array (1 ms)
+      ✓ should handle x-forwarded-for as string
+      ✓ should handle undefined socket.remoteAddress
+    approve
+      ✓ should approve and execute request successfully (1 ms)
+      ✓ should reject if request not found
+      ✓ should reject if request not pending
+      ✓ should reject if manager lacks POD access
+      ✓ should handle execution failure
+      ✓ should handle approve returning null (1 ms)
+    reject
+      ✓ should reject request successfully
+      ✓ should reject without reason
+      ✓ should fail if request not found (1 ms)
+      ✓ should fail if request not pending
+      ✓ should fail if manager lacks POD access
+      ✓ should handle reject returning null
+    getPending
+      ✓ should get pending requests for admin (1 ms)
+      ✓ should filter by PODs for manager
+      ✓ should handle errors
+
+-----------------------------|---------|----------|---------|---------|-------------------
+File                         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-----------------------------|---------|----------|---------|---------|-------------------
+All files                    |   99.48 |    99.83 |   95.62 |   99.52 |                   
+ config                      |     100 |      100 |     100 |     100 |                   
+  environment.ts             |     100 |      100 |     100 |     100 |                   
+ controllers                 |   99.77 |    99.38 |   97.36 |     100 |                   
+  admin.controller.ts        |   98.79 |      100 |      90 |     100 |                   
+  approval.controller.ts     |     100 |      100 |     100 |     100 |                   
+  auth.controller.ts         |     100 |      100 |     100 |     100 |                   
+  database.controller.ts     |     100 |      100 |     100 |     100 |                   
+  pod.controller.ts          |     100 |      100 |     100 |     100 |                   
+  request.controller.ts      |     100 |    98.41 |     100 |     100 | 61                
+ entities                    |    90.9 |      100 |       0 |   88.13 |                   
+  DatabaseInstance.ts        |   94.11 |      100 |       0 |   91.66 | 13                
+  QueryRequest.ts            |   89.74 |      100 |       0 |    87.5 | 16,28,49,76       
+  User.ts                    |   90.47 |      100 |       0 |   86.66 | 19,31             
+ middleware                  |     100 |      100 |     100 |     100 |                   
+  auth.middleware.ts         |     100 |      100 |     100 |     100 |                   
+  errorHandler.middleware.ts |     100 |      100 |     100 |     100 |                   
+  rbac.middleware.ts         |     100 |      100 |     100 |     100 |                   
+  validation.middleware.ts   |     100 |      100 |     100 |     100 |                   
+ models                      |     100 |      100 |     100 |     100 |                   
+  DatabaseInstance.ts        |     100 |      100 |     100 |     100 |                   
+  Pod.ts                     |     100 |      100 |     100 |     100 |                   
+  QueryRequest.ts            |     100 |      100 |     100 |     100 |                   
+  User.ts                    |     100 |      100 |     100 |     100 |                   
+ services                    |     100 |      100 |     100 |     100 |                   
+  auth.service.ts            |     100 |      100 |     100 |     100 |                   
+  discovery.service.ts       |     100 |      100 |     100 |     100 |                   
+  execution.service.ts       |     100 |      100 |     100 |     100 |                   
+  mongo.executor.ts          |     100 |      100 |     100 |     100 |                   
+  postgres.executor.ts       |     100 |      100 |     100 |     100 |                   
+  script.executor.ts         |     100 |      100 |     100 |     100 |                   
+  slack.service.ts           |     100 |      100 |     100 |     100 |                   
+ utils                       |     100 |      100 |     100 |     100 |                   
+  compression.ts             |     100 |      100 |     100 |     100 |                   
+  errors.ts                  |     100 |      100 |     100 |     100 |                   
+  pagination.ts              |     100 |      100 |     100 |     100 |                   
+  responseHelper.ts          |     100 |      100 |     100 |     100 |                   
+  sanitizer.ts               |     100 |      100 |     100 |     100 |                   
+-----------------------------|---------|----------|---------|---------|-------------------
+Summary of all failing tests
+FAIL tests/unit/services/mongo.executor.test.ts
+  ● MongoExecutor › execute › should execute aggregate with empty args
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    - Expected
+    + Received
+
+      [],
+    + {"maxTimeMS": 60000},
+
+    Number of calls: 1
+
+      255 |             const result = await executor.execute('db.users.aggregate()');
+      256 |             expect(result.success).toBe(true);
+    > 257 |             expect(mockCollection.aggregate).toHaveBeenCalledWith([]);
+          |                                              ^
+      258 |         });
+      259 |
+      260 |         it('should execute countDocuments with empty args', async () => {
+
+      at Object.<anonymous> (tests/unit/services/mongo.executor.test.ts:257:46)
+
+  ● MongoExecutor › execute › should execute findOne with empty args
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    - Expected
+    + Received
+
+      {},
+    + {"maxTimeMS": 60000},
+
+    Number of calls: 1
+
+      318 |             const result = await executor.execute('db.users.findOne()');
+      319 |             expect(result.success).toBe(true);
+    > 320 |             expect(mockCollection.findOne).toHaveBeenCalledWith({});
+          |                                            ^
+      321 |         });
+      322 |
+      323 |         it('should handle non-Error exceptions', async () => {
+
+      at Object.<anonymous> (tests/unit/services/mongo.executor.test.ts:320:44)
+
+
+Test Suites: 1 failed, 29 passed, 30 total
+Tests:       2 failed, 567 passed, 569 total
+Snapshots:   0 total
+Time:        8.484 s
+Ran all test suites.

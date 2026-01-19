@@ -112,21 +112,21 @@ describe('MongoExecutor', () => {
             const result = await executor.execute('db["users"].find({})');
 
             expect(result.success).toBe(true);
-            expect(mockCollection.find).toHaveBeenCalledWith({});
+            expect(mockCollection.find).toHaveBeenCalledWith({}, { maxTimeMS: 60000 });
         });
 
         it('should execute find query (dot notation)', async () => {
             const result = await executor.execute('db.users.find({})');
 
             expect(result.success).toBe(true);
-            expect(mockCollection.find).toHaveBeenCalledWith({});
+            expect(mockCollection.find).toHaveBeenCalledWith({}, { maxTimeMS: 60000 });
         });
 
         it('should execute find query (single quote bracket)', async () => {
             const result = await executor.execute("db['users'].find({})");
 
             expect(result.success).toBe(true);
-            expect(mockCollection.find).toHaveBeenCalledWith({});
+            expect(mockCollection.find).toHaveBeenCalledWith({}, { maxTimeMS: 60000 });
         });
 
         it('should execute findOne query', async () => {
@@ -248,19 +248,19 @@ describe('MongoExecutor', () => {
         it('should execute find query with empty args', async () => {
             const result = await executor.execute('db.users.find()');
             expect(result.success).toBe(true);
-            expect(mockCollection.find).toHaveBeenCalledWith({});
+            expect(mockCollection.find).toHaveBeenCalledWith({}, { maxTimeMS: 60000 });
         });
 
         it('should execute aggregate with empty args', async () => {
             const result = await executor.execute('db.users.aggregate()');
             expect(result.success).toBe(true);
-            expect(mockCollection.aggregate).toHaveBeenCalledWith([]);
+            expect(mockCollection.aggregate).toHaveBeenCalledWith([], { maxTimeMS: 60000 });
         });
 
         it('should execute countDocuments with empty args', async () => {
             const result = await executor.execute('db.users.countDocuments()');
             expect(result.success).toBe(true);
-            expect(mockCollection.countDocuments).toHaveBeenCalledWith({});
+            expect(mockCollection.countDocuments).toHaveBeenCalledWith({}, { maxTimeMS: 60000 });
         });
 
         it('should require documents for insertMany', async () => {
@@ -317,7 +317,7 @@ describe('MongoExecutor', () => {
         it('should execute findOne with empty args', async () => {
             const result = await executor.execute('db.users.findOne()');
             expect(result.success).toBe(true);
-            expect(mockCollection.findOne).toHaveBeenCalledWith({});
+            expect(mockCollection.findOne).toHaveBeenCalledWith({}, { maxTimeMS: 60000 });
         });
 
         it('should handle non-Error exceptions', async () => {
@@ -331,41 +331,16 @@ describe('MongoExecutor', () => {
             expect(result.error).toBe('Unknown error');
         });
 
-        it('should block find query that exceeds MAX_ROWS limit', async () => {
-            // Mock countDocuments returning more than MAX_ROWS (10000)
-            mockCollection.countDocuments.mockResolvedValueOnce(50000);
+        it('should handle query timeout error', async () => {
+            mockCollection.find.mockReturnValue({
+                toArray: jest.fn().mockRejectedValue(new Error('operation exceeded time limit'))
+            });
 
             const result = await executor.execute('db.users.find({})');
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('50,000 documents');
-            expect(result.error).toContain('exceeds the maximum limit');
-            expect(mockCollection.find).not.toHaveBeenCalled(); // Should not call find after count check
-        });
-
-        it('should block aggregate query that exceeds MAX_ROWS limit', async () => {
-            // Mock aggregate returning more than MAX_ROWS documents
-            const largeResults = new Array(15000).fill({ id: 1 });
-            mockCollection.aggregate.mockReturnValue({ toArray: jest.fn().mockResolvedValue(largeResults) });
-
-            const result = await executor.execute('db.users.aggregate([{"$match": {}}])');
-
-            expect(result.success).toBe(false);
-            expect(result.error).toContain('15,000 documents');
-            expect(result.error).toContain('exceeds the maximum limit');
-        });
-
-        it('should block insertMany that exceeds MAX_ROWS batch limit', async () => {
-            // Create an array with more than MAX_ROWS documents
-            const manyDocs = new Array(12000).fill({ name: 'test' });
-            const query = `db.users.insertMany(${JSON.stringify(manyDocs)})`;
-
-            const result = await executor.execute(query);
-
-            expect(result.success).toBe(false);
-            expect(result.error).toContain('12,000 documents');
-            expect(result.error).toContain('Maximum batch size');
-            expect(mockCollection.insertMany).not.toHaveBeenCalled();
+            expect(result.error).toContain('60 second timeout');
+            expect(result.error).toContain('optimize your query');
         });
     });
 
