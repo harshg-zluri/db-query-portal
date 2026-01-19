@@ -51,8 +51,8 @@ export function OAuthCallbackPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#F3F0E6]">
             <div className="text-center">
-                <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <h2 className="text-xl font-bold">Authenticating...</h2>
+                <div className="w-16 h-16 border-4 border-[#E2E8F0] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <h2 className="text-xl font-semibold">Authenticating...</h2>
             </div>
         </div>
     );

@@ -3,6 +3,7 @@ import { UserModel } from '../models/User';
 import { PodModel } from '../models/Pod';
 import { UserRole } from '../types';
 import bcrypt from 'bcrypt';
+import { getPaginationParams } from '../utils/pagination';
 
 const SALT_ROUNDS = 12;
 
@@ -11,8 +12,7 @@ const SALT_ROUNDS = 12;
  */
 export async function getUsers(req: Request, res: Response, next: NextFunction) {
     try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 20;
+        const { page, limit } = getPaginationParams(req.query);
         const search = req.query.search as string | undefined;
 
         const { users, total } = await UserModel.findAll({ search, page, limit });

@@ -66,4 +66,41 @@ describe('ApprovalActions', () => {
         expect(screen.getByRole('button', { name: /Loading/ })).toBeDisabled();
         expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled();
     });
+
+    it('closes approve confirmation modal on cancel', () => {
+        render(<ApprovalActions {...defaultProps} hasWarnings={true} />);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Approve' }));
+        expect(screen.getByText('Confirm Approval')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+        expect(screen.queryByText('Confirm Approval')).not.toBeInTheDocument();
+    });
+
+    it('closes reject modal on cancel', () => {
+        render(<ApprovalActions {...defaultProps} />);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Reject' }));
+        expect(screen.getAllByText('Reject Request').length).toBeGreaterThan(0);
+
+        // Click cancel button (not the "Reject Request" button)
+        fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+        expect(screen.queryByPlaceholderText('Provide a reason for rejection...')).not.toBeInTheDocument();
+    });
+
+    it('rejects without reason when textarea is empty', async () => {
+        render(<ApprovalActions {...defaultProps} />);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Reject' }));
+
+        const buttons = screen.getAllByRole('button', { name: 'Reject Request' });
+        fireEvent.click(buttons[buttons.length - 1]);
+
+        expect(defaultProps.onReject).toHaveBeenCalledWith('req-123', undefined);
+    });
+
+    it('disables approve during rejecting', () => {
+        render(<ApprovalActions {...defaultProps} isRejecting={true} />);
+        expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled();
+    });
 });

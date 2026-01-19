@@ -46,12 +46,12 @@ export function authenticate(
 
         next();
     } catch (error) {
-        if (error instanceof jwt.JsonWebTokenError) {
-            next(new AuthenticationError('Invalid authentication token'));
-            return;
-        }
         if (error instanceof jwt.TokenExpiredError) {
             next(new AuthenticationError('Authentication token has expired'));
+            return;
+        }
+        if (error instanceof jwt.JsonWebTokenError) {
+            next(new AuthenticationError('Invalid authentication token'));
             return;
         }
         next(error);

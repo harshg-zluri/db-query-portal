@@ -46,7 +46,7 @@ export function ApprovalActions({
         <>
             <div className="flex items-center gap-2">
                 <Button
-                    variant="primary"
+                    variant="success"
                     size="sm"
                     onClick={handleApprove}
                     isLoading={isApproving}
@@ -73,7 +73,7 @@ export function ApprovalActions({
                 size="sm"
             >
                 <div className="space-y-4">
-                    <div className="flex items-start gap-3 p-4 bg-[#FEF3C7] border-2 border-[#F59E0B] rounded-md shadow-[2px_2px_0_#000]">
+                    <div className="flex items-start gap-3 p-4 bg-[#FEF3C7] border-2 border-[#F59E0B] rounded-md ">
                         <svg
                             className="w-6 h-6 text-[#92400E] flex-shrink-0"
                             fill="none"
@@ -88,7 +88,7 @@ export function ApprovalActions({
                             />
                         </svg>
                         <div>
-                            <p className="text-sm font-bold text-[#92400E] uppercase">Warning</p>
+                            <p className="text-sm font-semibold text-[#92400E] uppercase">Warning</p>
                             <p className="text-sm text-[#92400E] mt-1">
                                 This request has security warnings. Are you sure you want to approve it?
                             </p>
@@ -115,14 +115,14 @@ export function ApprovalActions({
             >
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-bold text-black uppercase tracking-wide mb-2">
+                        <label className="block text-sm font-semibold text-[#0F172A]  mb-2">
                             Rejection Reason (optional)
                         </label>
                         <textarea
                             value={rejectReason}
                             onChange={(e) => setRejectReason(e.target.value)}
                             placeholder="Provide a reason for rejection..."
-                            className="w-full px-3 py-2.5 bg-white border-2 border-black rounded-md text-black placeholder-[#6B6B6B] focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1 resize-none h-24 hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000] transition-all duration-150"
+                            className="w-full px-3 py-2.5 bg-white border border-[#E2E8F0] rounded-md text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:ring-offset-1 resize-none h-24 hover: focus: transition-all duration-150"
                         />
                     </div>
 

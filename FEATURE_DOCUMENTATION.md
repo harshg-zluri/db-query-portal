@@ -12,7 +12,7 @@ The **DB Query Portal** is a secure, role-based web application that allows deve
 2. [User Roles & Permissions](#user-roles--permissions)
 3. [Core Features](#core-features)
 4. [User Flows](#user-flows)
-5. [API Reference](#api-reference)
+5. [API Specification](#api-specification)
 6. [Data Models](#data-models)
 7. [Security Measures](#security-measures)
 8. [Edge Cases & Error Handling](#edge-cases--error-handling)
@@ -46,7 +46,7 @@ The **DB Query Portal** is a secure, role-based web application that allows deve
 │  │  Auth Service   │ Queue Svc   │     Execution Service        │   │
 │  │  (JWT, OAuth)   │ (pg-boss)   │  (PostgreSQL, MongoDB, JS)   │   │
 │  └─────────────────┴──────┬──────┴──────────────────────────────┘   │
-│                           │                                          │
+                           │                                          │
 │  ┌────────────────────────▼─────────────────────────────────────┐   │
 │  │              WORKER SERVICE (Background Jobs)                 │   │
 │  │  Processes approved queries with database-level locking       │   │
@@ -61,528 +61,274 @@ The **DB Query Portal** is a secure, role-based web application that allows deve
     └─────────────┘     └─────────────┘     └─────────────┘
 ```
 
-### Backend Components
-
-| Component | File | Responsibility |
-|-----------|------|----------------|
-| **Auth Service** | `services/auth.service.ts` | JWT generation, password hashing, Google OAuth |
-| **Execution Service** | `services/execution.service.ts` | Orchestrates query/script execution |
-| **Queue Service** | `services/queue.service.ts` | Job queuing with pg-boss |
-| **Worker Service** | `services/worker.service.ts` | Background job processing |
-| **Slack Service** | `services/slack.service.ts` | Notifications for requests, approvals, rejections |
-| **PostgreSQL Executor** | `services/postgres.executor.ts` | Executes SQL queries |
-| **MongoDB Executor** | `services/mongo.executor.ts` | Executes MongoDB commands |
-| **Script Executor** | `services/script.executor.ts` | Sandboxed JavaScript execution |
-
-### Frontend Components
-
-| Component | Path | Responsibility |
-|-----------|------|----------------|
-| **Dashboard** | `/dashboard` | Submit new queries/scripts |
-| **Submissions** | `/submissions` | View user's own requests |
-| **Approvals** | `/approvals` | Manager view for pending requests |
-| **Admin** | `/admin` | Admin management panel |
-
 ---
 
 ## User Roles & Permissions
 
 ### Role Hierarchy
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                          ADMIN                                   │
-│  • All manager permissions                                       │
-│  • Manage users, PODs, database instances                        │
-│  • System configuration                                          │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-┌───────────────────────────────▼─────────────────────────────────┐
-│                         MANAGER                                  │
-│  • All developer permissions                                     │
-│  • Approve/reject requests for managed PODs                      │
-│  • View pending requests for their PODs                          │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-┌───────────────────────────────▼─────────────────────────────────┐
-│                        DEVELOPER                                 │
-│  • Submit queries and scripts                                    │
-│  • View own submissions                                          │
-│  • Withdraw pending requests                                     │
-│  • Clone & resubmit rejected/failed requests                     │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Permission Matrix
-
-| Action | Developer | Manager | Admin |
-|--------|:---------:|:-------:|:-----:|
-| Submit query/script | ✅ | ✅ | ✅ |
-| View own submissions | ✅ | ✅ | ✅ |
-| Withdraw own requests | ✅ | ✅ | ✅ |
-| View pending approvals | ❌ | ✅ (Own PODs) | ✅ (All) |
-| Approve/Reject requests | ❌ | ✅ (Own PODs) | ✅ (All) |
-| Manage users | ❌ | ❌ | ✅ |
-| Manage PODs | ❌ | ❌ | ✅ |
-| Manage database instances | ❌ | ❌ | ✅ |
+- **Admin**: All permissions. Manage users, PODs, database instances.
+- **Manager**: Approve/reject requests for their PODs. View pending requests.
+- **Developer**: Submit queries/scripts. View own submissions. Withdraw pending requests.
 
 ---
 
 ## Core Features
 
-### 1. Query Submission
-
-Developers can submit SQL (PostgreSQL) or MongoDB queries for execution.
-
-**Supported Operations:**
-- **PostgreSQL**: SELECT, INSERT, UPDATE, DELETE, and most DDL operations
-- **MongoDB**: find, findOne, aggregate, insertOne, insertMany, updateOne, updateMany, deleteOne, deleteMany, countDocuments
-
-### 2. Script Submission
-
-Developers can upload JavaScript files that interact with databases.
-
-**Script Environment:**
-- Node.js sandboxed execution
-- Environment variables injected: `POSTGRES_URL`, `MONGODB_URL`, `DB_NAME`, `DB_TYPE`
-- Timeout: 30 seconds (configurable)
-- Memory limit: 128MB (configurable)
-
-**Blocked APIs:**
-- `child_process`, `eval()`, `Function()`, `process.exit()`, direct `fs` module
-
-### 3. Approval Workflow
-
-Managers approve or reject requests for their PODs.
-
-**On Approval:**
-1. Request status → `approved`
-2. Job enqueued to execution queue
-3. Worker executes query/script
-4. Status updated to `executed` or `failed`
-5. Slack notification sent with results
-
-**On Rejection:**
-1. Request status → `rejected`
-2. Reason stored
-3. Slack notification sent to requester
-
-### 4. Notifications
-
-Slack notifications are sent for:
-- New request submitted (to approval channel)
-- Request approved + execution result (DM to requester + channel)
-- Request rejected (DM to requester with reason)
-- Execution failure (DM to requester with error)
+1. **Query Submission**: Execute SQL/MongoDB queries managed by approvals.
+2. **Script Submission**: Execute sandboxed Node.js scripts.
+3. **Approval Workflow**: Managers review and approve/reject.
+4. **Notifications**: Slack integration for real-time updates.
 
 ---
 
-## User Flows
+## API Specification
 
-### Flow 1: Happy Path - Query Submission & Approval
-
-```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│  Developer  │    │   Backend   │    │   Manager   │    │   Worker    │
-└──────┬──────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘
-       │                  │                  │                  │
-       │ 1. Submit Query  │                  │                  │
-       │─────────────────>│                  │                  │
-       │                  │                  │                  │
-       │  2. Validate &   │                  │                  │
-       │     Save Request │                  │                  │
-       │<─────────────────│                  │                  │
-       │  (status:pending)│                  │                  │
-       │                  │                  │                  │
-       │                  │ 3. Slack Notif   │                  │
-       │                  │─────────────────>│                  │
-       │                  │                  │                  │
-       │                  │ 4. Approve       │                  │
-       │                  │<─────────────────│                  │
-       │                  │                  │                  │
-       │                  │ 5. Enqueue Job   │                  │
-       │                  │─────────────────────────────────────>│
-       │                  │                  │                  │
-       │                  │                  │  6. Execute Query│
-       │                  │                  │                  │
-       │                  │                  │  7. Update Status│
-       │                  │<─────────────────────────────────────│
-       │                  │                  │                  │
-       │ 8. Slack Result  │                  │                  │
-       │<─────────────────│                  │                  │
-       │                  │                  │                  │
-```
-
-### Flow 2: Rejection Flow
-
-```
-Developer                    Backend                     Manager
-    │                          │                          │
-    │ 1. Submit Query          │                          │
-    │─────────────────────────>│                          │
-    │                          │                          │
-    │ 2. Request Created       │                          │
-    │<─────────────────────────│                          │
-    │                          │                          │
-    │                          │ 3. Manager Reviews       │
-    │                          │<─────────────────────────│
-    │                          │                          │
-    │                          │ 4. Reject with Reason    │
-    │                          │<─────────────────────────│
-    │                          │                          │
-    │ 5. Slack DM (Rejection)  │                          │
-    │<─────────────────────────│                          │
-    │                          │                          │
-    │ 6. Clone & Resubmit      │                          │
-    │─────────────────────────>│                          │
-    │                          │                          │
-```
-
-### Flow 3: Script Execution
-
-```
-┌────────────────────────────────────────────────────────────────┐
-│                    SCRIPT EXECUTION FLOW                        │
-├────────────────────────────────────────────────────────────────┤
-│  1. Script uploaded & content stored in database                │
-│  2. Manager approves                                            │
-│  3. Worker picks up job                                         │
-│  4. Script validation (check for dangerous patterns)            │
-│  5. Create temp directory with script file                      │
-│  6. Spawn Node.js child process with:                           │
-│     - Sandboxed environment variables                           │
-│     - Memory limits (--max-old-space-size)                      │
-│     - Timeout enforcement                                       │
-│  7. Capture stdout/stderr                                       │
-│  8. Cleanup temp files                                          │
-│  9. Return execution result                                     │
-└────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## API Reference
+**Base URL**: `http://localhost:3000`
+**Version**: `1.0.0`
+**Auth**: Bearer JWT Token
 
 ### Authentication
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/login` | Email/password login |
-| POST | `/api/auth/logout` | Logout (client-side token discard) |
-| POST | `/api/auth/refresh` | Refresh access token |
-| GET | `/api/auth/me` | Get current user profile |
-| GET | `/api/auth/google` | Initiate Google OAuth |
-| GET | `/api/auth/google/callback` | Google OAuth callback |
+#### POST /api/auth/login
+Login user and receive tokens.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `email` | string (email) | Yes | User email |
+| `password` | string (min 8) | Yes | User password |
+
+**Response (200)**: Login successful
+
+#### POST /api/auth/refresh
+Refresh access token.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `refreshToken` | string | Yes | Valid refresh token |
+
+**Response (200)**: Token refreshed
+
+#### POST /api/auth/logout
+Logout user.
+
+**Response (200)**: Logged out
+
+#### GET /api/auth/me
+Get current user profile.
+
+**Response (200)**: User profile
+
+---
 
 ### Requests
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/requests` | Submit new request | All |
-| GET | `/api/requests/my` | Get user's submissions | All |
-| GET | `/api/requests/:id` | Get request details | All |
-| DELETE | `/api/requests/:id` | Withdraw pending request | Owner |
+#### GET /api/requests
+List all requests (Manager/Admin).
+
+| Parameter | In | Type | Description |
+|-----------|----|------|-------------|
+| `page` | query | integer | Page number (default: 1) |
+| `limit` | query | integer | Items per page (default: 20) |
+| `status` | query | string | Filter by status |
+| `podId` | query | string | Filter by POD ID |
+| `search` | query | string | Search term |
+
+#### POST /api/requests
+Submit a new request.
+**Content-Type**: `multipart/form-data`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `databaseType` | string | Yes | `postgresql` or `mongodb` |
+| `instanceId` | uuid | Yes | Target DB Instance ID |
+| `databaseName` | string | Yes | Target Database Name |
+| `submissionType` | string | Yes | `query` or `script` |
+| `query` | string | No | SQL/Mongo Query (if type=query) |
+| `script` | file | No | JS Script file (if type=script) |
+| `comments` | string | Yes | Purpose of request |
+| `podId` | uuid | Yes | POD ID to approve this |
+
+#### GET /api/requests/my
+Get current user's submissions.
+
+| Parameter | In | Type | Description |
+|-----------|----|------|-------------|
+| `page` | query | integer | Page number |
+| `limit` | query | integer | Items per page |
+| `status` | query | string | Filter by status |
+
+#### GET /api/requests/{id}
+Get request details.
+
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `id` | path | uuid | Yes | Request ID |
+
+#### POST /api/requests/{id}/withdraw
+Withdraw a pending request.
+
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `id` | path | uuid | Yes | Request ID |
+
+#### GET /api/requests/{id}/download-result
+Download execution result.
+
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `id` | path | uuid | Yes | Request ID |
+
+#### GET /api/requests/pending
+Get pending requests (Manager).
+
+---
 
 ### Approvals
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/requests/pending` | Get pending requests | Manager+ |
-| POST | `/api/requests/:id/approve` | Approve request | Manager+ |
-| POST | `/api/requests/:id/reject` | Reject request | Manager+ |
+#### POST /api/requests/{id}/approve
+Approve request (Manager).
 
-### Databases
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `id` | path | uuid | Yes | Request ID |
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/databases` | List database instances | All |
-| GET | `/api/databases/:id` | Get instance details | All |
+#### POST /api/requests/{id}/reject
+Reject request (Manager).
 
-### PODs
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `id` | path | uuid | Yes | Request ID |
+| `reason` | body | string | No | Rejection reason |
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/pods` | List all PODs | All |
-| GET | `/api/pods/:id` | Get POD details | All |
+---
+
+### Databases & PODs
+
+#### GET /api/databases/types
+Get supported database types.
+
+#### GET /api/databases/instances
+Get configured database instances.
+
+#### GET /api/databases/{instanceId}/databases
+Get databases in an instance.
+
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `instanceId` | path | uuid | Yes | Instance ID |
+
+#### GET /api/pods
+Get all PODs.
+
+#### GET /api/pods/{id}
+Get POD details.
+
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `id` | path | uuid | Yes | POD ID |
+
+---
 
 ### Admin
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/admin/users` | List users | Admin |
-| POST | `/api/admin/users` | Create user | Admin |
-| PATCH | `/api/admin/users/:id` | Update user | Admin |
-| GET | `/api/admin/stats` | Get system statistics | Admin |
+#### GET /api/admin/users
+List all users.
+
+| Parameter | In | Type | Description |
+|-----------|----|------|-------------|
+| `page` | query | integer | Page number |
+| `limit` | query | integer | Items per page |
+| `search` | query | string | Search term |
+
+#### POST /api/admin/users
+Create new user.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | email | Yes | User email |
+| `password` | string | Yes | Min 8 chars |
+| `name` | string | Yes | Full name |
+| `role` | string | Yes | `developer`, `manager`, `admin` |
+| `managedPodIds` | array | No | List of POD UUIDs |
+
+#### GET /api/admin/users/{id}
+Get user details.
+
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `id` | path | uuid | Yes | User ID |
+
+#### PUT /api/admin/users/{id}
+Update user.
+
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `id` | path | uuid | Yes | User ID |
+
+**Body**: JSON object with optional `name`, `role`, `managedPodIds`, `password`.
+
+#### DELETE /api/admin/users/{id}
+Delete user.
+
+| Parameter | In | Type | Required | Description |
+|-----------|----|------|----------|-------------|
+| `id` | path | uuid | Yes | User ID |
+
+#### GET /api/admin/pods
+Get all pods for assignment.
 
 ---
 
 ## Data Models
 
 ### User
-
-```typescript
-interface User {
-    id: string;
-    email: string;
-    password: string;  // bcrypt hashed
-    name: string;
-    role: 'developer' | 'manager' | 'admin';
-    managedPodIds: string[];
-    googleId?: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
-```
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | uuid | Unique identifier |
+| `email` | string | User email |
+| `role` | enum | `developer`, `manager`, `admin` |
+| `managedPodIds` | uuid[] | List of managed PODs |
 
 ### QueryRequest
-
-```typescript
-interface QueryRequest {
-    id: string;
-    userId: string;
-    userEmail: string;
-    databaseType: 'postgresql' | 'mongodb';
-    instanceId: string;
-    instanceName: string;
-    databaseName: string;
-    submissionType: 'query' | 'script';
-    query?: string;
-    scriptFileName?: string;
-    scriptContent?: string;
-    comments: string;
-    podId: string;
-    podName: string;
-    status: 'pending' | 'approved' | 'rejected' | 'executed' | 'failed' | 'withdrawn';
-    approverEmail?: string;
-    rejectionReason?: string;
-    executionResult?: string;
-    executionError?: string;
-    warnings?: string[];
-    createdAt: Date;
-    updatedAt: Date;
-    executedAt?: Date;
-}
-```
-
-### Request Status Lifecycle
-
-```
-┌─────────┐
-│ PENDING │─────┬─────────────────────────────────────┐
-└────┬────┘     │                                     │
-     │          │ Withdrawn                           │ Rejected
-     │          ▼                                     ▼
-     │    ┌───────────┐                        ┌───────────┐
-     │    │ WITHDRAWN │                        │ REJECTED  │
-     │    └───────────┘                        └───────────┘
-     │
-     │ Approved
-     ▼
-┌──────────┐
-│ APPROVED │
-└────┬─────┘
-     │
-     │ Execution
-     ▼
-┌─────────────────┐
-│  EXECUTED or    │
-│    FAILED       │
-└─────────────────┘
-```
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | uuid | Unique identifier |
+| `databaseType` | enum | `postgresql` or `mongodb` |
+| `status` | enum | `pending`, `approved`, `rejected`... |
+| `submissionType` | enum | `query` or `script` |
 
 ---
 
 ## Security Measures
 
-### Authentication
-
-- **JWT Tokens**: Access tokens (1h) + Refresh tokens (7d)
-- **Password Hashing**: bcrypt with 12 salt rounds
-- **Google OAuth**: Supported for SSO
-
-### Authorization
-
-- **RBAC Middleware**: Role-based access control on all routes
-- **POD-based Access**: Managers can only approve requests for their PODs
-
-### Input Validation
-
-- **Zod Schemas**: All input validated with Zod
-- **SQL Injection Prevention**: Parameterized queries
-- **NoSQL Injection Prevention**: Input sanitization for MongoDB
-
-### Rate Limiting
-
-- **General**: 1000 requests/15 minutes
-- **Auth**: 100 requests/15 minutes (stricter for login)
-
-### Script Execution Sandbox
-
-- **Blocked APIs**: child_process, eval, Function constructor, process.exit, direct fs
-- **Resource Limits**: Memory (128MB), Timeout (30s)
-- **Isolated Environment**: Only database connection env vars passed
-
-### Audit Logging
-
-- All authentication events logged
-- All request submissions logged
-- All approvals/rejections logged with actor
-
----
-
-## Edge Cases & Error Handling
-
-### Edge Case 1: Manager Not Found for POD
-
-**Scenario**: A request is submitted for a POD with no assigned manager.
-
-**Handling**: The request remains in `pending` status. Admin can assign a manager to the POD.
-
-### Edge Case 2: Database Connection Failure
-
-**Scenario**: Query execution fails due to database connection issue.
-
-**Handling**:
-- Request status → `failed`
-- Error message stored in `executionError`
-- Slack notification sent with error details
-- User can clone & resubmit after issue resolved
-
-### Edge Case 3: Script Timeout
-
-**Scenario**: JavaScript script exceeds 30-second timeout.
-
-**Handling**:
-- Child process killed with SIGTERM
-- Request status → `failed`
-- Error: "Script execution timed out after 30000ms"
-
-### Edge Case 4: Duplicate Execution Prevention
-
-**Scenario**: Same query approved twice before first execution completes.
-
-**Handling**: Queue service uses `singletonKey` (database-level) to ensure ordered execution. Second job waits for first to complete.
-
-### Edge Case 5: Token Refresh Race Condition
-
-**Scenario**: Multiple tabs refresh token simultaneously.
-
-**Handling**: Each refresh generates new tokens. Last refresh wins. Other tabs will fail and redirect to login.
-
-### Edge Case 6: User Logged Out on Another Device
-
-**Scenario**: User logs out on one device while still active on another.
-
-**Handling**: Client-side logout clears tokens. Other device remains active until token expires or is refreshed.
+- **Authentication**: JWT (Access 1h, Refresh 7d), Google OAuth.
+- **Authorization**: Strict RBAC.
+- **Sandboxing**: Node.js `vm2` (or similar) for script execution with restricted access.
+- **Input Validation**: Zod schemas for all inputs.
 
 ---
 
 ## Configuration
 
-### Environment Variables
+Environment variables example:
 
 ```bash
-# Server
 PORT=3000
-NODE_ENV=development
-
-# JWT
-JWT_SECRET=your-secret-key
-JWT_EXPIRES_IN=1h
-JWT_REFRESH_EXPIRES_IN=7d
-
-# Portal Database
-DATABASE_URL=postgresql://user:pass@host:5432/db_query_portal
-
-# Target Databases (for execution)
-TARGET_POSTGRES_URL=postgresql://user:pass@host:5432/target_db
-TARGET_MONGODB_URL=mongodb://user:pass@host:27017
-
-# Script Execution
-SCRIPT_TIMEOUT_MS=30000
-SCRIPT_MAX_MEMORY_MB=128
-
-# Rate Limiting
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=1000
-AUTH_RATE_LIMIT_MAX=100
-
-# Google OAuth
-GOOGLE_CLIENT_ID=your-client-id
-GOOGLE_CLIENT_SECRET=your-client-secret
-GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
-FRONTEND_URL=http://localhost:5173
-
-# Slack
-SLACK_BOT_TOKEN=xoxb-your-token
-SLACK_APPROVAL_CHANNEL=C12345678
-
-# Queue
-QUEUE_NAME=query_execution
-WORKER_CONCURRENCY=4
-MAX_JOB_RETRIES=3
+DATABASE_URL=postgresql://...
+JWT_SECRET=supersecret
 ```
 
 ---
 
-## Frontend State Management
+## User Flows
 
-### Auth Store (Zustand)
+### Happy Path - Query Submission
 
-```typescript
-interface AuthState {
-    user: User | null;
-    token: string | null;
-    refreshToken: string | null;
-    isAuthenticated: boolean;
-    login: (data: LoginResponse) => void;
-    logout: () => void;
-}
-```
-
-### React Query Keys
-
-| Key | Description |
-|-----|-------------|
-| `['submissions']` | User's submitted requests |
-| `['pending-requests']` | Pending requests for approval |
-| `['databases']` | Available database instances |
-| `['pods']` | Available PODs |
+1. **Developer** submits query.
+2. **Backend** validates & stores request (status: pending).
+3. **Manager** receives notification & approves.
+4. **Worker** executes query against target DB.
+5. **System** notifies Developer of result.
 
 ---
-
-## Testing
-
-### Backend Test Coverage
-
-- **Unit Tests**: All services, controllers, middleware
-- **Integration Tests**: API endpoints with database
-- **Security Tests**: Auth, RBAC, input validation
-
-### Running Tests
-
-```bash
-# Backend
-cd backend
-npm test                    # Run all tests
-npm run test:coverage       # Run with coverage report
-
-# Frontend
-cd frontend
-npm test                    # Run Vitest tests
-```
-
----
-
-## Deployment Considerations
-
-1. **Database Migrations**: Run Prisma/TypeORM migrations before deployment
-2. **Environment Variables**: Ensure all required env vars are set
-3. **Slack Setup**: Create Slack app and configure bot token
-4. **Google OAuth**: Configure OAuth consent screen and credentials
-5. **Target Databases**: Ensure network connectivity to target DBs
-6. **Worker Scaling**: Adjust `WORKER_CONCURRENCY` based on load
-
----
-
-*Last Updated: January 2026*

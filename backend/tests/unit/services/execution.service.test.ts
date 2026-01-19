@@ -52,6 +52,13 @@ jest.mock('../../../src/utils/logger', () => ({
     }
 }));
 
+jest.mock('../../../src/utils/compression', () => ({
+    shouldCompress: jest.fn(),
+    compressResult: jest.fn(),
+    getByteSize: jest.fn(),
+    formatBytes: jest.fn()
+}));
+
 // Set env variables for tests
 process.env.TARGET_POSTGRES_URL = 'postgresql://localhost:5432/test';
 process.env.TARGET_MONGODB_URL = 'mongodb://localhost:27017/test';
@@ -61,6 +68,7 @@ import { DatabaseInstanceModel } from '../../../src/models/DatabaseInstance';
 import { QueryRequestModel } from '../../../src/models/QueryRequest';
 import { PostgresExecutor } from '../../../src/services/postgres.executor';
 import { createMongoExecutor } from '../../../src/services/mongo.executor';
+import { shouldCompress, compressResult, getByteSize, formatBytes } from '../../../src/utils/compression';
 
 describe('ExecutionService', () => {
     let originalEnv: NodeJS.ProcessEnv;
@@ -112,6 +120,25 @@ describe('ExecutionService', () => {
 
             expect(result.success).toBe(true);
             expect(QueryRequestModel.setExecutionResult).toHaveBeenCalled();
+        });
+
+        it('should compress large results', async () => {
+            const request = createMockRequest();
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockDatabaseInstance);
+
+            // Mock compression utils
+            (shouldCompress as jest.Mock).mockReturnValue(true);
+            (compressResult as jest.Mock).mockResolvedValue('compressed_output');
+            (getByteSize as jest.Mock).mockReturnValue(1000);
+            (formatBytes as jest.Mock).mockReturnValue('1KB');
+
+            const result = await ExecutionService.executeRequest(request);
+
+            expect(result.success).toBe(true);
+            expect(result.output).toBe('compressed_output');
+            expect(result.isCompressed).toBe(true);
+            expect(result.originalSize).toBe(1000);
+            expect(compressResult).toHaveBeenCalled();
         });
 
         it('should execute script request successfully', async () => {

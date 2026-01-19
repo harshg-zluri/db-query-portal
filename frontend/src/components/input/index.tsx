@@ -1,4 +1,4 @@
-import { type InputHTMLAttributes, forwardRef } from 'react';
+import { forwardRef, type InputHTMLAttributes, useId } from 'react';
 import { cn } from '@utils/cn';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -8,39 +8,39 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ className, label, error, hint, id, ...props }, ref) => {
-        const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+    ({ className, label, error, hint, type = 'text', required, id, ...props }, ref) => {
+        const generatedId = useId();
+        const inputId = id || generatedId;
 
         return (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 {label && (
-                    <label
-                        htmlFor={inputId}
-                        className="block text-sm font-semibold text-black uppercase tracking-wide"
-                    >
+                    <label htmlFor={inputId} className="block text-sm font-medium text-zinc-700">
                         {label}
-                        {props.required && <span className="text-[#ef4444] ml-1">*</span>}
+                        {required && <span className="text-[#EF4444] ml-0.5">*</span>}
                     </label>
                 )}
                 <input
                     ref={ref}
                     id={inputId}
+                    type={type}
                     className={cn(
-                        'w-full px-3 py-2.5 bg-white border-2 rounded-md text-black placeholder-[#6B6B6B]',
-                        'focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1',
-                        'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[#FAF9F6]',
-                        'transition-all duration-150',
-                        'hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000]',
-                        error ? 'border-[#ef4444]' : 'border-black',
+                        'w-full px-3 py-2 bg-white text-zinc-900',
+                        'border border-zinc-200 rounded-md',
+                        'placeholder:text-zinc-400',
+                        'focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1',
+                        'disabled:bg-zinc-50 disabled:text-zinc-500',
+                        'transition-shadow duration-150',
+                        error && 'border-[#EF4444] focus:ring-[#EF4444]',
                         className
                     )}
                     {...props}
                 />
-                {error && (
-                    <p className="text-sm text-[#ef4444] font-medium">{error}</p>
-                )}
                 {hint && !error && (
-                    <p className="text-sm text-[#6B6B6B]">{hint}</p>
+                    <p className="text-sm text-zinc-500 mt-0.5">{hint}</p>
+                )}
+                {error && (
+                    <p className="text-sm text-red-600">{error}</p>
                 )}
             </div>
         );

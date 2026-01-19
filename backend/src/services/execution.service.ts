@@ -6,6 +6,8 @@ import { DatabaseInstanceModel } from '../models/DatabaseInstance';
 import { QueryRequestModel } from '../models/QueryRequest';
 import { logger } from '../utils/logger';
 import { ValidationError, NotFoundError } from '../utils/errors';
+import { config } from '../config/environment';
+import { compressResult, shouldCompress, getByteSize, formatBytes } from '../utils/compression';
 
 // Store active database connections
 const postgresConnections: Map<string, PostgresExecutor> = new Map();
@@ -35,12 +37,37 @@ export class ExecutionService {
                 result = await this.executeQuery(request);
             }
 
+            // Handle large results - compress if needed
+            if (result.success && result.output) {
+                const originalSize = getByteSize(result.output);
+                result.originalSize = originalSize;
+
+                if (shouldCompress(result.output, config.resultStorage.compressionThreshold)) {
+                    logger.info('Compressing large result', {
+                        requestId: request.id,
+                        originalSize,
+                        formattedSize: formatBytes(originalSize)
+                    });
+
+                    const compressed = await compressResult(result.output);
+                    result.output = compressed;
+                    result.isCompressed = true;
+
+                    logger.info('Result compressed', {
+                        requestId: request.id,
+                        compressedSize: getByteSize(compressed),
+                        ratio: (getByteSize(compressed) / originalSize * 100).toFixed(1) + '%'
+                    });
+                }
+            }
+
             // Update request with result
             await QueryRequestModel.setExecutionResult(
                 request.id,
                 result.success,
                 result.output,
-                result.error
+                result.error,
+                result.isCompressed
             );
 
             return result;

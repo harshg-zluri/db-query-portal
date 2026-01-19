@@ -61,14 +61,12 @@ describe('CodeViewer', () => {
 
     it('renders empty lines with placeholder', () => {
         const { container } = render(<CodeViewer code={'\n'} />);
-        // Should contain non-breaking space or similar for empty line
-        // We look for logic that handles empty line
-        // CodeViewer implementation: {line || ' '}
-        const rows = container.querySelectorAll('tr');
-        expect(rows.length).toBe(2);
-        expect(rows[0].textContent).toContain('1'); // Line number
-        // Check availability of space
-        expect(container.innerHTML).toContain(' ');
+        // Component uses div elements for line numbers (flexbox layout)
+        // A single newline creates 2 line numbers (empty line at index 0, newline at index 1)
+        const lineNumberDivs = container.querySelectorAll('.leading-6');
+        expect(lineNumberDivs.length).toBe(2);
+        expect(lineNumberDivs[0].textContent).toBe('1');
+        expect(lineNumberDivs[1].textContent).toBe('2');
     });
 
     it('handles multiple lines', () => {

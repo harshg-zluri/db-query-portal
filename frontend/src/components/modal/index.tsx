@@ -49,7 +49,7 @@ export function Modal({
         <div className="fixed inset-0 z-50 overflow-y-auto">
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/40 transition-opacity animate-fade-in"
+                className="fixed inset-0 bg-zinc-900/50 transition-opacity"
                 onClick={onClose}
             />
 
@@ -58,30 +58,22 @@ export function Modal({
                 <div
                     ref={modalRef}
                     className={cn(
-                        'relative w-full bg-white border-3 border-black rounded-md',
-                        'shadow-[6px_6px_0_#000]',
-                        'animate-scale-in',
+                        'relative w-full bg-white rounded-lg shadow-lg',
+                        'animate-fade-in',
                         sizes[size]
                     )}
-                    style={{ borderWidth: '3px' }}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
                     {(title || showCloseButton) && (
-                        <div className="flex items-center justify-between px-6 py-4 border-b-2 border-black">
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200">
                             {title && (
-                                <h2 className="text-lg font-bold text-black uppercase tracking-wide">{title}</h2>
+                                <h2 className="text-base font-semibold text-zinc-900">{title}</h2>
                             )}
                             {showCloseButton && (
                                 <button
                                     onClick={onClose}
-                                    className={cn(
-                                        'p-2 text-black border-2 border-black rounded-md',
-                                        'shadow-[2px_2px_0_#000] hover:shadow-none',
-                                        'hover:translate-x-[2px] hover:translate-y-[2px]',
-                                        'hover:bg-[#FAF9F6]',
-                                        'transition-all duration-150'
-                                    )}
+                                    className="p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"
                                 >
                                     <svg
                                         className="w-4 h-4"
@@ -102,7 +94,7 @@ export function Modal({
                     )}
 
                     {/* Content */}
-                    <div className="px-6 py-4">{children}</div>
+                    <div className="px-5 py-4">{children}</div>
                 </div>
             </div>
         </div>
@@ -111,7 +103,7 @@ export function Modal({
 
 export function ModalFooter({ children, className }: { children: ReactNode; className?: string }) {
     return (
-        <div className={cn('flex justify-end gap-3 pt-4 mt-4 border-t-2 border-black', className)}>
+        <div className={cn('flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200', className)}>
             {children}
         </div>
     );

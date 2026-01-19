@@ -29,7 +29,7 @@ describe('Input', () => {
         render(<Input error="Invalid email" />);
         expect(screen.getByText('Invalid email')).toBeInTheDocument();
         const input = screen.getByRole('textbox');
-        expect(input).toHaveClass('border-[#ef4444]');
+        expect(input).toHaveClass('border-[#EF4444]');
     });
 
     it('displays hint', () => {

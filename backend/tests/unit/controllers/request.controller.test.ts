@@ -24,6 +24,11 @@ jest.mock('../../../src/config/environment', () => ({
     }
 }));
 
+jest.mock('../../../src/utils/compression', () => ({
+    decompressResult: jest.fn()
+}));
+import { decompressResult } from '../../../src/utils/compression';
+
 // Mock response helpers via implementation
 jest.mock('../../../src/utils/responseHelper', () => ({
     sendSuccess: jest.fn((res, data) => res.status(200).json({ success: true, data })),
@@ -56,7 +61,9 @@ describe('RequestController', () => {
 
         res = {
             status: jest.fn().mockReturnThis(),
-            json: jest.fn()
+            json: jest.fn(),
+            send: jest.fn(),
+            setHeader: jest.fn()
         };
 
         next = jest.fn();
@@ -151,6 +158,21 @@ describe('RequestController', () => {
 
             expect(res.status).toHaveBeenCalledWith(429);
             expect(QueryRequestModel.create).not.toHaveBeenCalled();
+        });
+
+        it('should throw ValidationError for invalid script file extension', async () => {
+            req.body = { ...validBody, submissionType: SubmissionType.SCRIPT };
+            (req as any).file = { originalname: 'test.txt', buffer: Buffer.from('console.log') };
+
+            (DatabaseInstanceModel.findById as jest.Mock).mockResolvedValue(mockInstance);
+            (PodModel.findById as jest.Mock).mockResolvedValue(mockPod);
+            (QueryRequestModel.countPendingByUser as jest.Mock).mockResolvedValue(0);
+
+            await RequestController.create(req as Request, res as Response, next);
+
+            expect(next).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.stringContaining('Invalid file type')
+            }));
         });
 
         it('should handle script upload', async () => {
@@ -481,7 +503,7 @@ describe('RequestController', () => {
 
             expect(QueryRequestModel.findWithFilters).toHaveBeenCalledWith(
                 expect.objectContaining({ allowedPodIds: ['pod-1'] }),
-                undefined, undefined
+                1, 20
             );
         });
 
@@ -491,6 +513,100 @@ describe('RequestController', () => {
             (QueryRequestModel.findWithFilters as jest.Mock).mockRejectedValue(error);
 
             await RequestController.list(req as Request, res as Response, next);
+
+            expect(next).toHaveBeenCalledWith(error);
+        });
+    });
+
+    describe('downloadResult', () => {
+        const mockRequestWithResult = {
+            id: 'req-1',
+            userId: 'user-1',
+            podId: 'pod-1',
+            executionResult: JSON.stringify([{ id: 1 }]),
+            isCompressed: false
+        };
+
+        it('should allow owner to download', async () => {
+            req.params = { id: 'req-1' };
+            req.user = { ...mockUser, userId: 'user-1' };
+            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockRequestWithResult);
+
+            await RequestController.downloadResult(req as Request, res as Response, next);
+
+            expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/json');
+            expect(res.send).toHaveBeenCalledWith(mockRequestWithResult.executionResult);
+        });
+
+        it('should allow manager of pod to download', async () => {
+            req.params = { id: 'req-1' };
+            req.user = { ...mockUser, userId: 'mgr-1', role: UserRole.MANAGER, managedPodIds: ['pod-1'] };
+            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockRequestWithResult);
+
+            await RequestController.downloadResult(req as Request, res as Response, next);
+
+            expect(res.send).toHaveBeenCalled();
+        });
+
+        it('should allow admin to download', async () => {
+            req.params = { id: 'req-1' };
+            req.user = { ...mockUser, userId: 'admin-1', role: UserRole.ADMIN };
+            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockRequestWithResult);
+
+            await RequestController.downloadResult(req as Request, res as Response, next);
+
+            expect(res.send).toHaveBeenCalled();
+        });
+
+        it('should forbid unauthorized users', async () => {
+            req.params = { id: 'req-1' };
+            req.user = { ...mockUser, userId: 'other-user', role: UserRole.DEVELOPER };
+            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(mockRequestWithResult);
+
+            await RequestController.downloadResult(req as Request, res as Response, next);
+
+            expect(next).toHaveBeenCalledWith(expect.any(ForbiddenError));
+        });
+
+        it('should throw NotFoundError if request missing', async () => {
+            req.params = { id: 'req-1' };
+            (QueryRequestModel.findById as jest.Mock).mockResolvedValue(null);
+
+            await RequestController.downloadResult(req as Request, res as Response, next);
+
+            expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
+        });
+
+        it('should throw NotFoundError if result missing', async () => {
+            req.params = { id: 'req-1' };
+            (QueryRequestModel.findById as jest.Mock).mockResolvedValue({ ...mockRequestWithResult, executionResult: null });
+
+            await RequestController.downloadResult(req as Request, res as Response, next);
+
+            expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
+        });
+
+        it('should decompress if isCompressed is true', async () => {
+            req.params = { id: 'req-1' };
+            (QueryRequestModel.findById as jest.Mock).mockResolvedValue({
+                ...mockRequestWithResult,
+                executionResult: 'compressed_data',
+                isCompressed: true
+            });
+            (decompressResult as jest.Mock).mockResolvedValue(JSON.stringify([{ id: 1 }]));
+
+            await RequestController.downloadResult(req as Request, res as Response, next);
+
+            expect(decompressResult).toHaveBeenCalledWith('compressed_data');
+            expect(res.send).toHaveBeenCalledWith(JSON.stringify([{ id: 1 }]));
+        });
+
+        it('should handle errors', async () => {
+            const error = new Error('Err');
+            req.params = { id: 'req-1' };
+            (QueryRequestModel.findById as jest.Mock).mockRejectedValue(error);
+
+            await RequestController.downloadResult(req as Request, res as Response, next);
 
             expect(next).toHaveBeenCalledWith(error);
         });

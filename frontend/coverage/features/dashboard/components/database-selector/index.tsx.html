@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">85.71% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>12/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">57.14% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>10/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -185,40 +185,37 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -244,7 +241,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -290,15 +290,15 @@ export function DatabaseSelector({
         { value: DatabaseType.MONGODB, label: 'MongoDB' },
     ];
 &nbsp;
-    const instanceOptions: SelectOption[] = instancesLoading ? <span class="branch-0 cbranch-no" title="branch not covered" >[] : (i</span>nstances || <span class="branch-1 cbranch-no" title="branch not covered" >[]).m</span>ap((inst) =&gt; ({
+    const instanceOptions: SelectOption[] = instancesLoading ? [] : (instances || []).map((inst) =&gt; ({
         value: inst.id,
         label: `${inst.name} (${inst.type})`,
     }));
 &nbsp;
     // Ensure databases is always an array of strings
-    const databaseOptions: SelectOption[] = databasesLoading ? <span class="branch-0 cbranch-no" title="branch not covered" >[] : (d</span>atabases || <span class="branch-1 cbranch-no" title="branch not covered" >[]).m</span>ap((db) =&gt; ({
-        value: typeof db === 'string' ? db : <span class="branch-1 cbranch-no" title="branch not covered" >String(db),</span>
-        label: typeof db === 'string' ? db : <span class="branch-1 cbranch-no" title="branch not covered" >String(db),</span>
+    const databaseOptions: SelectOption[] = databasesLoading ? [] : (databases || []).map((db) =&gt; ({
+        value: typeof db === 'string' ? db : String(db),
+        label: typeof db === 'string' ? db : String(db),
     }));
 &nbsp;
     const handleDatabaseTypeChange = (e: React.ChangeEvent&lt;HTMLSelectElement&gt;) =&gt; {
@@ -306,8 +306,8 @@ export function DatabaseSelector({
         onDatabaseTypeChange(newType);
     };
 &nbsp;
-    const handleInstanceChange = <span class="fstat-no" title="function not covered" >(e</span>: React.ChangeEvent&lt;HTMLSelectElement&gt;) =&gt; {
-<span class="cstat-no" title="statement not covered" >        onInstanceChange(e.target.value);</span>
+    const handleInstanceChange = (e: React.ChangeEvent&lt;HTMLSelectElement&gt;) =&gt; {
+        onInstanceChange(e.target.value);
     };
 &nbsp;
     return (
@@ -339,7 +339,7 @@ export function DatabaseSelector({
                 placeholder="Select database"
                 options={databaseOptions}
                 value={databaseName}
-                onChange={<span class="fstat-no" title="function not covered" >(e</span>) =&gt; <span class="cstat-no" title="statement not covered" >onDatabaseChange(e.target.value)}</span>
+                onChange={(e) =&gt; onDatabaseChange(e.target.value)}
                 isLoading={databasesLoading}
                 disabled={!instanceId}
                 error={errors?.databaseName}
@@ -355,7 +355,7 @@ export function DatabaseSelector({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-09T10:50:46.120Z
+                at 2026-01-19T06:52:08.825Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

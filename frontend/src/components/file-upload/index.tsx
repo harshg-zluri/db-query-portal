@@ -90,14 +90,14 @@ export function FileUpload({
                     'relative border-2 border-dashed rounded-md transition-all duration-150',
                     'flex flex-col items-center justify-center py-8 px-4',
                     disabled
-                        ? 'opacity-50 cursor-not-allowed border-[#9CA3AF] bg-[#FAF9F6]'
+                        ? 'opacity-50 cursor-not-allowed border-[#9CA3AF] bg-[#F8FAFC]'
                         : isDragging
-                            ? 'border-[#5791FF] bg-[#DBEAFE] shadow-[4px_4px_0_#000]'
+                            ? 'border-[#5791FF] bg-[#DBEAFE] shadow-sm'
                             : displayError
                                 ? 'border-[#ef4444] bg-[#FEE2E2]'
                                 : selectedFile
-                                    ? 'border-[#22c55e] bg-[#DCFCE7] shadow-[2px_2px_0_#000]'
-                                    : 'border-black bg-white hover:shadow-[2px_2px_0_#000] hover:border-black'
+                                    ? 'border-[#22c55e] bg-[#DCFCE7] '
+                                    : 'border-[#E2E8F0] bg-white hover: hover:border-[#E2E8F0]'
                 )}
             >
                 <input
@@ -123,15 +123,15 @@ export function FileUpload({
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                         </svg>
-                        <p className="text-sm font-bold text-black">{selectedFile.name}</p>
-                        <p className="text-xs text-[#6B6B6B] mt-1">
+                        <p className="text-sm font-semibold text-[#0F172A]">{selectedFile.name}</p>
+                        <p className="text-xs text-[#64748B] mt-1">
                             {(selectedFile.size / 1024).toFixed(1)} KB
                         </p>
                     </>
                 ) : (
                     <>
                         <svg
-                            className="w-8 h-8 text-black mb-2"
+                            className="w-8 h-8 text-[#0F172A] mb-2"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -143,10 +143,10 @@ export function FileUpload({
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                             />
                         </svg>
-                        <p className="text-sm text-black">
-                            <span className="font-bold text-[#5791FF]">Click to upload</span> or drag and drop
+                        <p className="text-sm text-[#0F172A]">
+                            <span className="font-semibold text-[#5791FF]">Click to upload</span> or drag and drop
                         </p>
-                        <p className="text-xs text-[#6B6B6B] mt-1">
+                        <p className="text-xs text-[#64748B] mt-1">
                             {accept} files up to {Math.round(maxSize / 1024 / 1024)}MB
                         </p>
                     </>

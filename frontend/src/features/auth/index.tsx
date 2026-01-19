@@ -8,19 +8,18 @@ import { API_BASE_URL } from '@queries/api-client';
 export function AuthPage() {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-    // Already authenticated, redirect to dashboard
     if (isAuthenticated) {
         return <Navigate to={ROUTES.DASHBOARD} replace />;
     }
 
     return (
-        <div className="min-h-screen bg-[#F3F0E6] bg-grid flex items-center justify-center p-4">
-            <div className="w-full max-w-md animate-slide-up">
+        <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-sm">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#FEF34B] border-3 border-black rounded-md shadow-[4px_4px_0_#000] mb-4" style={{ borderWidth: '3px' }}>
+                    <div className="inline-flex items-center justify-center w-10 h-10 bg-zinc-900 rounded-lg mb-4">
                         <svg
-                            className="w-10 h-10 text-black"
+                            className="w-5 h-5 text-white"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -33,24 +32,24 @@ export function AuthPage() {
                             />
                         </svg>
                     </div>
-                    <h1 className="text-3xl font-bold text-black uppercase tracking-tight">
-                        Database Query Portal
+                    <h1 className="text-xl font-semibold text-zinc-900">
+                        DB Query Portal
                     </h1>
-                    <p className="text-[#6B6B6B] mt-2 font-medium">Sign in to access the portal</p>
+                    <p className="text-zinc-500 text-sm mt-1">Sign in to your account</p>
                 </div>
 
                 {/* Login Card */}
-                <div className="bg-white border-3 border-black rounded-md p-6 shadow-[6px_6px_0_#000]" style={{ borderWidth: '3px' }}>
+                <div className="bg-white rounded-lg p-6 border border-zinc-200 shadow-sm">
                     <LoginForm />
 
-                    <div className="mt-6 pt-6 border-t border-gray-200">
+                    <div className="mt-5 pt-5 border-t border-zinc-200">
                         <Button
                             type="button"
                             variant="secondary"
                             className="w-full flex items-center justify-center gap-2"
                             onClick={() => window.location.href = `${API_BASE_URL}/auth/google`}
                         >
-                            <svg className="w-5 h-5" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" viewBox="0 0 24 24">
                                 <path
                                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                                     fill="#4285F4"
@@ -68,14 +67,14 @@ export function AuthPage() {
                                     fill="#EA4335"
                                 />
                             </svg>
-                            Sign in with Google
+                            Continue with Google
                         </Button>
                     </div>
                 </div>
 
                 {/* Footer */}
-                <p className="text-center text-xs text-[#6B6B6B] mt-6 font-medium uppercase tracking-wide">
-                    Secure database query execution portal
+                <p className="text-center text-xs text-zinc-400 mt-6">
+                    Secure access to database query execution
                 </p>
             </div>
         </div>

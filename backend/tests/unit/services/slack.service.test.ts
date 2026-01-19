@@ -281,6 +281,53 @@ describe('SlackService', () => {
                 }));
             });
 
+            it('should handle compressed execution result', async () => {
+                const result = {
+                    success: true,
+                    isCompressed: true,
+                    originalSize: 10240, // 10KB
+                    output: 'Compressed data...'
+                };
+
+                await SlackService.notifyRequesterApproved(mockRequest as any, 'approver@z.com', result);
+
+                expect(mockWebClient.chat.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+                    blocks: expect.arrayContaining([
+                        expect.objectContaining({
+                            text: expect.objectContaining({
+                                text: expect.stringContaining('Result too large to display (10 KB)')
+                            })
+                        }),
+                        expect.objectContaining({
+                            text: expect.objectContaining({
+                                text: expect.stringContaining('Download Result')
+                            })
+                        })
+                    ])
+                }));
+            });
+
+            it('should handle compressed execution result without originalSize', async () => {
+                const result = {
+                    success: true,
+                    isCompressed: true,
+                    // No originalSize
+                    output: 'Compressed data...'
+                };
+
+                await SlackService.notifyRequesterApproved(mockRequest as any, 'approver@z.com', result);
+
+                expect(mockWebClient.chat.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+                    blocks: expect.arrayContaining([
+                        expect.objectContaining({
+                            text: expect.objectContaining({
+                                text: expect.not.stringContaining('KB)')
+                            })
+                        })
+                    ])
+                }));
+            });
+
             it('should handle errors gracefully', async () => {
                 mockWebClient.users.lookupByEmail.mockResolvedValue({ ok: true, user: { id: 'U12345' } });
                 mockWebClient.chat.postMessage.mockRejectedValue(new Error('API Error'));
@@ -358,6 +405,94 @@ describe('SlackService', () => {
                     expect.stringContaining('Failed to post execution result to channel'),
                     expect.objectContaining({ error: 'Unknown error' })
                 );
+            });
+
+            it('should upload file for large outputs (> 2500 chars)', async () => {
+                const largeOutput = 'a'.repeat(3000);
+                // Mock files.uploadV2 to be available
+                mockWebClient.files = { uploadV2: jest.fn().mockResolvedValue({ ok: true }) };
+
+                await SlackService.notifyChannelExecutionResult(mockRequest as any, 'approver@z.com', {
+                    success: true,
+                    output: largeOutput,
+                    isCompressed: false
+                });
+
+                expect(mockWebClient.files.uploadV2).toHaveBeenCalled();
+                expect(logger.info).toHaveBeenCalledWith(
+                    expect.stringContaining('Result file uploaded'),
+                    expect.any(Object)
+                );
+            });
+
+            it('should NOT upload file for compressed results', async () => {
+                const largeOutput = 'a'.repeat(3000);
+                mockWebClient.files = { uploadV2: jest.fn().mockResolvedValue({ ok: true }) };
+
+                await SlackService.notifyChannelExecutionResult(mockRequest as any, 'approver@z.com', {
+                    success: true,
+                    output: largeOutput,
+                    isCompressed: true,
+                    originalSize: 50000
+                });
+
+                expect(mockWebClient.files.uploadV2).not.toHaveBeenCalled();
+            });
+
+            it('should handle file upload errors gracefully', async () => {
+                const largeOutput = 'a'.repeat(3000);
+                mockWebClient.files = { uploadV2: jest.fn().mockRejectedValue(new Error('Upload failed')) };
+
+                await SlackService.notifyChannelExecutionResult(mockRequest as any, 'approver@z.com', {
+                    success: true,
+                    output: largeOutput,
+                    isCompressed: false
+                });
+
+                expect(logger.error).toHaveBeenCalledWith(
+                    expect.stringContaining('Failed to upload result file'),
+                    expect.any(Object)
+                );
+            });
+
+            it('should show compressed result message in channel blocks', async () => {
+                await SlackService.notifyChannelExecutionResult(mockRequest as any, 'approver@z.com', {
+                    success: true,
+                    isCompressed: true,
+                    originalSize: 51200,  // 50KB
+                    output: 'compressed-data'
+                });
+
+                expect(mockWebClient.chat.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+                    blocks: expect.arrayContaining([
+                        expect.objectContaining({
+                            text: expect.objectContaining({
+                                text: expect.stringContaining('Result too large to display')
+                            })
+                        })
+                    ])
+                }));
+            });
+
+            it('should show "See attached file" message for large uncompressed output', async () => {
+                const largeOutput = 'a'.repeat(3000);
+                mockWebClient.files = { uploadV2: jest.fn().mockResolvedValue({ ok: true }) };
+
+                await SlackService.notifyChannelExecutionResult(mockRequest as any, 'approver@z.com', {
+                    success: true,
+                    output: largeOutput,
+                    isCompressed: false
+                });
+
+                expect(mockWebClient.chat.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+                    blocks: expect.arrayContaining([
+                        expect.objectContaining({
+                            text: expect.objectContaining({
+                                text: expect.stringContaining('See attached JSON file')
+                            })
+                        })
+                    ])
+                }));
             });
         });
 

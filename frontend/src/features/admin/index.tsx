@@ -79,10 +79,10 @@ export function AdminPage() {
         <div className="p-6 animate-fade-in">
             {/* Header */}
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-black uppercase tracking-tight">
+                <h1 className="text-2xl font-semibold text-[#0F172A] font-semibold">
                     Admin Panel
                 </h1>
-                <p className="text-sm text-[#6B6B6B] mt-1">
+                <p className="text-sm text-[#64748B] mt-1">
                     Manage users, roles, and pod assignments
                 </p>
             </div>
@@ -92,7 +92,7 @@ export function AdminPage() {
                 <div className="flex-1">
                     <div className="relative">
                         <svg
-                            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B6B6B]"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -112,7 +112,7 @@ export function AdminPage() {
                                 setSearch(e.target.value);
                                 setPage(1);
                             }}
-                            className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-black rounded-md text-black placeholder-[#6B6B6B] focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1 hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000] transition-all duration-150"
+                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E2E8F0] rounded-md text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:ring-offset-1 hover: focus: transition-all duration-150"
                         />
                     </div>
                 </div>
@@ -135,21 +135,21 @@ export function AdminPage() {
             {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6">
-                    <p className="text-sm text-[#6B6B6B]">
+                    <p className="text-sm text-[#64748B]">
                         Showing page {pagination.page} of {pagination.totalPages} ({pagination.total} users)
                     </p>
                     <div className="flex gap-2">
                         <button
                             onClick={() => setPage(page - 1)}
                             disabled={page === 1}
-                            className="px-4 py-2 text-sm font-semibold border-2 border-black rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#FAF9F6] hover:shadow-[2px_2px_0_#000] transition-all duration-150"
+                            className="px-4 py-2 text-sm font-semibold border border-[#E2E8F0] rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F8FAFC] hover: transition-all duration-150"
                         >
                             Previous
                         </button>
                         <button
                             onClick={() => setPage(page + 1)}
                             disabled={page >= pagination.totalPages}
-                            className="px-4 py-2 text-sm font-semibold border-2 border-black rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#FAF9F6] hover:shadow-[2px_2px_0_#000] transition-all duration-150"
+                            className="px-4 py-2 text-sm font-semibold border border-[#E2E8F0] rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F8FAFC] hover: transition-all duration-150"
                         >
                             Next
                         </button>
@@ -178,7 +178,7 @@ export function AdminPage() {
                 size="sm"
             >
                 <div className="space-y-4">
-                    <div className="flex items-start gap-3 p-4 bg-[#FEE2E2] border-2 border-[#EF4444] rounded-md shadow-[2px_2px_0_#000]">
+                    <div className="flex items-start gap-3 p-4 bg-[#FEE2E2] border-2 border-[#EF4444] rounded-md ">
                         <svg
                             className="w-6 h-6 text-[#991B1B] flex-shrink-0"
                             fill="none"
@@ -193,7 +193,7 @@ export function AdminPage() {
                             />
                         </svg>
                         <div>
-                            <p className="text-sm font-bold text-[#991B1B] uppercase">Warning</p>
+                            <p className="text-sm font-semibold text-[#991B1B] uppercase">Warning</p>
                             <p className="text-sm text-[#991B1B] mt-1">
                                 Are you sure you want to delete <strong>{deletingUser?.name}</strong>? This action cannot be undone.
                             </p>

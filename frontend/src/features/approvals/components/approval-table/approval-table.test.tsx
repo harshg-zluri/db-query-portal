@@ -3,6 +3,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { ApprovalTable } from './index';
 import { DatabaseType, RequestStatus, SubmissionType } from '@/types';
 
+// Mock CodeViewer to expose its content for testing
+vi.mock('@components/code-viewer', () => ({
+    CodeViewer: ({ code }: { code: string }) => <div data-testid="code-viewer">{code}</div>
+}));
+
 // Partial mock for brevity
 const mockRequest = {
     id: 'req-12345678',
@@ -68,8 +73,8 @@ describe('ApprovalTable', () => {
 
         // Expanded content should appear
         expect(screen.getByText('Full Comments')).toBeInTheDocument();
-        // Check for CodeViewer content logic
-        expect(screen.getByText('SELECT * FROM users')).toBeInTheDocument();
+        // Check for CodeViewer content (now has query in it)
+        expect(screen.getByTestId('code-viewer')).toHaveTextContent('SELECT * FROM users');
     });
 
     it('shows warnings if present', () => {
@@ -103,5 +108,95 @@ describe('ApprovalTable', () => {
         fireEvent.click(row);
 
         expect(screen.getByText(/Script: update_users.js/)).toBeInTheDocument();
+    });
+
+    it('does not expand row when clicking action buttons', () => {
+        render(<ApprovalTable {...defaultProps} />);
+
+        // Click the Approve button
+        const approveButton = screen.getByRole('button', { name: 'Approve' });
+        fireEvent.click(approveButton);
+
+        // Row should NOT be expanded (stopPropagation)
+        expect(screen.queryByText('Full Comments')).not.toBeInTheDocument();
+        expect(defaultProps.onApprove).toHaveBeenCalledWith('req-12345678');
+    });
+
+    it('collapses expanded row on second click', () => {
+        render(<ApprovalTable {...defaultProps} />);
+
+        const row = screen.getByText('Prod DB').closest('tr');
+        if (!row) throw new Error('Row not found');
+
+        // Expand
+        fireEvent.click(row);
+        expect(screen.getByText('Full Comments')).toBeInTheDocument();
+
+        // Collapse
+        fireEvent.click(row);
+        expect(screen.queryByText('Full Comments')).not.toBeInTheDocument();
+    });
+
+    it('shows fallback for script without filename', () => {
+        const scriptRequest = {
+            ...mockRequest,
+            submissionType: SubmissionType.SCRIPT,
+            scriptFileName: undefined,
+            scriptContent: 'console.log("test")',
+        };
+        render(<ApprovalTable {...defaultProps} requests={[scriptRequest] as any[]} />);
+        expect(screen.getByText('Script file')).toBeInTheDocument();
+    });
+
+    it('truncates long queries in preview', () => {
+        const longQueryRequest = {
+            ...mockRequest,
+            query: 'SELECT * FROM users WHERE id = 1 AND status = active AND name LIKE pattern AND email IS NOT NULL',
+        };
+        const { container } = render(<ApprovalTable {...defaultProps} requests={[longQueryRequest] as any[]} />);
+        // Check the preview truncation by looking at container content - 50 char truncation
+        expect(container.textContent).toContain('SELECT * FROM users WHERE id = 1 AND status = acti...');
+    });
+
+    it('handles MongoDB request type', () => {
+        const mongoRequest = {
+            ...mockRequest,
+            databaseType: DatabaseType.MONGODB,
+            query: 'db.users.find({})',
+        };
+        render(<ApprovalTable {...defaultProps} requests={[mongoRequest] as any[]} />);
+        expect(screen.getByText('db.users.find({})')).toBeInTheDocument();
+    });
+
+    it('shows fallback when script content is missing in expanded view', () => {
+        const scriptRequest = {
+            ...mockRequest,
+            submissionType: SubmissionType.SCRIPT,
+            scriptFileName: 'test.js',
+            scriptContent: undefined,
+        };
+        render(<ApprovalTable {...defaultProps} requests={[scriptRequest] as any[]} />);
+
+        // Expand to see details
+        const row = screen.getByText('Prod DB').closest('tr');
+        if (!row) throw new Error('Row not found');
+        fireEvent.click(row);
+
+        expect(screen.getByTestId('code-viewer')).toHaveTextContent('Script content not available');
+    });
+
+    it('shows fallback when query is missing in expanded view', () => {
+        const queryRequest = {
+            ...mockRequest,
+            query: undefined,
+        };
+        render(<ApprovalTable {...defaultProps} requests={[queryRequest] as any[]} />);
+
+        // Expand to see details
+        const row = screen.getByText('Prod DB').closest('tr');
+        if (!row) throw new Error('Row not found');
+        fireEvent.click(row);
+
+        expect(screen.getByTestId('code-viewer')).toHaveTextContent('Query not available');
     });
 });

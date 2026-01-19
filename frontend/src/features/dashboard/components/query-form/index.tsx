@@ -58,7 +58,7 @@ export function QueryEditor({
 
     return (
         <div className="space-y-2">
-            <label className="block text-sm font-semibold text-black uppercase tracking-wide">
+            <label className="block text-sm font-semibold text-[#0F172A] ">
                 Query <span className="text-[#ef4444]">*</span>
             </label>
 
@@ -68,8 +68,8 @@ export function QueryEditor({
                     error
                         ? 'border-[#ef4444]'
                         : isFocused
-                            ? 'border-black ring-2 ring-[#FEF34B] shadow-[2px_2px_0_#000]'
-                            : 'border-black hover:shadow-[2px_2px_0_#000]'
+                            ? 'border-[#E2E8F0] ring-2 ring-[#6366F1] '
+                            : 'border-[#E2E8F0] hover:'
                 )}
             >
                 {/* Syntax highlighted overlay */}
@@ -79,7 +79,7 @@ export function QueryEditor({
                     aria-hidden="true"
                 >
                     <code
-                        className={`language-${language} whitespace-pre-wrap break-words !text-black`}
+                        className={`language-${language} whitespace-pre-wrap break-words !text-[#0F172A]`}
                         style={{
                             fontFamily: 'inherit',
                             fontSize: 'inherit',
@@ -115,7 +115,7 @@ export function QueryEditor({
 
             {error && <p className="text-sm text-[#ef4444] font-medium">{error}</p>}
 
-            <p className="text-xs text-[#6B6B6B]">
+            <p className="text-xs text-[#64748B]">
                 {databaseType === DatabaseType.MONGODB
                     ? 'Enter a MongoDB query (JavaScript syntax)'
                     : 'Enter a SQL query'}

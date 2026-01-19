@@ -60,6 +60,12 @@ export const config = {
         maxPendingPerUser: parseInt(process.env.MAX_PENDING_PER_USER || '10', 10)
     },
 
+    // Result Storage (compression for large results)
+    resultStorage: {
+        maxRows: parseInt(process.env.MAX_RESULT_ROWS || '10000', 10),
+        compressionThreshold: parseInt(process.env.RESULT_COMPRESSION_THRESHOLD || '51200', 10) // 50KB
+    },
+
     // Google OAuth
     google: {
         clientId: process.env.GOOGLE_CLIENT_ID || '',

@@ -3,6 +3,9 @@ import { DatabaseInstanceModel } from '../models/DatabaseInstance';
 import { DatabaseType } from '../types';
 import { sendSuccess } from '../utils/responseHelper';
 import { NotFoundError } from '../utils/errors';
+import { DiscoveryService } from '../services/discovery.service';
+import { config } from '../config/environment';
+import { logger } from '../utils/logger';
 
 /**
  * Database Controller
@@ -56,7 +59,7 @@ export class DatabaseController {
 
     /**
      * GET /api/databases/:instanceId/databases
-     * List databases for a specific instance
+     * List databases for a specific instance (dynamically discovered)
      */
     static async getDatabases(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -68,8 +71,39 @@ export class DatabaseController {
                 throw new NotFoundError('Database instance');
             }
 
-            // Return list of databases as simple string array for dropdown
-            sendSuccess(res, instance.databases);
+            // Dynamic discovery with fallback
+            let databases: string[] = instance.databases;
+
+            try {
+                if (instance.type === DatabaseType.POSTGRESQL) {
+                    const targetUrl = config.targetDatabases.postgresUrl;
+                    if (targetUrl) {
+                        // For PostgreSQL, we discover schemas
+                        const discovered = await DiscoveryService.getPostgresSchemas(targetUrl);
+                        if (discovered && discovered.length > 0) {
+                            databases = discovered;
+                        }
+                    }
+                } else if (instance.type === DatabaseType.MONGODB) {
+                    const targetUrl = config.targetDatabases.mongodbUrl;
+                    if (targetUrl) {
+                        const discovered = await DiscoveryService.getMongoDatabases(targetUrl);
+                        if (discovered && discovered.length > 0) {
+                            databases = discovered;
+                        }
+                    }
+                }
+            } catch (discoveryError) {
+                // Log error but fallback to static list
+                logger.warn('Database discovery failed, using static list', {
+                    instanceId,
+                    type: instance.type,
+                    error: discoveryError instanceof Error ? discoveryError.message : String(discoveryError)
+                });
+                // databases remains fully populated from instance.databases
+            }
+
+            sendSuccess(res, databases);
         } catch (error) {
             next(error);
         }
@@ -91,6 +125,54 @@ export class DatabaseController {
 
             sendSuccess(res, instance);
         } catch (error) {
+            next(error);
+        }
+    }
+    /**
+     * Debug discovery logic
+     */
+    static async debugDiscovery(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const pgUrl = config.targetDatabases.postgresUrl;
+            const mongoUrl = config.targetDatabases.mongodbUrl;
+
+            const checks: any = {
+                env: {
+                    pgUrlSet: !!pgUrl,
+                    mongoUrlSet: !!mongoUrl,
+                    pgUrlPreview: pgUrl ? pgUrl.split('@')[1] : null,
+                },
+                postgres: { status: 'pending' },
+                mongo: { status: 'pending' }
+            };
+
+            // Check Postgres
+            try {
+                if (pgUrl) {
+                    const schemas = await DiscoveryService.getPostgresSchemas(pgUrl);
+                    checks.postgres = { status: 'success', schemas };
+                } else {
+                    checks.postgres = { status: 'skipped', reason: 'No URL' };
+                }
+            } catch (e) {
+                checks.postgres = { status: 'error', error: e instanceof Error ? e.message : String(e) };
+            }
+
+            // Check Mongo
+            try {
+                if (mongoUrl) {
+                    const dbs = await DiscoveryService.getMongoDatabases(mongoUrl);
+                    checks.mongo = { status: 'success', databases: dbs };
+                } else {
+                    checks.mongo = { status: 'skipped', reason: 'No URL' };
+                }
+            } catch (e) {
+                checks.mongo = { status: 'error', error: e instanceof Error ? e.message : String(e) };
+            }
+
+            res.json({ success: true, checks });
+        } catch (error) {
+            console.error('Debug discovery error:', error);
             next(error);
         }
     }

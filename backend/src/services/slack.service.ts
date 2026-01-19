@@ -38,6 +38,8 @@ export interface SlackNotificationPayload {
         rowCount?: number;
         output?: string;
         error?: string;
+        isCompressed?: boolean;
+        originalSize?: number;
     };
 }
 
@@ -47,6 +49,8 @@ export interface SlackNotificationPayload {
 function getAppUrl(): string {
     return process.env.FRONTEND_URL || 'http://localhost:5173';
 }
+
+
 
 /**
  * Slack Service Class
@@ -121,12 +125,52 @@ export class SlackService {
     }
 
     /**
+     * Upload a file to a Slack channel or DM
+     */
+    private static async uploadResultFile(
+        channelId: string,
+        request: QueryRequest,
+        output: string,
+        isCompressed: boolean
+    ): Promise<void> {
+        if (!this.client) return;
+
+        try {
+            // If compressed, we need to decompress for the file
+            // For now, we'll indicate it's the raw output
+            const filename = `result_${request.id.slice(0, 8)}.json`;
+            const content = isCompressed
+                ? `[Result is compressed. Download from portal: ${getAppUrl()}/submissions]`
+                : output;
+
+            await this.client.files.uploadV2({
+                channel_id: channelId,
+                filename,
+                content,
+                title: `Execution Result - Request ${request.id.slice(0, 8)}`,
+                initial_comment: `📁 Execution result for request ${request.id.slice(0, 8)} (${request.databaseType} - ${request.instanceName})`
+            });
+
+            logger.info('[SLACK] Result file uploaded', {
+                requestId: request.id,
+                channel: channelId,
+                filename
+            });
+        } catch (error) {
+            logger.error('[SLACK] Failed to upload result file', {
+                requestId: request.id,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }
+
+    /**
      * FR4.1: Send DM to requester with execution results
      */
     static async notifyRequesterApproved(
         request: QueryRequest,
         approverEmail: string,
-        executionResult: { success: boolean; rowCount?: number; output?: string; data?: unknown; error?: string }
+        executionResult: { success: boolean; rowCount?: number; output?: string; data?: unknown; error?: string; isCompressed?: boolean; originalSize?: number }
     ): Promise<void> {
         if (!this.ensureEnabled()) return;
 
@@ -145,6 +189,16 @@ export class SlackService {
                     : `Your request was approved but execution failed.`,
                 blocks
             });
+
+            // Upload result file if output is large (and not compressed - compressed stays in DB)
+            if (executionResult.success && executionResult.output && executionResult.output.length > 2500 && !executionResult.isCompressed) {
+                await this.uploadResultFile(
+                    recipientSlackId,
+                    request,
+                    executionResult.output,
+                    false
+                );
+            }
 
             logger.info('[SLACK] Approval DM sent to requester', {
                 requestId: request.id,
@@ -166,7 +220,7 @@ export class SlackService {
     static async notifyChannelExecutionResult(
         request: QueryRequest,
         approverEmail: string,
-        executionResult: { success: boolean; rowCount?: number; output?: string; error?: string }
+        executionResult: { success: boolean; rowCount?: number; output?: string; error?: string; isCompressed?: boolean; originalSize?: number }
     ): Promise<void> {
         if (!this.ensureEnabled() || !this.approvalChannelId) return;
 
@@ -179,6 +233,16 @@ export class SlackService {
                     : `Request ${request.id.slice(0, 8)} execution failed`,
                 blocks
             });
+
+            // Upload result file to channel if output is large (and not compressed)
+            if (executionResult.success && executionResult.output && executionResult.output.length > 2500 && !executionResult.isCompressed) {
+                await this.uploadResultFile(
+                    this.approvalChannelId,
+                    request,
+                    executionResult.output,
+                    false
+                );
+            }
 
             logger.info('[SLACK] Execution result posted to channel', {
                 requestId: request.id,
@@ -380,18 +444,38 @@ export class SlackService {
         }
 
         if (executionResult.success && executionResult.output) {
-            // Truncate output if too long for Slack block (3000 chars limit)
-            const outputPreview = executionResult.output.length > 2500
-                ? executionResult.output.substring(0, 2500) + '... (truncated)'
-                : executionResult.output;
+            // Check if result is compressed - show download link instead
+            if ((executionResult as { isCompressed?: boolean }).isCompressed) {
+                const originalSize = (executionResult as { originalSize?: number }).originalSize;
+                const sizeInfo = originalSize ? ` (${Math.round(originalSize / 1024)} KB)` : '';
+                blocks.push({
+                    type: 'section' as const,
+                    text: {
+                        type: 'mrkdwn' as const,
+                        text: `*Execution Result:* Result too large to display${sizeInfo}. Download from the portal.`
+                    }
+                });
+                blocks.push({
+                    type: 'section' as const,
+                    text: {
+                        type: 'mrkdwn' as const,
+                        text: `<${getAppUrl()}/submissions|📥 View and Download Result>`
+                    }
+                });
+            } else {
+                // Truncate output if too long for Slack block (3000 chars limit)
+                const outputPreview = executionResult.output.length > 2500
+                    ? executionResult.output.substring(0, 2500) + '... (truncated)'
+                    : executionResult.output;
 
-            blocks.push({
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Execution Result:*\n\`\`\`${outputPreview}\`\`\``
-                }
-            });
+                blocks.push({
+                    type: 'section' as const,
+                    text: {
+                        type: 'mrkdwn' as const,
+                        text: `*Execution Result:*\n\`\`\`${outputPreview}\`\`\``
+                    }
+                });
+            }
         }
 
         if (!executionResult.success && executionResult.error) {
@@ -431,12 +515,12 @@ export class SlackService {
     private static buildChannelExecutionResultBlocks(
         request: QueryRequest,
         approverEmail: string,
-        executionResult: { success: boolean; rowCount?: number; output?: string; error?: string }
+        executionResult: { success: boolean; rowCount?: number; output?: string; error?: string; isCompressed?: boolean; originalSize?: number }
     ): KnownBlock[] {
         const statusEmoji = executionResult.success ? '✅' : '❌';
         const statusText = executionResult.success ? 'Executed Successfully' : 'Execution Failed';
 
-        return [
+        const blocks: KnownBlock[] = [
             {
                 type: 'section',
                 text: {
@@ -464,25 +548,57 @@ export class SlackService {
                         text: `*Database:* ${request.instanceName}`
                     }
                 ]
-            },
-            ...(executionResult.error ? [{
+            }
+        ];
+
+        if (executionResult.error) {
+            blocks.push({
                 type: 'section' as const,
                 text: {
                     type: 'mrkdwn' as const,
                     text: `*Error:* ${executionResult.error.substring(0, 500)}`
                 }
-            }] : []),
-            ...(executionResult.success && executionResult.output ? [{
-                type: 'section' as const,
-                text: {
-                    type: 'mrkdwn' as const,
-                    text: `*Execution Result:*\n\`\`\`${executionResult.output}\`\`\``
-                }
-            }] : []),
-            {
-                type: 'divider' as const
+            });
+        }
+
+        if (executionResult.success && executionResult.output) {
+            // Handle compressed or large results
+            if (executionResult.isCompressed) {
+                const originalSize = executionResult.originalSize;
+                const sizeInfo = originalSize ? ` (${Math.round(originalSize / 1024)} KB)` : '';
+                blocks.push({
+                    type: 'section' as const,
+                    text: {
+                        type: 'mrkdwn' as const,
+                        text: `*Execution Result:* Result too large to display${sizeInfo}. <${getAppUrl()}/submissions|📥 Download from Portal>`
+                    }
+                });
+            } else if (executionResult.output.length > 2500) {
+                // Large but not compressed - will be uploaded as file
+                blocks.push({
+                    type: 'section' as const,
+                    text: {
+                        type: 'mrkdwn' as const,
+                        text: `*Execution Result:* See attached JSON file below ⬇️`
+                    }
+                });
+            } else {
+                // Small enough to display inline
+                blocks.push({
+                    type: 'section' as const,
+                    text: {
+                        type: 'mrkdwn' as const,
+                        text: `*Execution Result:*\n\`\`\`${executionResult.output}\`\`\``
+                    }
+                });
             }
-        ];
+        }
+
+        blocks.push({
+            type: 'divider' as const
+        });
+
+        return blocks;
     }
 
     /**

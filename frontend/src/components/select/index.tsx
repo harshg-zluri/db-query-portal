@@ -1,4 +1,4 @@
-import { type SelectHTMLAttributes, forwardRef } from 'react';
+import { forwardRef, type SelectHTMLAttributes, useId } from 'react';
 import { cn } from '@utils/cn';
 
 export interface SelectOption {
@@ -6,49 +6,47 @@ export interface SelectOption {
     label: string;
 }
 
-export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children'> {
+export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
     label?: string;
     error?: string;
-    options: SelectOption[];
+    options?: SelectOption[];
     placeholder?: string;
     isLoading?: boolean;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-    ({ className, label, error, options, placeholder, isLoading, id, ...props }, ref) => {
-        const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
+    ({ className, label, error, options = [], placeholder, required, isLoading, id, disabled, ...props }, ref) => {
+        const generatedId = useId();
+        const selectId = id || generatedId;
 
         return (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 {label && (
-                    <label
-                        htmlFor={selectId}
-                        className="block text-sm font-semibold text-black uppercase tracking-wide"
-                    >
+                    <label htmlFor={selectId} className="block text-sm font-medium text-zinc-700">
                         {label}
-                        {props.required && <span className="text-[#ef4444] ml-1">*</span>}
+                        {required && <span className="text-[#EF4444] ml-0.5">*</span>}
                     </label>
                 )}
                 <div className="relative">
                     <select
                         ref={ref}
                         id={selectId}
+                        disabled={disabled || isLoading}
                         className={cn(
-                            'w-full px-3 py-2.5 bg-white border-2 rounded-md text-black appearance-none',
-                            'focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1',
-                            'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[#FAF9F6]',
-                            'transition-all duration-150',
-                            'hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000]',
-                            'cursor-pointer',
-                            error ? 'border-[#ef4444]' : 'border-black',
+                            'w-full px-3 py-2 bg-white text-zinc-900',
+                            'border border-zinc-200 rounded-md',
+                            'focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1',
+                            'disabled:bg-zinc-50 disabled:text-zinc-500',
+                            'transition-shadow duration-150',
+                            'appearance-none',
+                            error && 'border-[#EF4444] focus:ring-[#EF4444]',
                             className
                         )}
-                        disabled={isLoading || props.disabled}
                         {...props}
                     >
                         {placeholder && (
                             <option value="" disabled>
-                                {isLoading ? 'Loading...' : placeholder}
+                                {placeholder}
                             </option>
                         )}
                         {options.map((option) => (
@@ -57,46 +55,18 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                             </option>
                         ))}
                     </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        {isLoading ? (
-                            <svg
-                                className="animate-spin h-4 w-4 text-black"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                            >
-                                <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                />
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                />
+                    {isLoading && (
+                        <div className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <svg className="animate-spin h-4 w-4 text-zinc-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                        ) : (
-                            <svg
-                                className="h-4 w-4 text-black"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 9l-7 7-7-7"
-                                />
-                            </svg>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
-                {error && <p className="text-sm text-[#ef4444] font-medium">{error}</p>}
+                {error && (
+                    <p className="text-sm text-red-600">{error}</p>
+                )}
             </div>
         );
     }

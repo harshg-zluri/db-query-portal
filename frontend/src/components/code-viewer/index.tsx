@@ -56,7 +56,7 @@ export function CodeViewer({
     return (
         <div
             className={cn(
-                'relative bg-white border-2 border-black rounded-md overflow-hidden shadow-[2px_2px_0_#000]',
+                'relative bg-transparent ',
                 className
             )}
         >
@@ -67,7 +67,7 @@ export function CodeViewer({
                     'absolute top-3 right-7 z-10 p-2 rounded-md border-2 transition-all duration-150',
                     copied
                         ? 'bg-[#DCFCE7] border-[#22C55E] text-[#166534]'
-                        : 'bg-white border-black text-black hover:bg-[#FEF34B] shadow-[2px_2px_0_#000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]'
+                        : 'bg-white border-[#E2E8F0] text-[#0F172A] hover:bg-linear-to-r from-[#6366F1] to-[#8B5CF6]  hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]'
                 )}
                 title={copied ? 'Copied!' : 'Copy to clipboard'}
             >
@@ -89,7 +89,7 @@ export function CodeViewer({
                 {showLineNumbers ? (
                     <div className="flex">
                         {/* Line numbers column */}
-                        <div className="flex-shrink-0 select-none text-right pr-4 pl-3 py-2 text-[#6B6B6B] text-sm font-mono border-r-2 border-black bg-[#FAF9F6]">
+                        <div className="shrink-0 select-none text-right pr-4 pl-3 py-2 text-[#64748B] text-sm font-mono border-r border-[#E2E8F0] bg-[#F8FAFC]">
                             {lines.map((_, index) => (
                                 <div key={index} className="leading-6">
                                     {index + 1}
@@ -97,7 +97,7 @@ export function CodeViewer({
                             ))}
                         </div>
                         {/* Code content column */}
-                        <pre className="flex-1 m-0 py-2 px-4 overflow-x-auto bg-white">
+                        <pre className="flex-1 m-0 py-0 px-2 overflow-x-auto bg-transparent">
                             <code
                                 ref={codeRef}
                                 className={`language-${hlLanguage} font-mono text-sm`}
@@ -112,7 +112,7 @@ export function CodeViewer({
                         </pre>
                     </div>
                 ) : (
-                    <pre className="p-4 m-0 overflow-x-auto bg-white">
+                    <pre className="p-0 m-0 overflow-x-auto bg-transparent">
                         <code
                             ref={codeRef}
                             className={`language-${hlLanguage} font-mono text-sm`}

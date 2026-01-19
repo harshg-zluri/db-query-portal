@@ -12,7 +12,7 @@ export function ScriptForm({ selectedFile, onFileSelect, error }: ScriptFormProp
         <div className="grid grid-cols-1 gap-6">
             {/* Upload Section */}
             <div className="space-y-4">
-                <label className="block text-sm font-semibold text-black uppercase tracking-wide">
+                <label className="block text-sm font-semibold text-[#0F172A] ">
                     Upload Script <span className="text-[#ef4444]">*</span>
                 </label>
 
@@ -24,10 +24,10 @@ export function ScriptForm({ selectedFile, onFileSelect, error }: ScriptFormProp
                 />
 
                 {selectedFile && (
-                    <div className="p-3 bg-[#FAF9F6] border-2 border-black rounded-md shadow-[2px_2px_0_#000]">
+                    <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md ">
                         <div className="flex items-center gap-2 text-sm">
                             <svg
-                                className="w-4 h-4 text-black"
+                                className="w-4 h-4 text-[#0F172A]"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -39,8 +39,8 @@ export function ScriptForm({ selectedFile, onFileSelect, error }: ScriptFormProp
                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                 />
                             </svg>
-                            <span className="text-black font-medium">{selectedFile.name}</span>
-                            <span className="text-[#6B6B6B]">
+                            <span className="text-[#0F172A] font-medium">{selectedFile.name}</span>
+                            <span className="text-[#64748B]">
                                 ({(selectedFile.size / 1024).toFixed(1)} KB)
                             </span>
                         </div>
@@ -64,10 +64,10 @@ export function ScriptForm({ selectedFile, onFileSelect, error }: ScriptFormProp
                             d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
                         />
                     </svg>
-                    <h3 className="text-sm font-bold text-black uppercase tracking-wide">Documentation</h3>
+                    <h3 className="text-sm font-semibold text-[#0F172A] ">Documentation</h3>
                 </div>
 
-                <div className="bg-white border-2 border-black rounded-md p-4 space-y-4 shadow-[2px_2px_0_#000]">
+                <div className="bg-white border border-[#E2E8F0] rounded-md p-4 space-y-4 ">
                     <div className="flex items-start gap-2">
                         <svg
                             className="w-5 h-5 text-[#22c55e] mt-0.5 flex-shrink-0"
@@ -88,27 +88,27 @@ export function ScriptForm({ selectedFile, onFileSelect, error }: ScriptFormProp
                     </div>
 
                     <div className="space-y-2">
-                        <p className="text-xs font-bold text-black uppercase tracking-wide">
+                        <p className="text-xs font-semibold text-[#0F172A] ">
                             Environment Variables
                         </p>
                         <ul className="text-sm space-y-1">
-                            <li className="font-mono text-xs bg-[#FEF34B] border-2 border-black px-2 py-1 rounded inline-block mr-2 shadow-[1px_1px_0_#000]">
+                            <li className="font-mono text-xs bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] border border-[#E2E8F0] px-2 py-1 rounded inline-block mr-2 shadow-[1px_1px_0_#000]">
                                 POSTGRES_URL
                             </li>
-                            <li className="font-mono text-xs bg-[#FEF34B] border-2 border-black px-2 py-1 rounded inline-block mr-2 shadow-[1px_1px_0_#000]">
+                            <li className="font-mono text-xs bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] border border-[#E2E8F0] px-2 py-1 rounded inline-block mr-2 shadow-[1px_1px_0_#000]">
                                 MONGODB_URL
                             </li>
-                            <li className="font-mono text-xs bg-[#FEF34B] border-2 border-black px-2 py-1 rounded inline-block mr-2 shadow-[1px_1px_0_#000]">
+                            <li className="font-mono text-xs bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] border border-[#E2E8F0] px-2 py-1 rounded inline-block mr-2 shadow-[1px_1px_0_#000]">
                                 DB_NAME
                             </li>
-                            <li className="font-mono text-xs bg-[#FEF34B] border-2 border-black px-2 py-1 rounded inline-block shadow-[1px_1px_0_#000]">
+                            <li className="font-mono text-xs bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] border border-[#E2E8F0] px-2 py-1 rounded inline-block shadow-[1px_1px_0_#000]">
                                 DB_TYPE
                             </li>
                         </ul>
                     </div>
 
                     <div className="space-y-2">
-                        <p className="text-xs font-bold text-black uppercase tracking-wide">
+                        <p className="text-xs font-semibold text-[#0F172A] ">
                             PostgreSQL Example
                         </p>
                         <CodeViewer
@@ -127,7 +127,7 @@ await client.end();`}
                     </div>
 
                     <div className="space-y-2">
-                        <p className="text-xs font-bold text-black uppercase tracking-wide">
+                        <p className="text-xs font-semibold text-[#0F172A] ">
                             MongoDB Example
                         </p>
                         <CodeViewer

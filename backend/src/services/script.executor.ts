@@ -1,18 +1,22 @@
-import { spawn } from 'child_process';
-import { writeFile, unlink, mkdtemp, rm } from 'fs/promises';
-import { join } from 'path';
-import { tmpdir } from 'os';
+import ivm from 'isolated-vm';
 import { ExecutionResult } from '../types';
 import { config } from '../config/environment';
 import { logger } from '../utils/logger';
 
 /**
- * JavaScript Script Executor
- * Executes scripts in a sandboxed Node.js environment
+ * JavaScript Script Executor using V8 Isolates
+ * Executes scripts in a completely isolated V8 context for security
+ * 
+ * Security features:
+ * - Separate V8 isolate with memory limits
+ * - No access to Node.js APIs (fs, child_process, etc.)
+ * - Timeout enforcement
+ * - No network access from within scripts
  */
 export class ScriptExecutor {
     /**
-     * Execute a JavaScript script with injected database configurations
+     * Execute a JavaScript script in an isolated V8 context
+     * Database connections are passed as JSON data, not live connections
      */
     static async execute(
         scriptContent: string,
@@ -24,39 +28,109 @@ export class ScriptExecutor {
         }
     ): Promise<ExecutionResult> {
         const startTime = Date.now();
-        let tempDir: string | null = null;
+        let isolate: ivm.Isolate | null = null;
 
         try {
-            // Create temporary directory for script execution
-            tempDir = await mkdtemp(join(tmpdir(), 'db-portal-script-'));
-            const scriptPath = join(tempDir, 'script.js');
+            // Create isolate with memory limit
+            isolate = new ivm.Isolate({
+                memoryLimit: config.scriptExecution.maxMemoryMb
+            });
 
-            // Write script to temp file
-            await writeFile(scriptPath, scriptContent, 'utf-8');
+            // Create a new context within this isolate
+            const context = await isolate.createContext();
 
-            // Execute script with environment variables
-            // Only inject the connection string for the selected database type
-            const result = await this.runScript(scriptPath, {
-                POSTGRES_URL: dbConfig.postgresUrl || '',
-                MONGODB_URL: dbConfig.mongoUrl || '',
-                DB_NAME: dbConfig.databaseName,
-                DB_TYPE: dbConfig.databaseType
+            // Get a reference to the global object within the context
+            const jail = context.global;
+
+            // Set up the jail with limited APIs
+            await jail.set('global', jail.derefInto());
+
+            // Create console.log that captures output
+            const logs: string[] = [];
+            const errors: string[] = [];
+
+            // Create log function
+            await jail.set('_log', new ivm.Callback((...args: unknown[]) => {
+                logs.push(args.map(a =>
+                    typeof a === 'object' ? JSON.stringify(a) : String(a)
+                ).join(' '));
+            }));
+
+            // Create error function  
+            await jail.set('_error', new ivm.Callback((...args: unknown[]) => {
+                errors.push(args.map(a =>
+                    typeof a === 'object' ? JSON.stringify(a) : String(a)
+                ).join(' '));
+            }));
+
+            // Inject database config as readonly data
+            await jail.set('DB_CONFIG', new ivm.ExternalCopy({
+                postgresUrl: dbConfig.postgresUrl || '',
+                mongoUrl: dbConfig.mongoUrl || '',
+                databaseName: dbConfig.databaseName,
+                databaseType: dbConfig.databaseType
+            }).copyInto());
+
+            // Prepare script with console shim and async wrapper
+            const wrappedScript = `
+                // Console shim
+                const console = {
+                    log: (...args) => _log(...args),
+                    error: (...args) => _error(...args),
+                    warn: (...args) => _log('[WARN]', ...args),
+                    info: (...args) => _log('[INFO]', ...args)
+                };
+
+                // User script execution
+                (async function() {
+                    try {
+                        ${scriptContent}
+                    } catch (e) {
+                        console.error('Script error:', e.message || e);
+                        throw e;
+                    }
+                })();
+            `;
+
+            // Compile and run the script with timeout
+            const script = await isolate.compileScript(wrappedScript);
+
+            await script.run(context, {
+                timeout: config.scriptExecution.timeoutMs
             });
 
             const duration = Date.now() - startTime;
 
-            logger.info('Script executed', {
-                success: result.success,
-                duration
+            logger.info('Script executed in isolate', {
+                success: true,
+                duration,
+                memoryUsed: isolate.getHeapStatisticsSync().used_heap_size
             });
 
+            // Combine output
+            let output = logs.join('\n');
+            if (errors.length > 0) {
+                output += '\n\n--- STDERR ---\n' + errors.join('\n');
+            }
+
             return {
-                ...result,
+                success: true,
+                output: output || 'Script executed successfully (no output)',
                 executedAt: new Date()
             };
         } catch (error) {
             const duration = Date.now() - startTime;
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            let errorMessage = 'Unknown error';
+
+            if (error instanceof Error) {
+                if (error.message.includes('Script execution timed out')) {
+                    errorMessage = `Script execution timed out after ${config.scriptExecution.timeoutMs}ms`;
+                } else if (error.message.includes('Isolate was disposed')) {
+                    errorMessage = 'Script exceeded memory limit';
+                } else {
+                    errorMessage = error.message;
+                }
+            }
 
             logger.error('Script execution failed', {
                 error: errorMessage,
@@ -69,117 +143,37 @@ export class ScriptExecutor {
                 executedAt: new Date()
             };
         } finally {
-            // Cleanup temp directory
-            if (tempDir) {
-                try {
-                    await rm(tempDir, { recursive: true, force: true });
-                } catch {
-                    // Ignore cleanup errors
-                }
+            // Dispose isolate to free memory
+            if (isolate) {
+                isolate.dispose();
             }
         }
-    }
-
-    /**
-     * Run script in child process with resource limits
-     */
-    private static runScript(
-        scriptPath: string,
-        env: Record<string, string>
-    ): Promise<{ success: boolean; output?: string; error?: string }> {
-        return new Promise((resolve) => {
-            const stdout: string[] = [];
-            const stderr: string[] = [];
-
-            // Spawn node process with memory limit
-            const child = spawn('node', [
-                `--max-old-space-size=${config.scriptExecution.maxMemoryMb}`,
-                scriptPath
-            ], {
-                env: {
-                    // CRITICAL SECURITY FIX: Do NOT pass ...process.env
-                    // We only explicitly pass the variables we want the script to have access to
-                    // This prevents the script from accessing backend secrets (DB creds, JWT secrets, etc.)
-                    NODE_ENV: 'production', // Force production mode for scripts
-                    PATH: process.env.PATH, // Required for spawn to find 'node'
-                    ...env,
-                    // Basic sandboxing: limits access to modules
-                    NODE_OPTIONS: '--no-warnings'
-                }
-            });
-
-            child.stdout?.on('data', (data) => {
-                stdout.push(data.toString());
-            });
-
-            child.stderr?.on('data', (data) => {
-                stderr.push(data.toString());
-            });
-
-            let timedOut = false;
-
-            child.on('close', (code) => {
-                if (timedOut) return; // Already handled by timeout
-                if (code === 0) {
-                    resolve({
-                        success: true,
-                        output: stdout.join('') + (stderr.length > 0 ? '\n\n--- STDERR ---\n' + stderr.join('') : '')
-                    });
-                } else {
-                    resolve({
-                        success: false,
-                        output: stdout.join(''),
-                        error: stderr.join('') || `Process exited with code ${code}`
-                    });
-                }
-            });
-
-            child.on('error', (err) => {
-                if (timedOut) return;
-                resolve({
-                    success: false,
-                    error: err.message
-                });
-            });
-
-            // Kill on timeout
-            setTimeout(() => {
-                if (!child.killed) {
-                    timedOut = true;
-                    child.kill('SIGTERM');
-                    resolve({
-                        success: false,
-                        error: `Script execution timed out after ${config.scriptExecution.timeoutMs}ms`
-                    });
-                }
-            }, config.scriptExecution.timeoutMs);
-        });
     }
 
     /**
      * Validate script content for dangerous patterns
+     * Note: The isolate already blocks Node.js APIs, but we still validate
+     * to provide helpful error messages before execution
      */
     static validate(scriptContent: string): { valid: boolean; errors: string[] } {
         const errors: string[] = [];
 
-        // Check for dangerous Node.js APIs
-        const dangerousPatterns = [
-            { pattern: /child_process/i, message: 'child_process module is not allowed' },
-            { pattern: /cluster/i, message: 'cluster module is not allowed' },
-            { pattern: /eval\s*\(/i, message: 'eval() is not allowed' },
-            { pattern: /Function\s*\(/i, message: 'Function constructor is not allowed' },
-            { pattern: /process\.exit/i, message: 'process.exit() is not allowed' },
-            { pattern: /require\s*\(\s*['"]fs['"]\s*\)/i, message: 'Direct fs module usage is restricted' }
+        // Check for patterns that won't work in isolate (to give clear error messages)
+        const blockedPatterns = [
+            { pattern: /require\s*\(/i, message: 'require() is not available - scripts run in isolated V8 context' },
+            { pattern: /import\s+/i, message: 'ES imports are not available - scripts run in isolated V8 context' },
+            { pattern: /child_process/i, message: 'child_process is not available in sandbox' },
+            { pattern: /process\./i, message: 'process object is not available in sandbox' },
+            { pattern: /\bfs\b/i, message: 'File system access is not available in sandbox' },
+            { pattern: /eval\s*\(/i, message: 'eval() is not allowed for security' },
+            { pattern: /Function\s*\(/i, message: 'Function constructor is not allowed for security' }
         ];
 
-        for (const { pattern, message } of dangerousPatterns) {
+        for (const { pattern, message } of blockedPatterns) {
             if (pattern.test(scriptContent)) {
                 errors.push(message);
             }
         }
-
-        // Note: DDL and MongoDB method checks are now handled via warnings at submission time
-        // Only Node.js security patterns are blocked here
 
         return {
             valid: errors.length === 0,

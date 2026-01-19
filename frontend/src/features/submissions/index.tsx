@@ -40,7 +40,6 @@ export function SubmissionsPage() {
     };
 
     const handleClone = (request: QueryRequest) => {
-        // Navigate to dashboard with pre-filled data
         navigate(ROUTES.DASHBOARD, { state: { clone: request } });
     };
 
@@ -70,8 +69,8 @@ export function SubmissionsPage() {
         <div className="animate-fade-in">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-black uppercase tracking-tight">My Submissions</h1>
-                    <p className="text-[#6B6B6B] mt-1">
+                    <h1 className="text-2xl font-semibold text-[#0F172A]">My Submissions</h1>
+                    <p className="text-[#64748B] mt-1">
                         Track and manage your query requests
                     </p>
                 </div>
@@ -108,7 +107,7 @@ export function SubmissionsPage() {
                 </div>
 
                 {pagination && (
-                    <p className="text-sm text-[#6B6B6B] font-medium">
+                    <p className="text-sm text-[#64748B]">
                         Showing {requests.length} of {pagination.total} submissions
                     </p>
                 )}
@@ -138,7 +137,7 @@ export function SubmissionsPage() {
                         Previous
                     </Button>
 
-                    <span className="text-sm text-black font-semibold px-4 py-2 bg-white border-2 border-black rounded-md shadow-[2px_2px_0_#000]">
+                    <span className="text-sm text-[#0F172A] font-medium px-4 py-2 bg-white border border-[#E2E8F0] rounded-lg">
                         Page {page} of {pagination.totalPages}
                     </span>
 

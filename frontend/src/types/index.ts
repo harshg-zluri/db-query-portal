@@ -88,6 +88,7 @@ export interface QueryRequest {
     rejectionReason?: string;
     executionResult?: string;
     executionError?: string;
+    isCompressed?: boolean;
     createdAt: string;
     updatedAt: string;
     executedAt?: string;

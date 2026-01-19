@@ -1,14 +1,17 @@
-import { MongoClient, Db } from 'mongodb';
+import mongoose from 'mongoose';
 import { ExecutionResult } from '../types';
 import { logger } from '../utils/logger';
 import { sanitizeMongoInput } from '../utils/sanitizer';
+import { config } from '../config/environment';
+
+const MAX_ROWS = config.resultStorage.maxRows;
 
 /**
- * MongoDB Query Executor
+ * MongoDB Query Executor using Mongoose
  * Safely executes MongoDB queries against target databases
  */
 export class MongoExecutor {
-    private client: MongoClient | null = null;
+    private connection: mongoose.Connection | null = null;
     private uri: string;
     private databaseName: string;
 
@@ -18,15 +21,15 @@ export class MongoExecutor {
     }
 
     /**
-     * Connect to MongoDB
+     * Connect to MongoDB using Mongoose
      */
     async connect(): Promise<void> {
-        if (!this.client) {
-            this.client = new MongoClient(this.uri, {
-                maxPoolSize: 5,
-                serverSelectionTimeoutMS: 10000
-            });
-            await this.client.connect();
+        if (!this.connection) {
+            this.connection = await mongoose.createConnection(this.uri, {
+                maxPoolSize: 10,
+                serverSelectionTimeoutMS: 10000,
+                dbName: this.databaseName
+            }).asPromise();
         }
     }
 
@@ -34,20 +37,20 @@ export class MongoExecutor {
      * Close connection
      */
     async close(): Promise<void> {
-        if (this.client) {
-            await this.client.close();
-            this.client = null;
+        if (this.connection) {
+            await this.connection.close();
+            this.connection = null;
         }
     }
 
     /**
-     * Get database reference
+     * Get native MongoDB database reference via Mongoose connection
      */
-    private getDb(): Db {
-        if (!this.client) {
+    private getDb() {
+        if (!this.connection) {
             throw new Error('Not connected to MongoDB');
         }
-        return this.client.db(this.databaseName);
+        return this.connection.db;
     }
 
     /**
@@ -61,11 +64,14 @@ export class MongoExecutor {
             // Sanitize input to prevent NoSQL injection
             sanitizeMongoInput(queryString);
 
-            if (!this.client) {
+            if (!this.connection) {
                 await this.connect();
             }
 
             const db = this.getDb();
+            if (!db) {
+                throw new Error('Database not available');
+            }
 
             // Parse and execute the query
             // Expected format: db.collectionName.operation({...})
@@ -101,10 +107,9 @@ export class MongoExecutor {
     }
 
     /**
-     * Parse and execute MongoDB query
+     * Parse and execute MongoDB query using native driver via Mongoose
      */
-    private async executeQuery(db: Db, queryString: string): Promise<unknown> {
-        // Parse query format: db.collection.method({...})
+    private async executeQuery(db: mongoose.mongo.Db, queryString: string): Promise<unknown> {
         // Parse query format: db.collection.method({...}) or db['collection'].method({...})
         const queryRegex = /^db(?:\[["'](?<bracketName>[^\]"']+)["']\]|\.(?<dotName>[^.(]+))\.(?<method>\w+)\((?<args>.*)\)$/s;
         const match = queryString.trim().match(queryRegex);
@@ -135,22 +140,47 @@ export class MongoExecutor {
 
         // Execute based on method
         switch (method) {
-            case 'find':
-                return collection.find(args[0] as object || {}).toArray();
+            case 'find': {
+                // First check count before fetching results
+                const filter = args[0] as object || {};
+                const count = await collection.countDocuments(filter);
+
+                if (count > MAX_ROWS) {
+                    throw new Error(`Query would return ${count.toLocaleString()} documents, which exceeds the maximum limit of ${MAX_ROWS.toLocaleString()} documents. Please add filters or use .limit() to reduce the result set.`);
+                }
+
+                return collection.find(filter).toArray();
+            }
 
             case 'findOne':
                 return collection.findOne(args[0] as object || {});
 
-            case 'aggregate':
-                return collection.aggregate(args[0] as object[] || []).toArray();
+            case 'aggregate': {
+                // For aggregate, we need to check result size after running
+                const pipeline = args[0] as object[] || [];
+                const results = await collection.aggregate(pipeline).toArray();
+
+                if (results.length > MAX_ROWS) {
+                    throw new Error(`Aggregation returned ${results.length.toLocaleString()} documents, which exceeds the maximum limit of ${MAX_ROWS.toLocaleString()} documents. Please add $limit stage to reduce the result set.`);
+                }
+
+                return results;
+            }
 
             case 'insertOne':
                 if (!args[0]) throw new Error('insertOne requires a document');
                 return collection.insertOne(args[0] as object);
 
-            case 'insertMany':
+            case 'insertMany': {
                 if (!args[0]) throw new Error('insertMany requires documents array');
-                return collection.insertMany(args[0] as object[]);
+                const docs = args[0] as object[];
+
+                if (docs.length > MAX_ROWS) {
+                    throw new Error(`Cannot insert ${docs.length.toLocaleString()} documents. Maximum batch size is ${MAX_ROWS.toLocaleString()} documents.`);
+                }
+
+                return collection.insertMany(docs);
+            }
 
             case 'updateOne':
                 if (!args[0] || !args[1]) throw new Error('updateOne requires filter and update');
@@ -182,8 +212,12 @@ export class MongoExecutor {
     async testConnection(): Promise<boolean> {
         try {
             await this.connect();
-            await this.getDb().command({ ping: 1 });
-            return true;
+            const db = this.getDb();
+            if (db) {
+                await db.command({ ping: 1 });
+                return true;
+            }
+            return false;
         } catch {
             return false;
         }

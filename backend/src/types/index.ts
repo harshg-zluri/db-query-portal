@@ -83,6 +83,7 @@ export interface QueryRequest {
     rejectionReason?: string;
     executionResult?: string;
     executionError?: string;
+    isCompressed?: boolean;
     createdAt: Date;
     updatedAt: Date;
     executedAt?: Date;
@@ -122,4 +123,8 @@ export interface ExecutionResult {
     rowCount?: number;
     error?: string;
     executedAt: Date;
+    // Compression and truncation flags
+    isCompressed?: boolean;
+    isTruncated?: boolean;
+    originalSize?: number;
 }

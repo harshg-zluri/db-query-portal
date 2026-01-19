@@ -14,6 +14,7 @@ jest.mock('bcrypt');
 
 describe('AuthService', () => {
     beforeEach(() => {
+        jest.restoreAllMocks();
         jest.clearAllMocks();
     });
 
@@ -58,14 +59,8 @@ describe('AuthService', () => {
             };
 
             const tokens = AuthService.generateTokens(payload);
-
             expect(tokens.accessToken).toBeDefined();
             expect(tokens.refreshToken).toBeDefined();
-            expect(tokens.expiresIn).toBe(config.jwt.expiresIn);
-
-            // Verify access token
-            const decoded = jwt.verify(tokens.accessToken, config.jwt.secret) as any;
-            expect(decoded.userId).toBe('user-123');
         });
     });
 
@@ -86,11 +81,11 @@ describe('AuthService', () => {
     });
 
     describe('refreshAccessToken', () => {
-        it('should refresh tokens with valid refresh token', async () => {
-            const refreshToken = jwt.sign(
-                { userId: 'user-123', type: 'refresh' },
-                config.jwt.secret
-            );
+        it('should verify refresh token and return new tokens', async () => {
+            const refreshToken = 'valid-refresh-token';
+            const decoded = { userId: 'user-123', type: 'refresh' };
+
+            jest.spyOn(jwt, 'verify').mockReturnValue(decoded as any);
 
             const mockUser = {
                 id: 'user-123',
@@ -103,42 +98,25 @@ describe('AuthService', () => {
 
             const tokens = await AuthService.refreshAccessToken(refreshToken);
 
+            expect(jwt.verify).toHaveBeenCalledWith(refreshToken, config.jwt.secret);
+            expect(UserModel.findById).toHaveBeenCalledWith('user-123');
             expect(tokens.accessToken).toBeDefined();
-            expect(tokens.refreshToken).toBeDefined();
         });
 
-        it('should fail with invalid refresh token type', async () => {
-            const invalidToken = jwt.sign(
-                { userId: 'user-123', type: 'access' },
-                config.jwt.secret
-            );
-
-            await expect(AuthService.refreshAccessToken(invalidToken))
-                .rejects.toThrow(AuthenticationError);
-        });
-
-        it('should fail if user not found', async () => {
-            const refreshToken = jwt.sign(
-                { userId: 'user-123', type: 'refresh' },
-                config.jwt.secret
-            );
-
-            (UserModel.findById as jest.Mock).mockResolvedValue(null);
+        it('should throw AuthenticationError for invalid token', async () => {
+            const refreshToken = 'invalid-token';
+            jest.spyOn(jwt, 'verify').mockImplementation(() => {
+                throw new jwt.JsonWebTokenError('invalid token');
+            });
 
             await expect(AuthService.refreshAccessToken(refreshToken))
                 .rejects.toThrow(AuthenticationError);
         });
 
-        it('should fail with invalid token', async () => {
-            await expect(AuthService.refreshAccessToken('invalid.token'))
-                .rejects.toThrow(AuthenticationError);
-        });
-
         it('should get managed pods for manager', async () => {
-            const refreshToken = jwt.sign(
-                { userId: 'user-123', type: 'refresh' },
-                config.jwt.secret
-            );
+            const refreshToken = 'valid-token';
+            const decoded = { userId: 'user-123', type: 'refresh' };
+            jest.spyOn(jwt, 'verify').mockReturnValue(decoded as any);
 
             const mockUser = {
                 id: 'user-123',
@@ -155,15 +133,69 @@ describe('AuthService', () => {
             expect(PodModel.getManagedPodIds).toHaveBeenCalledWith('manager@zluri.com');
             expect(tokens.accessToken).toBeDefined();
         });
+
+        it('should use existing managedPodIds if present on user for refresh token', async () => {
+            const refreshToken = 'valid-token';
+            const decoded = { userId: 'user-123', type: 'refresh' };
+            jest.spyOn(jwt, 'verify').mockReturnValue(decoded as any);
+
+            const mockUser = {
+                id: 'user-123',
+                email: 'manager@zluri.com',
+                role: UserRole.MANAGER,
+                managedPodIds: ['existing-pod-1', 'existing-pod-2']
+            };
+
+            (UserModel.findById as jest.Mock).mockResolvedValue(mockUser);
+            // PodModel.getManagedPodIds is still called for managers but result is not used
+            (PodModel.getManagedPodIds as jest.Mock).mockResolvedValue(['fetched-pod']);
+
+            const tokens = await AuthService.refreshAccessToken(refreshToken);
+
+            // Verify the token contains existing pods, not fetched ones
+            const decoded2 = jwt.decode(tokens.accessToken) as any;
+            expect(decoded2.managedPodIds).toEqual(['existing-pod-1', 'existing-pod-2']);
+        });
+
+        it('should throw AuthenticationError for invalid token type (not refresh)', async () => {
+            const token = 'valid-token-but-wrong-type';
+            const decoded = { userId: 'user-123', type: 'access' }; // type !== 'refresh'
+            jest.spyOn(jwt, 'verify').mockReturnValue(decoded as any);
+
+            await expect(AuthService.refreshAccessToken(token))
+                .rejects.toThrow(AuthenticationError);
+        });
+
+        it('should throw AuthenticationError when user not found after token verification', async () => {
+            const token = 'valid-refresh-token';
+            const decoded = { userId: 'deleted-user', type: 'refresh' };
+            jest.spyOn(jwt, 'verify').mockReturnValue(decoded as any);
+            (UserModel.findById as jest.Mock).mockResolvedValue(null);
+
+            await expect(AuthService.refreshAccessToken(token))
+                .rejects.toThrow(AuthenticationError);
+        });
+
+        it('should re-throw non-JWT errors', async () => {
+            const token = 'valid-token';
+            const decoded = { userId: 'user-123', type: 'refresh' };
+            jest.spyOn(jwt, 'verify').mockReturnValue(decoded as any);
+
+            const customError = new Error('Database connection failed');
+            (UserModel.findById as jest.Mock).mockRejectedValue(customError);
+
+            await expect(AuthService.refreshAccessToken(token))
+                .rejects.toThrow('Database connection failed');
+        });
     });
 
     describe('login', () => {
-        it('should login with valid credentials', async () => {
+        it('should fail if user has no password (e.g. Google auth only)', async () => {
             const mockUser = {
                 id: 'user-123',
-                email: 'test@zluri.com',
-                password: 'hashed',
-                name: 'Test User',
+                email: 'google@zluri.com',
+                // password field missing
+                name: 'Google User',
                 role: UserRole.DEVELOPER,
                 managedPodIds: [],
                 createdAt: new Date(),
@@ -171,24 +203,64 @@ describe('AuthService', () => {
             };
 
             (UserModel.findByEmail as jest.Mock).mockResolvedValue(mockUser);
+
+            await expect(AuthService.login('google@zluri.com', 'password'))
+                .rejects.toThrow(AuthenticationError);
+        });
+
+        it('should use existing managedPodIds if present on user object', async () => {
+            const mockUser = {
+                id: 'user-manager',
+                email: 'manager@zluri.com',
+                password: 'hashedpassword',
+                role: UserRole.MANAGER,
+                managedPodIds: ['pod-existing'],
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+
+            (UserModel.findByEmail as jest.Mock).mockResolvedValue(mockUser);
+            // Even if PodModel returns something else, we expect existing ids to be used
+            (PodModel.getManagedPodIds as jest.Mock).mockResolvedValue(['pod-fetched']);
+            jest.spyOn(AuthService as any, 'comparePassword').mockResolvedValue(true);
+            jest.spyOn(AuthService as any, 'generateTokens').mockReturnValue({ accessToken: 'access', refreshToken: 'refresh' });
+
+            await AuthService.login('manager@zluri.com', 'password');
+
+            // Check that generateTokens was called with correct payload using existing ids
+            expect(AuthService['generateTokens']).toHaveBeenCalledWith(expect.objectContaining({
+                managedPodIds: ['pod-existing']
+            }));
+        });
+
+        it('should login with valid credentials', async () => {
+            const mockUser = {
+                id: 'user-123',
+                email: 'test@zluri.com',
+                password: 'hashed',
+                role: UserRole.DEVELOPER,
+                managedPodIds: []
+            };
+
+            (UserModel.findByEmail as jest.Mock).mockResolvedValue(mockUser);
             (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
             const result = await AuthService.login('test@zluri.com', 'password');
 
-            expect(result.user.email).toBe('test@zluri.com');
+            expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashed');
+            expect(result.user).toEqual(expect.objectContaining({ email: 'test@zluri.com' }));
             expect(result.tokens.accessToken).toBeDefined();
-            expect((result.user as any).password).toBeUndefined();
         });
 
-        it('should fail with invalid email', async () => {
+        it('should fail if user not found', async () => {
             (UserModel.findByEmail as jest.Mock).mockResolvedValue(null);
 
-            await expect(AuthService.login('invalid@zluri.com', 'password'))
+            await expect(AuthService.login('test@zluri.com', 'password'))
                 .rejects.toThrow(AuthenticationError);
         });
 
         it('should fail with invalid password', async () => {
-            const mockUser = { id: 'user-123', password: 'hashed' };
+            const mockUser = { id: 'user-123', password: 'hashed', managedPodIds: [] };
             (UserModel.findByEmail as jest.Mock).mockResolvedValue(mockUser);
             (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 

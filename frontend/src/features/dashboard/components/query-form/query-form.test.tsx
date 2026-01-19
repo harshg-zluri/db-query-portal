@@ -32,4 +32,32 @@ describe('QueryEditor', () => {
         expect(screen.getByPlaceholderText(/db.collection.find/)).toBeInTheDocument();
         expect(screen.getByText(/JavaScript syntax/)).toBeInTheDocument();
     });
+
+    it('handles focus and blur events', () => {
+        render(<QueryEditor {...defaultProps} />);
+        const textarea = screen.getByRole('textbox');
+
+        fireEvent.focus(textarea);
+        fireEvent.blur(textarea);
+        // Component should handle these without errors
+    });
+
+    it('handles scroll events', () => {
+        render(<QueryEditor {...defaultProps} />);
+        const textarea = screen.getByRole('textbox');
+
+        fireEvent.scroll(textarea);
+        // Component should handle scroll without errors
+    });
+
+    it('uses custom placeholder when provided', () => {
+        render(<QueryEditor {...defaultProps} value="" placeholder="Custom placeholder" />);
+        expect(screen.getByPlaceholderText('Custom placeholder')).toBeInTheDocument();
+    });
+
+    it('handles empty database type', () => {
+        render(<QueryEditor {...defaultProps} value="" databaseType={'' as DatabaseType} />);
+        expect(screen.getByPlaceholderText(/SELECT \* FROM/)).toBeInTheDocument();
+        expect(screen.getByText(/Enter a SQL query/)).toBeInTheDocument();
+    });
 });

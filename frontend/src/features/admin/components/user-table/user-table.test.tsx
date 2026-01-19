@@ -76,4 +76,20 @@ describe('UserTable', () => {
         fireEvent.click(deleteButtons[0]);
         expect(defaultProps.onDelete).toHaveBeenCalledWith(mockUsers[0]);
     });
+
+    it('applies developer role badge style', () => {
+        const devUser = {
+            id: 'u3',
+            name: 'Dev User',
+            email: 'dev@example.com',
+            role: UserRole.DEVELOPER,
+            managedPodIds: [],
+            createdAt: '',
+            updatedAt: '',
+        };
+        render(<UserTable {...defaultProps} users={[devUser]} />);
+
+        const devBadge = screen.getByText('developer').closest('span');
+        expect(devBadge).toHaveClass('bg-[#DCFCE7]'); // Green for developer
+    });
 });

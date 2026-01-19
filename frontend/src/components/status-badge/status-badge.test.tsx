@@ -12,28 +12,28 @@ describe('StatusBadge', () => {
         // Since the component structure is <span class="badge"><span>icon</span>Label</span>
         // screen.getByText('Pending') finds the outer span because 'Pending' is a text node info it.
         // However, let's be more precise.
-        const badge = screen.getByText(/Pending/);
-        expect(badge).toHaveClass('bg-[#FEF3C7]');
+        const badge = screen.getByText(/Pending/).closest('span.inline-flex');
+        expect(badge).toHaveClass('bg-amber-100');
 
         rerender(<StatusBadge status={RequestStatus.APPROVED} />);
-        expect(screen.getByText('Approved')).toHaveClass('bg-[#DBEAFE]');
+        expect(screen.getByText('Approved').closest('span.inline-flex')).toHaveClass('bg-blue-100');
 
         rerender(<StatusBadge status={RequestStatus.REJECTED} />);
-        expect(screen.getByText('Rejected')).toHaveClass('bg-[#FEE2E2]');
+        expect(screen.getByText('Rejected').closest('span.inline-flex')).toHaveClass('bg-red-100');
 
         rerender(<StatusBadge status={RequestStatus.EXECUTED} />);
-        expect(screen.getByText('Executed')).toHaveClass('bg-[#DCFCE7]');
+        expect(screen.getByText('Executed').closest('span.inline-flex')).toHaveClass('bg-green-100');
 
         rerender(<StatusBadge status={RequestStatus.FAILED} />);
-        expect(screen.getByText('Failed')).toHaveClass('bg-[#FEE2E2]');
+        expect(screen.getByText('Failed').closest('span.inline-flex')).toHaveClass('bg-red-100');
 
         rerender(<StatusBadge status={RequestStatus.WITHDRAWN} />);
-        expect(screen.getByText('Withdrawn')).toHaveClass('bg-[#F3F4F6]');
+        expect(screen.getByText('Withdrawn').closest('span.inline-flex')).toHaveClass('bg-zinc-100');
     });
 
     it('renders with custom class', () => {
         render(<StatusBadge status={RequestStatus.PENDING} className="custom-badge" />);
-        const badge = screen.getByText('Pending').closest('span');
+        const badge = screen.getByText('Pending').closest('span.inline-flex');
         expect(badge).toHaveClass('custom-badge');
     });
 });

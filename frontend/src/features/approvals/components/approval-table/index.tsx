@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import type { QueryRequest } from '@/types';
 import { DatabaseType, SubmissionType } from '@/types';
 import { SkeletonTable } from '@components/skeleton';
@@ -30,7 +30,7 @@ export function ApprovalTable({
 
     if (isLoading) {
         return (
-            <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000] overflow-hidden">
+            <div className="bg-white border border-[#E2E8F0] rounded-md shadow-sm overflow-hidden">
                 <SkeletonTable rows={5} columns={7} />
             </div>
         );
@@ -38,7 +38,7 @@ export function ApprovalTable({
 
     if (requests.length === 0) {
         return (
-            <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000]">
+            <div className="bg-white border border-[#E2E8F0] rounded-md shadow-sm">
                 <NoPendingRequestsEmpty />
             </div>
         );
@@ -58,50 +58,49 @@ export function ApprovalTable({
     };
 
     return (
-        <div className="bg-white border-2 border-black rounded-md shadow-[4px_4px_0_#000] overflow-hidden">
+        <div className="bg-white border border-[#E2E8F0] rounded-md shadow-sm overflow-hidden">
             <table className="w-full">
                 <thead>
-                    <tr className="border-b-2 border-black bg-[#FAF9F6]">
-                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider w-8">
+                    <tr className="border-b-2 border-[#E2E8F0] bg-[#F8FAFC]">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[#0F172A] r w-8">
 
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[#0F172A] r">
                             Database
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[#0F172A] r">
                             ID
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[#0F172A] r">
                             Query/Script
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[#0F172A] r">
                             User
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[#0F172A] r">
                             POD
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[#0F172A] r">
                             Comments
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[#0F172A] r">
                             Actions
                         </th>
                     </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-black">
                     {requests.map((request, index) => (
-                        <>
+                        <Fragment key={request.id}>
                             <tr
-                                key={request.id}
                                 className={cn(
-                                    'hover:bg-[#FEF34B]/20 transition-colors cursor-pointer animate-fade-in',
-                                    expandedId === request.id && 'bg-[#FEF34B]/10',
+                                    'hover:bg-zinc-50 transition-colors cursor-pointer',
+                                    expandedId === request.id && 'bg-zinc-100',
                                     request.warnings && request.warnings.length > 0 && 'border-l-4 border-l-[#F59E0B]'
                                 )}
                                 style={{ animationDelay: `${index * 50}ms` }}
                                 onClick={() => setExpandedId(expandedId === request.id ? null : request.id)}
                             >
-                                <td className="px-4 py-3 text-black">
+                                <td className="px-4 py-3 text-[#0F172A]">
                                     <svg
                                         className={cn(
                                             'w-4 h-4 transition-transform',
@@ -120,10 +119,10 @@ export function ApprovalTable({
                                     </svg>
                                 </td>
                                 <td className="px-4 py-3">
-                                    <div className="text-sm font-semibold text-black">{request.instanceName}</div>
-                                    <div className="text-xs text-[#6B6B6B]">{request.databaseName}</div>
+                                    <div className="text-sm font-semibold text-[#0F172A]">{request.instanceName}</div>
+                                    <div className="text-xs text-[#64748B]">{request.databaseName}</div>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-[#6B6B6B] font-mono">
+                                <td className="px-4 py-3 text-sm text-[#64748B] font-mono">
                                     {request.id.slice(0, 8)}
                                 </td>
                                 <td className="px-4 py-3">
@@ -133,18 +132,18 @@ export function ApprovalTable({
                                                 ⚠️
                                             </span>
                                         )}
-                                        <span className="text-sm text-black font-mono truncate max-w-[180px]">
+                                        <span className="text-sm text-[#0F172A] font-mono truncate max-w-[180px]">
                                             {getQueryPreview(request)}
                                         </span>
                                     </div>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-black">
+                                <td className="px-4 py-3 text-sm text-[#0F172A]">
                                     {request.userEmail}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-[#6B6B6B]">
+                                <td className="px-4 py-3 text-sm text-[#64748B]">
                                     {request.podName}
                                 </td>
-                                <td className="px-4 py-3 text-sm text-[#6B6B6B] max-w-[150px] truncate">
+                                <td className="px-4 py-3 text-sm text-[#64748B] max-w-[150px] truncate">
                                     {request.comments}
                                 </td>
                                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -161,7 +160,7 @@ export function ApprovalTable({
 
                             {/* Expanded Row */}
                             {expandedId === request.id && (
-                                <tr className="bg-[#FAF9F6] border-t-2 border-black">
+                                <tr className="bg-[#F8FAFC] border-t-2 border-[#E2E8F0]">
                                     <td colSpan={8} className="px-4 py-4">
                                         <div className="space-y-4">
                                             {/* Warnings */}
@@ -171,7 +170,7 @@ export function ApprovalTable({
 
                                             {/* Query/Script Content */}
                                             <div>
-                                                <p className="text-xs text-black font-bold uppercase tracking-wide mb-2">
+                                                <p className="text-xs text-[#0F172A] font-semibold  mb-2">
                                                     {request.submissionType === SubmissionType.SCRIPT
                                                         ? `Script: ${request.scriptFileName}`
                                                         : 'Query'}
@@ -189,10 +188,10 @@ export function ApprovalTable({
 
                                             {/* Full Comments */}
                                             <div>
-                                                <p className="text-xs text-black font-bold uppercase tracking-wide mb-2">
+                                                <p className="text-xs text-[#0F172A] font-semibold  mb-2">
                                                     Full Comments
                                                 </p>
-                                                <p className="text-sm text-black bg-white border-2 border-black p-3 rounded-md shadow-[2px_2px_0_#000]">
+                                                <p className="text-sm text-[#0F172A] bg-white border border-[#E2E8F0] p-3 rounded-md ">
                                                     {request.comments}
                                                 </p>
                                             </div>
@@ -200,23 +199,23 @@ export function ApprovalTable({
                                             {/* Metadata */}
                                             <div className="flex gap-6 text-sm">
                                                 <div>
-                                                    <span className="text-[#6B6B6B] font-semibold">Submitted:</span>{' '}
-                                                    <span className="text-black">{formatDate(request.createdAt)}</span>
+                                                    <span className="text-[#64748B] font-semibold">Submitted:</span>{' '}
+                                                    <span className="text-[#0F172A]">{formatDate(request.createdAt)}</span>
                                                 </div>
                                                 <div>
-                                                    <span className="text-[#6B6B6B] font-semibold">Type:</span>{' '}
-                                                    <span className="text-black">{request.databaseType}</span>
+                                                    <span className="text-[#64748B] font-semibold">Type:</span>{' '}
+                                                    <span className="text-[#0F172A]">{request.databaseType}</span>
                                                 </div>
                                                 <div>
-                                                    <span className="text-[#6B6B6B] font-semibold">Submission:</span>{' '}
-                                                    <span className="text-black">{request.submissionType}</span>
+                                                    <span className="text-[#64748B] font-semibold">Submission:</span>{' '}
+                                                    <span className="text-[#0F172A]">{request.submissionType}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
                             )}
-                        </>
+                        </Fragment>
                     ))}
                 </tbody>
             </table>

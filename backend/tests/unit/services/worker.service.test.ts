@@ -28,6 +28,9 @@ jest.mock('../../../src/config/environment', () => ({
         queue: {
             name: 'test-queue',
             workerConcurrency: 2
+        },
+        resultStorage: {
+            maxRows: 10000
         }
     }
 }));

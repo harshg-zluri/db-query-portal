@@ -7,7 +7,7 @@ export function WarningsDisplay({ warnings, className }: WarningsDisplayProps) {
     if (!warnings || warnings.length === 0) return null;
 
     return (
-        <div className={`p-3 bg-[#FEF3C7] border-2 border-[#F59E0B] rounded-md shadow-[2px_2px_0_#000] ${className}`}>
+        <div className={`p-3 bg-[#FEF3C7] border-2 border-[#F59E0B] rounded-md  ${className}`}>
             <div className="flex items-start gap-2">
                 <svg
                     className="w-5 h-5 text-[#92400E] shrink-0 mt-0.5"
@@ -23,7 +23,7 @@ export function WarningsDisplay({ warnings, className }: WarningsDisplayProps) {
                     />
                 </svg>
                 <div className="flex-1">
-                    <p className="text-sm font-bold text-[#92400E] uppercase tracking-wide mb-2">Security Warnings</p>
+                    <p className="text-sm font-semibold text-[#92400E]  mb-2">Security Warnings</p>
                     <ul className="space-y-0.5 list-none">
                         {warnings.map((warning, index) => (
                             <li key={index} className="text-sm text-[#92400E] -ml-6">

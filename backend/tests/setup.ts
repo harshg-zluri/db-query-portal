@@ -1,5 +1,5 @@
 // Test setup file
-import { jest } from '@jest/globals';
+import { jest, afterAll } from '@jest/globals';
 
 // Set test environment
 process.env.NODE_ENV = 'test';
@@ -7,11 +7,13 @@ process.env.JWT_SECRET = 'test-secret-key';
 process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test_db';
 
 // Mock database
+// Mock database
 jest.mock('../src/config/database', () => ({
     getPool: jest.fn(),
-    closePool: jest.fn(),
-    query: jest.fn(),
-    withTransaction: jest.fn()
+    closeDatabase: jest.fn(),
+    initDatabase: jest.fn(),
+    getEm: jest.fn(),
+    getOrm: jest.fn(),
 }));
 
 // Mock logger to suppress output during tests

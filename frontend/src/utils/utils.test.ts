@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { cn } from './cn';
 import { formatDate, formatDateShort, formatRelativeTime } from './format-date';
+import { scriptRequestSchema } from './schemas';
+import { ROUTES } from '../constants/routes';
 
 describe('Utils', () => {
     describe('cn (clsx + tailwind-merge)', () => {
@@ -74,6 +76,42 @@ describe('Utils', () => {
             // Should match short date format
             expect(result).not.toContain('ago');
             expect(result).toMatch(/[a-zA-Z]{3} \d+/);
+        });
+    });
+
+    describe('Schemas', () => {
+        // Mock File object if not present (JSDOM usually has it)
+
+        it('should validate script file extension', () => {
+            const jsFile = new File(['content'], 'script.js', { type: 'text/javascript' });
+            const pyFile = new File(['content'], 'script.py', { type: 'text/x-python' });
+
+            // Testing the refinement logic specifically
+            // We need to create a valid base object first
+            const baseData = {
+                databaseType: 'postgresql',
+                instanceId: 'inst1',
+                databaseName: 'db1',
+                comments: 'test',
+                podId: 'pod1',
+                submissionType: 'script',
+                script: jsFile
+            };
+
+            const resultValid = scriptRequestSchema.safeParse(baseData);
+            expect(resultValid.success).toBe(true);
+
+            const resultInvalid = scriptRequestSchema.safeParse({ ...baseData, script: pyFile });
+            expect(resultInvalid.success).toBe(false);
+            if (!resultInvalid.success) {
+                expect(resultInvalid.error.issues[0].message).toBe('Script must be a .js file');
+            }
+        });
+    });
+
+    describe('Routes', () => {
+        it('should generate request detail route', () => {
+            expect(ROUTES.REQUEST_DETAIL('123')).toBe('/requests/123');
         });
     });
 });

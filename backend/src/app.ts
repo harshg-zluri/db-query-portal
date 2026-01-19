@@ -7,7 +7,8 @@ import { apiLimiter } from './middleware/rateLimiter.middleware';
 import { requestLogger } from './middleware/requestLogger.middleware';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware';
 import { logger, AuditCategory, AuditAction } from './utils/logger';
-import { closePool, getPool } from './config/database';
+import { RequestContext } from '@mikro-orm/core';
+import { closeDatabase, getPool, initDatabase, getOrm } from './config/database';
 import { ExecutionService } from './services/execution.service';
 import { QueueService } from './services/queue.service';
 import { WorkerService } from './services/worker.service';
@@ -27,6 +28,11 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN || '*',
     credentials: true
 }));
+
+// MikroORM Context (must be before routes)
+app.use((req, res, next) => {
+    RequestContext.create(getOrm().em, next);
+});
 
 // Rate limiting
 app.use('/api', apiLimiter);
@@ -68,7 +74,7 @@ async function shutdown(): Promise<void> {
 
     // Cleanup database connections
     await Promise.all([
-        closePool(),
+        closeDatabase(),
         ExecutionService.cleanup()
     ]);
 
@@ -81,8 +87,13 @@ process.on('SIGINT', shutdown);
 
 // Start server
 if (require.main === module) {
+    const apiOnly = process.argv.includes('--api-only');
+
     (async () => {
         try {
+            // Initialize Database (ORM)
+            await initDatabase();
+
             // Initialize lock service with database pool
             const pool = getPool();
             LockService.initialize(pool);
@@ -90,11 +101,13 @@ if (require.main === module) {
             // Initialize Slack service
             SlackService.initialize();
 
-            // Initialize queue service
+            // Initialize queue service (needed for enqueuing jobs)
             await QueueService.initialize();
 
-            // Start worker
-            await WorkerService.start();
+            // Start worker only if not in API-only mode
+            if (!apiOnly) {
+                await WorkerService.start();
+            }
 
             // Start HTTP server
             app.listen(config.port, () => {

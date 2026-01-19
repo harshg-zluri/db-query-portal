@@ -1,48 +1,49 @@
+import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 import { UserModel } from '../../../src/models/User';
 import { UserRole } from '../../../src/types';
 
-// Mock database query
-jest.mock('../../../src/config/database', () => ({
-    query: jest.fn(),
-    withTransaction: jest.fn()
-}));
+import { getEm } from '../../../src/config/database';
+import { User } from '../../../src/entities/User';
 
-// Mock uuid
-jest.mock('uuid', () => ({
-    v4: jest.fn(() => 'test-uuid-123')
-}));
+// Mock database
+jest.mock('../../../src/config/database');
 
-import { query } from '../../../src/config/database';
 
 describe('UserModel', () => {
+    let mockEm: any;
+
     beforeEach(() => {
         jest.clearAllMocks();
+        mockEm = {
+            findOne: jest.fn(),
+            find: jest.fn(),
+            persistAndFlush: jest.fn(),
+            flush: jest.fn(),
+            removeAndFlush: jest.fn(),
+            findAndCount: jest.fn(),
+        };
+        (getEm as jest.Mock).mockReturnValue(mockEm);
     });
 
     describe('findByEmail', () => {
         it('should return user when found', async () => {
-            const mockRow = {
+            const mockUser = {
                 id: 'user-1',
                 email: 'test@example.com',
-                password: 'hashed-password',
-                name: 'Test User',
                 role: 'developer',
-                managed_pod_ids: ['pod-1'],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
+                managedPodIds: ['pod-1']
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            mockEm.findOne.mockResolvedValue(mockUser);
 
             const result = await UserModel.findByEmail('test@example.com');
 
             expect(result).not.toBeNull();
             expect(result?.email).toBe('test@example.com');
-            expect(result?.role).toBe('developer');
-            expect(result?.managedPodIds).toEqual(['pod-1']);
+            expect(mockEm.findOne).toHaveBeenCalledWith(User, { email: 'test@example.com' });
         });
 
         it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+            mockEm.findOne.mockResolvedValue(null);
 
             const result = await UserModel.findByEmail('notfound@example.com');
 
@@ -52,295 +53,216 @@ describe('UserModel', () => {
 
     describe('findById', () => {
         it('should return user when found', async () => {
-            const mockRow = {
+            const mockUser = {
                 id: 'user-1',
-                email: 'test@example.com',
-                password: 'hashed-password',
-                name: 'Test User',
-                role: 'manager',
-                managed_pod_ids: null,
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
+                managedPodIds: []
             };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+            mockEm.findOne.mockResolvedValue(mockUser);
 
             const result = await UserModel.findById('user-1');
 
             expect(result).not.toBeNull();
             expect(result?.id).toBe('user-1');
-            expect(result?.managedPodIds).toEqual([]);
-        });
-
-        it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
-            const result = await UserModel.findById('nonexistent');
-
-            expect(result).toBeNull();
-        });
-    });
-
-    describe('findByGoogleId', () => {
-        it('should return user when found', async () => {
-            const mockRow = {
-                id: 'user-1',
-                email: 'test@example.com',
-                password: null,
-                name: 'Google User',
-                role: 'developer',
-                managed_pod_ids: [],
-                google_id: 'google-123',
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
-            };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
-
-            const result = await UserModel.findByGoogleId('google-123');
-
-            expect(result).not.toBeNull();
-            expect(result?.googleId).toBe('google-123');
-            expect(result?.email).toBe('test@example.com');
-        });
-
-        it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
-            const result = await UserModel.findByGoogleId('nonexistent');
-
-            expect(result).toBeNull();
-        });
-    });
-
-    describe('linkGoogle', () => {
-        it('should link google account to existing user', async () => {
-            const mockRow = {
-                id: 'user-1',
-                email: 'test@example.com',
-                name: 'Test User',
-                role: 'developer',
-                managed_pod_ids: [],
-                google_id: 'google-123',
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
-            };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
-
-            const result = await UserModel.linkGoogle('user-1', 'google-123');
-
-            expect(result).not.toBeNull();
-            expect(result?.googleId).toBe('google-123');
-        });
-
-        it('should return null when user not found during link', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
-            const result = await UserModel.linkGoogle('nonexistent', 'google-123');
-
-            expect(result).toBeNull();
-        });
-    });
-
-    describe('findByIdSafe', () => {
-        it('should return user without password when found', async () => {
-            const mockRow = {
-                id: 'user-1',
-                email: 'test@example.com',
-                password: 'secret-password',
-                name: 'Test User',
-                role: 'admin',
-                managed_pod_ids: [],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
-            };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
-
-            const result = await UserModel.findByIdSafe('user-1');
-
-            expect(result).not.toBeNull();
-            expect(result?.email).toBe('test@example.com');
-            expect((result as any).password).toBeUndefined();
-        });
-
-        it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
-            const result = await UserModel.findByIdSafe('nonexistent');
-
-            expect(result).toBeNull();
+            expect(mockEm.findOne).toHaveBeenCalledWith(User, { id: 'user-1' });
         });
     });
 
     describe('create', () => {
         it('should create a new user', async () => {
-            const mockRow = {
-                id: 'test-uuid-123',
-                email: 'new@example.com',
-                name: 'New User',
-                role: 'developer',
-                managed_pod_ids: [],
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
-
-            const result = await UserModel.create({
+            const data = {
                 email: 'new@example.com',
                 password: 'hashed-password',
                 name: 'New User',
                 role: UserRole.DEVELOPER
-            });
+            };
 
+            const result = await UserModel.create(data);
+
+            expect(mockEm.persistAndFlush).toHaveBeenCalled();
             expect(result.email).toBe('new@example.com');
-            expect(result.name).toBe('New User');
-            expect(result.role).toBe('developer');
-            expect(query).toHaveBeenCalled();
         });
 
-        it('should create user with managedPodIds', async () => {
-            const mockRow = {
-                id: 'test-uuid-123',
-                email: 'manager@example.com',
-                name: 'Manager',
-                role: 'manager',
-                managed_pod_ids: ['pod-1', 'pod-2'],
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
-
-            const result = await UserModel.create({
-                email: 'manager@example.com',
-                password: 'hashed-password',
-                name: 'Manager',
-                role: UserRole.MANAGER,
-                managedPodIds: ['pod-1', 'pod-2']
-            });
-
-            expect(result.managedPodIds).toEqual(['pod-1', 'pod-2']);
-        });
-
-        it('should create user with Google ID', async () => {
-            const mockRow = {
-                id: 'test-uuid-123',
-                email: 'google@example.com',
-                name: 'Google User',
-                role: 'developer',
-                managed_pod_ids: [],
-                google_id: 'google-123',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
-
-            const result = await UserModel.create({
+        it('should create user with googleId', async () => {
+            const data = {
                 email: 'google@example.com',
                 name: 'Google User',
                 role: UserRole.DEVELOPER,
-                googleId: 'google-123'
-            });
+                googleId: 'g-123'
+            };
 
-            expect(result.googleId).toBe('google-123');
-            expect(result.email).toBe('google@example.com');
+            const result = await UserModel.create(data);
+
+            expect(result.googleId).toBe('g-123');
+            expect(mockEm.persistAndFlush).toHaveBeenCalledWith(
+                expect.objectContaining({ googleId: 'g-123' })
+            );
+        });
+    });
+
+    describe('findAll', () => {
+        it('should return paginated users', async () => {
+            const mockUsers = [
+                { id: 'user-1', toJSON: () => ({ email: 'test@example.com' }) }
+            ];
+            mockEm.findAndCount.mockResolvedValue([mockUsers, 1]);
+
+            const result = await UserModel.findAll({ page: 1, limit: 10 });
+
+            expect(result.users).toHaveLength(1);
+            expect(result.total).toBe(1);
+            expect(mockEm.findAndCount).toHaveBeenCalledWith(
+                User,
+                {},
+                { limit: 10, offset: 0, orderBy: { createdAt: 'DESC' } }
+            );
+        });
+
+        it('should use default pagination options', async () => {
+            mockEm.findAndCount.mockResolvedValue([[], 0]);
+
+            await UserModel.findAll();
+
+            expect(mockEm.findAndCount).toHaveBeenCalledWith(
+                User,
+                {},
+                expect.objectContaining({ limit: 20, offset: 0 })
+            );
+        });
+
+        it('should filter by search term', async () => {
+            mockEm.findAndCount.mockResolvedValue([[], 0]);
+
+            await UserModel.findAll({ search: 'test' });
+
+            expect(mockEm.findAndCount).toHaveBeenCalledWith(
+                User,
+                { $or: [{ name: { $ilike: '%test%' } }, { email: { $ilike: '%test%' } }] },
+                expect.any(Object)
+            );
+        });
+    });
+
+    describe('findByIdSafe', () => {
+        it('should return safe user (no password)', async () => {
+            const mockUser = {
+                id: 'user-1',
+                email: 'test@example.com',
+                password: 'secret',
+                toJSON: () => ({ id: 'user-1', email: 'test@example.com' })
+            };
+            mockEm.findOne.mockResolvedValue(mockUser);
+
+            const result = await UserModel.findByIdSafe('user-1');
+
+            expect(result).not.toBeNull();
+            expect(result).not.toHaveProperty('password');
+        });
+
+        it('should return null when not found', async () => {
+            mockEm.findOne.mockResolvedValue(null);
+            const result = await UserModel.findByIdSafe('nonexistent');
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('findByGoogleId', () => {
+        it('should find user by google id', async () => {
+            const mockUser = { id: 'user-1', googleId: 'g-123' };
+            mockEm.findOne.mockResolvedValue(mockUser);
+
+            const result = await UserModel.findByGoogleId('g-123');
+            expect(result).toEqual(mockUser);
+            expect(mockEm.findOne).toHaveBeenCalledWith(User, { googleId: 'g-123' });
+        });
+    });
+
+    describe('linkGoogle', () => {
+        it('should link google id to user', async () => {
+            const mockUser = { id: 'user-1' };
+            mockEm.findOne.mockResolvedValue(mockUser);
+
+            const result = await UserModel.linkGoogle('user-1', 'g-123');
+
+            expect(mockUser).toHaveProperty('googleId', 'g-123');
+            expect(mockEm.flush).toHaveBeenCalled();
+            expect(result).not.toBeNull();
+        });
+
+        it('should return null if user not found', async () => {
+            mockEm.findOne.mockResolvedValue(null);
+            const result = await UserModel.linkGoogle('nonexistent', 'g-123');
+            expect(result).toBeNull();
         });
     });
 
     describe('update', () => {
-        it('should update existing user', async () => {
-            // First call for findById
-            const existingUser = {
-                id: 'user-1',
-                email: 'test@example.com',
-                password: 'hashed',
-                name: 'Old Name',
-                role: 'developer',
-                managed_pod_ids: [],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
-            };
-            // Second call for update
-            const updatedRow = {
-                id: 'user-1',
-                email: 'test@example.com',
-                name: 'New Name',
-                role: 'manager',
-                managed_pod_ids: ['pod-1'],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-02T00:00:00Z'
-            };
+        it('should update user fields', async () => {
+            const mockUser = { id: 'user-1', name: 'Old' };
+            mockEm.findOne.mockResolvedValue(mockUser);
 
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [existingUser] })
-                .mockResolvedValueOnce({ rows: [updatedRow] });
+            const result = await UserModel.update('user-1', { name: 'New' });
 
-            const result = await UserModel.update('user-1', {
+            expect(mockUser).toHaveProperty('name', 'New');
+            expect(mockEm.flush).toHaveBeenCalled();
+            expect(result).not.toBeNull();
+        });
+
+        it('should update all optional fields', async () => {
+            const mockUser = { id: 'user-1', name: 'Old', role: 'developer', managedPodIds: [] };
+            mockEm.findOne.mockResolvedValue(mockUser);
+
+            await UserModel.update('user-1', {
                 name: 'New Name',
-                role: UserRole.MANAGER,
+                role: UserRole.ADMIN,
                 managedPodIds: ['pod-1']
             });
 
-            expect(result).not.toBeNull();
-            expect(result?.name).toBe('New Name');
-            expect(result?.role).toBe('manager');
+            expect(mockUser).toHaveProperty('name', 'New Name');
+            expect(mockUser).toHaveProperty('role', UserRole.ADMIN);
+            expect(mockUser).toHaveProperty('managedPodIds', ['pod-1']);
         });
 
-        it('should return null when user not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
-            const result = await UserModel.update('nonexistent', { name: 'New Name' });
-
+        it('should return null if user not found', async () => {
+            mockEm.findOne.mockResolvedValue(null);
+            const result = await UserModel.update('nonexistent', { name: 'New' });
             expect(result).toBeNull();
         });
+    });
 
-        it('should return null when update returns no rows', async () => {
-            const existingUser = {
-                id: 'user-1',
-                email: 'test@example.com',
-                password: 'hashed',
-                name: 'Old Name',
-                role: 'developer',
-                managed_pod_ids: [],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
-            };
+    describe('updatePassword', () => {
+        it('should update password', async () => {
+            const mockUser = { id: 'user-1', password: 'old' };
+            mockEm.findOne.mockResolvedValue(mockUser);
 
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [existingUser] })  // findById
-                .mockResolvedValueOnce({ rows: [] });  // update returns empty
+            const result = await UserModel.updatePassword('user-1', 'new-hash');
 
-            const result = await UserModel.update('user-1', { name: 'New Name' });
-
-            expect(result).toBeNull();
+            expect(mockUser).toHaveProperty('password', 'new-hash');
+            expect(mockEm.flush).toHaveBeenCalled();
+            expect(result).toBe(true);
         });
 
-        it('should use existing values when partial update', async () => {
-            const existingUser = {
-                id: 'user-1',
-                email: 'test@example.com',
-                password: 'hashed',
-                name: 'Existing Name',
-                role: 'developer',
-                managed_pod_ids: ['pod-1'],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-01T00:00:00Z'
-            };
-            const updatedRow = {
-                id: 'user-1',
-                email: 'test@example.com',
-                name: 'New Name',
-                role: 'developer',
-                managed_pod_ids: ['pod-1'],
-                created_at: '2024-01-01T00:00:00Z',
-                updated_at: '2024-01-02T00:00:00Z'
-            };
+        it('should return false if user not found', async () => {
+            mockEm.findOne.mockResolvedValue(null);
+            const result = await UserModel.updatePassword('nonexistent', 'hash');
+            expect(result).toBe(false);
+        });
+    });
 
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [existingUser] })
-                .mockResolvedValueOnce({ rows: [updatedRow] });
+    describe('delete', () => {
+        it('should remove user', async () => {
+            const mockUser = { id: 'user-1' };
+            mockEm.findOne.mockResolvedValue(mockUser);
 
-            const result = await UserModel.update('user-1', { name: 'New Name' });
+            const result = await UserModel.delete('user-1');
 
-            expect(result?.name).toBe('New Name');
-            expect(result?.role).toBe('developer');  // Unchanged
+            expect(mockEm.removeAndFlush).toHaveBeenCalledWith(mockUser);
+            expect(result).toBe(true);
+        });
+
+        it('should return false if user not found', async () => {
+            mockEm.findOne.mockResolvedValue(null);
+            const result = await UserModel.delete('nonexistent');
+            expect(result).toBe(false);
         });
     });
 });

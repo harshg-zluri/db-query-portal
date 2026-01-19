@@ -1,0 +1,540 @@
+
+> frontend@0.0.0 test:coverage
+> vitest run --coverage
+
+
+[1m[46m RUN [49m[22m [36mv4.0.16 [39m[90m/Users/harshgoyal/Desktop/db-query-portal/frontend[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [31m❯[39m src/components/status-badge/status-badge.test.tsx [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 56[2mms[22m[39m
+[31m     [31m×[31m renders each status correctly[39m[32m 53[2mms[22m[39m
+[31m     [31m×[31m renders with custom class[39m[32m 2[2mms[22m[39m
+ [31m❯[39m src/components/select/select.test.tsx [2m([22m[2m6 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 291[2mms[22m[39m
+     [32m✓[39m renders with label and options[32m 229[2mms[22m[39m
+     [32m✓[39m renders placeholder[32m 3[2mms[22m[39m
+     [32m✓[39m handles change events[32m 23[2mms[22m[39m
+[31m     [31m×[31m displays error message[39m[32m 19[2mms[22m[39m
+[31m     [31m×[31m shows loading state[39m[32m 14[2mms[22m[39m
+[31m     [31m×[31m renders required asterisk[39m[32m 2[2mms[22m[39m
+ [31m❯[39m src/components/input/input.test.tsx [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 351[2mms[22m[39m
+     [32m✓[39m renders correctly[32m 45[2mms[22m[39m
+     [32m✓[39m displays label[32m 13[2mms[22m[39m
+     [32m✓[39m handles onChange[32m 263[2mms[22m[39m
+[31m     [31m×[31m displays error message[39m[32m 24[2mms[22m[39m
+     [32m✓[39m displays hint[32m 1[2mms[22m[39m
+     [32m✓[39m shows required asterisk[32m 4[2mms[22m[39m
+ [32m✓[39m src/features/approvals/components/approval-table/approval-table.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 424[2mms[22m[39m
+ [31m❯[39m src/features/submissions/components/submission-detail-modal/submission-detail-modal.test.tsx [2m([22m[2m16 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 555[2mms[22m[39m
+     [32m✓[39m renders nothing if request is null[32m 11[2mms[22m[39m
+     [32m✓[39m renders details correctly[32m 91[2mms[22m[39m
+     [32m✓[39m renders warnings[32m 11[2mms[22m[39m
+     [32m✓[39m shows execution result[32m 15[2mms[22m[39m
+     [32m✓[39m shows rejection reason[32m 6[2mms[22m[39m
+     [32m✓[39m allows withdrawal for pending requests[32m 155[2mms[22m[39m
+     [32m✓[39m hides withdraw button for non-pending requests[32m 69[2mms[22m[39m
+     [32m✓[39m renders script submission type correctly[32m 4[2mms[22m[39m
+[31m     [31m×[31m renders compressed result with download link[39m[32m 148[2mms[22m[39m
+     [32m✓[39m renders execution error[32m 5[2mms[22m[39m
+     [32m✓[39m renders approver info for approved request[32m 4[2mms[22m[39m
+     [32m✓[39m renders rejector info for rejected request[32m 3[2mms[22m[39m
+     [32m✓[39m handles MongoDB database type correctly[32m 9[2mms[22m[39m
+     [32m✓[39m hides withdraw button when onWithdraw is not provided[32m 9[2mms[22m[39m
+     [32m✓[39m shows fallback for missing script content[32m 6[2mms[22m[39m
+     [32m✓[39m shows fallback for missing query[32m 4[2mms[22m[39m
+ [32m✓[39m src/features/approvals/components/approval-actions/approval-actions.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 588[2mms[22m[39m
+[90mstderr[2m | src/features/admin/components/user-form-modal/user-form-modal.test.tsx[2m > [22m[2mUserFormModal[2m > [22m[2mvalidates password length for new users
+[22m[39mAn update to UserFormModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | src/features/admin/components/user-form-modal/user-form-modal.test.tsx[2m > [22m[2mUserFormModal[2m > [22m[2mvalidates password length for new users
+[22m[39mAn update to UserFormModal inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m src/features/admin/components/user-form-modal/user-form-modal.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1035[2mms[22m[39m
+ [32m✓[39m src/components/code-viewer/code-viewer.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 200[2mms[22m[39m
+ [32m✓[39m src/features/dashboard/components/query-form/query-form.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 421[2mms[22m[39m
+ [32m✓[39m src/features/submissions/components/submission-table/submission-table.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[32m 234[2mms[22m[39m
+ [32m✓[39m src/components/button/button.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 247[2mms[22m[39m
+ [32m✓[39m src/features/admin/components/user-table/user-table.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 205[2mms[22m[39m
+ [32m✓[39m src/components/modal/modal.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 234[2mms[22m[39m
+ [32m✓[39m src/features/auth/components/login-form/login-form.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1282[2mms[22m[39m
+ [32m✓[39m src/components/file-upload/file-upload.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 134[2mms[22m[39m
+ [32m✓[39m src/components/skeleton/skeleton.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32m✓[39m src/features/dashboard/components/script-form/script-form.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 300[2mms[22m[39m
+ [32m✓[39m src/features/dashboard/components/database-selector/database-selector.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[32m 192[2mms[22m[39m
+ [32m✓[39m src/layouts/sidebar.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 135[2mms[22m[39m
+ [32m✓[39m src/components/empty-state/empty-state.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 210[2mms[22m[39m
+ [32m✓[39m src/components/card/card.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 196[2mms[22m[39m
+ [32m✓[39m src/components/loading-spinner/loading-spinner.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m src/utils/dummy.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/utils/utils.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m src/features/approvals/components/warnings-display/warnings-display.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m src/stores/auth-store.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/input/input.test.tsx[2m > [22mInput[2m > [22mdisplays error message
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"border-[#EF4444]"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  border-[#EF4444][31m
+Received:
+[31m  w-full px-3 py-2 bg-white text-zinc-900 border rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150 border-red-500 focus:ring-red-500[31m[39m
+[36m [2m❯[22m src/components/input/input.test.tsx:[2m32:23[22m[39m
+    [90m 30| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Invalid email'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 31| [39m        [35mconst[39m input [33m=[39m screen[33m.[39m[34mgetByRole[39m([32m'textbox'[39m)[33m;[39m
+    [90m 32| [39m        [34mexpect[39m(input)[33m.[39m[34mtoHaveClass[39m([32m'border-[#EF4444]'[39m)[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m 33| [39m    })[33m;[39m
+    [90m 34| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/select/select.test.tsx[2m > [22mSelect[2m > [22mdisplays error message
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"border-[#EF4444]"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  border-[#EF4444][31m
+Received:
+[31m  w-full px-3 py-2 bg-white text-zinc-900 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150 border-red-500 focus:ring-red-500[31m[39m
+[36m [2m❯[22m src/components/select/select.test.tsx:[2m37:46[22m[39m
+    [90m 35| [39m        [34mrender[39m([33m<[39m[33mSelect[39m [33moptions[39m[33m=[39m[33m{[39moptions[33m}[39m [33merror[39m[33m=[39m[32m"Invalid selection"[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 36| [39m        expect(screen.getByText('Invalid selection')).toBeInTheDocumen…
+    [90m 37| [39m        expect(screen.getByRole('combobox')).toHaveClass('border-[#EF4…
+    [90m   | [39m                                             [31m^[39m
+    [90m 38| [39m    })[33m;[39m
+    [90m 39| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/select/select.test.tsx[2m > [22mSelect[2m > [22mshows loading state
+[31m[1mError[22m: [2mexpect([22m[31mreceived[31m[2m).toBeInTheDocument()[22m
+
+[31mreceived[31m value must be an HTMLElement or an SVGElement.
+Received has type:  Null
+Received has value: [31mnull[31m[39m
+[36m [2m❯[22m src/components/select/select.test.tsx:[2m49:25[22m[39m
+    [90m 47| [39m        [90m// Spinner check (class check)[39m
+    [90m 48| [39m        [35mconst[39m spinner [33m=[39m document[33m.[39m[34mquerySelector[39m([32m'.animate-spin'[39m)[33m;[39m
+    [90m 49| [39m        [34mexpect[39m(spinner)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                        [31m^[39m
+    [90m 50| [39m    })[33m;[39m
+    [90m 51| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/select/select.test.tsx[2m > [22mSelect[2m > [22mrenders required asterisk
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"text-[#EF4444]"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  text-[#EF4444][31m
+Received:
+[31m  text-red-500 ml-0.5[31m[39m
+[36m [2m❯[22m src/components/select/select.test.tsx:[2m54:39[22m[39m
+    [90m 52| [39m    [34mit[39m([32m'renders required asterisk'[39m[33m,[39m () [33m=>[39m {
+    [90m 53| [39m        render(<Select options={options} label="Required Field" requir…
+    [90m 54| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'*'[39m))[33m.[39m[34mtoHaveClass[39m([32m'text-[#EF4444]'[39m)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m 55| [39m    })[33m;[39m
+    [90m 56| [39m})[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/status-badge/status-badge.test.tsx[2m > [22mStatusBadge[2m > [22mrenders each status correctly
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: Pending. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<span[31m
+      [33mclass[31m=[32m"inline-flex items-center px-2 py-0.5 text-xs font-medium rounded border bg-amber-50 text-amber-700 border-amber-200"[31m
+    [36m>[31m
+      [0mPending ⏳[0m
+    [36m</span>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/status-badge/status-badge.test.tsx:[2m9:23[22m[39m
+    [90m  7| [39m    [34mit[39m([32m'renders each status correctly'[39m[33m,[39m () [33m=>[39m {
+    [90m  8| [39m        const { rerender } = render(<StatusBadge status={RequestStatus…
+    [90m  9| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Pending'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m 10| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'⏳'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 11| [39m        [90m// The badge is the container that has the class.[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/status-badge/status-badge.test.tsx[2m > [22mStatusBadge[2m > [22mrenders with custom class
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: Pending. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<span[31m
+      [33mclass[31m=[32m"inline-flex items-center px-2 py-0.5 text-xs font-medium rounded border bg-amber-50 text-amber-700 border-amber-200 custom-badge"[31m
+    [36m>[31m
+      [0mPending ⏳[0m
+    [36m</span>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/status-badge/status-badge.test.tsx:[2m36:30[22m[39m
+    [90m 34| [39m    [34mit[39m([32m'renders with custom class'[39m[33m,[39m () [33m=>[39m {
+    [90m 35| [39m        render(<StatusBadge status={RequestStatus.PENDING} className="…
+    [90m 36| [39m        [35mconst[39m badge [33m=[39m screen[33m.[39m[34mgetByText[39m([32m'Pending'[39m)[33m.[39m[34mclosest[39m([32m'span'[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m 37| [39m        [34mexpect[39m(badge)[33m.[39m[34mtoHaveClass[39m([32m'custom-badge'[39m)[33m;[39m
+    [90m 38| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/submissions/components/submission-detail-modal/submission-detail-modal.test.tsx[2m > [22mSubmissionDetailModal[2m > [22mrenders compressed result with download link
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "link" and name `/Download Result/`
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Request Details":
+  [36m<h2[39m
+    [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "":
+  [36m<button[39m
+    [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+  [36m/>[39m
+
+  Name "Download Result":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white font-semibold text-sm rounded-md hover:bg-[#1D4ED8] transition-colors shadow-sm"[39m
+  [36m/>[39m
+
+  Name "Close":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#64748B] font-mono"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#64748B] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] bg-[#F8FAFC] border border-[#E2E8F0] p-3 rounded-md "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#64748B] mb-3"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-50 overflow-y-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed inset-0 bg-zinc-900/50 transition-opacity"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-full items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative w-full bg-white rounded-lg shadow-lg animate-fade-in max-w-2xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between px-5 py-4 border-b border-zinc-200"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+            [36m>[39m
+              [0mRequest Details[0m
+            [36m</h2>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-4 h-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 18L18 6M6 6l12 12"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"px-5 py-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"space-y-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start justify-between"[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#64748B] font-mono"[39m
+                  [36m>[39m
+                    [0mID: [0m
+                    [0mreq-1[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#64748B] mt-1"[39m
+                  [36m>[39m
+                    [0mSubmitted on [0m
+                    [0mJan 1, 2023, 05:30 AM[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex items-center px-2 py-0.5 text-xs font-medium rounded border bg-green-50 text-green-700 border-green-200"[39m
+                [36m>[39m
+                  [0mExecuted 🚀[0m
+                [36m</span>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"grid grid-cols-2 gap-4 p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md "[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+                  [36m>[39m
+                    [0mDatabase Type[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+                  [36m>[39m
+                    [0mpostgresql[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+                  [36m>[39m
+                    [0mInstance[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+                  [36m>[39m
+                    [0mProd DB[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+                  [36m>[39m
+                    [0mDatabase[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+                  [36m>[39m
+                    [0mdb1[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+                  [36m>[39m
+                    [0mPOD[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+                  [36m>[39m
+                    [0mAlpha[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+                [36m>[39m
+                  [0mQuery[0m
+                [36m</p>[39m
+                [36m<div[39m
+                  [33mdata-testid[39m=[32m"code-viewer"[39m
+                [36m>[39m
+                  [0mSELECT * FROM users[0m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+                [36m>[39m
+                  [0mComments[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-sm text-[#0F172A] bg-[#F8FAFC] border border-[#E2E8F0] p-3 rounded-md "[39m
+                [36m>[39m
+                  [0mJust checking[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+                [36m>[39m
+                  [0mExecution Result[0m
+                [36m</p>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md "[39m
+                [36m>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#64748B] mb-3"[39m
+                  [36m>[39m
+                    [0mResult is large and stored compressed. Click to download.[0m
+                  [36m</p>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white font-semibold text-sm rounded-md hover:bg-[#1D4ED8] transition-colors shadow-sm"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"w-4 h-4"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"[39m
+                        [33mstroke-linecap[39m=[32m"round"[39m
+                        [33mstroke-linejoin[39m=[32m"round"[39m
+                        [33mstroke-width[39m=[32m"2"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [0mDownload Result[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+              [36m>[39m
+                [0mClose[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/submissions/components/submission-detail-modal/submission-detail-modal.test.tsx:[2m117:23[22m[39m
+    [90m115| [39m        expect(screen.getByText('Execution Result')).toBeInTheDocument…
+    [90m116| [39m        expect(screen.getByText(/Result is large and stored compressed…
+    [90m117| [39m        expect(screen.getByRole('link', { name: /Download Result/ })).…
+    [90m   | [39m                      [31m^[39m
+    [90m118| [39m    })[33m;[39m
+    [90m119| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m22 passed[39m[22m[90m (26)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m185 passed[39m[22m[90m (192)[39m
+[2m   Start at [22m 12:09:52
+[2m   Duration [22m 6.52s[2m (transform 1.27s, setup 5.38s, import 2.64s, tests 7.48s, environment 20.61s)[22m
+

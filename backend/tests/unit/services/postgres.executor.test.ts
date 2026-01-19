@@ -1,41 +1,36 @@
 import { PostgresExecutor, createPostgresExecutor } from '../../../src/services/postgres.executor';
 
-// Mock pg
-jest.mock('pg', () => {
-    const mockClient = {
-        query: jest.fn(),
-        release: jest.fn()
-    };
-    const mockPool = {
-        connect: jest.fn().mockResolvedValue(mockClient),
-        end: jest.fn().mockResolvedValue(undefined),
-        on: jest.fn()
-    };
-    return {
-        Pool: jest.fn(() => mockPool)
-    };
+// Mock postgres.js
+jest.mock('postgres', () => {
+    const mockSql = Object.assign(
+        jest.fn().mockImplementation(() => Promise.resolve([{ id: 1 }])),
+        {
+            unsafe: jest.fn().mockResolvedValue([]),
+            end: jest.fn().mockResolvedValue(undefined),
+        }
+    );
+    return jest.fn(() => mockSql);
 });
 
-import { Pool } from 'pg';
+// Drizzle mocks removed
+
+import postgres from 'postgres';
 
 describe('PostgresExecutor', () => {
     let executor: PostgresExecutor;
-    let mockPool: any;
-    let mockClient: any;
+    let mockClient: jest.Mock & { unsafe: jest.Mock; end: jest.Mock };
 
     beforeEach(() => {
         jest.clearAllMocks();
 
-        mockClient = {
-            query: jest.fn(),
-            release: jest.fn()
-        };
-        mockPool = {
-            connect: jest.fn().mockResolvedValue(mockClient),
-            end: jest.fn().mockResolvedValue(undefined),
-            on: jest.fn()
-        };
-        (Pool as unknown as jest.Mock).mockImplementation(() => mockPool);
+        mockClient = Object.assign(
+            jest.fn().mockImplementation(() => Promise.resolve([{ id: 1 }])),
+            {
+                unsafe: jest.fn().mockResolvedValue([]),
+                end: jest.fn().mockResolvedValue(undefined),
+            }
+        );
+        (postgres as unknown as jest.Mock).mockReturnValue(mockClient);
 
         executor = new PostgresExecutor({
             host: 'localhost',
@@ -47,23 +42,23 @@ describe('PostgresExecutor', () => {
     });
 
     describe('connect', () => {
-        it('should create pool on first connect', async () => {
+        it('should create client on first connect', async () => {
             await executor.connect();
-            expect(Pool).toHaveBeenCalled();
+            expect(postgres).toHaveBeenCalled();
         });
 
-        it('should reuse pool on subsequent connects', async () => {
+        it('should reuse client on subsequent connects', async () => {
             await executor.connect();
             await executor.connect();
-            expect(Pool).toHaveBeenCalledTimes(1);
+            expect(postgres).toHaveBeenCalledTimes(1);
         });
     });
 
     describe('close', () => {
-        it('should close pool', async () => {
+        it('should close client', async () => {
             await executor.connect();
             await executor.close();
-            expect(mockPool.end).toHaveBeenCalled();
+            expect(mockClient.end).toHaveBeenCalled();
         });
 
         it('should handle close without connect', async () => {
@@ -74,10 +69,10 @@ describe('PostgresExecutor', () => {
 
     describe('execute', () => {
         it('should execute SELECT query and return rows', async () => {
-            mockClient.query.mockResolvedValue({
-                rows: [{ id: 1, name: 'test' }],
-                rowCount: 1
-            });
+            // First call is COUNT check, second is actual query
+            mockClient.unsafe
+                .mockResolvedValueOnce([{ cnt: '1' }])  // COUNT returns 1 row
+                .mockResolvedValueOnce([{ id: 1, name: 'test' }]);
 
             const result = await executor.execute('SELECT * FROM users');
 
@@ -87,10 +82,8 @@ describe('PostgresExecutor', () => {
         });
 
         it('should execute UPDATE and return affected rows', async () => {
-            mockClient.query.mockResolvedValue({
-                rows: [],
-                rowCount: 5
-            });
+            const mockResult = Object.assign([], { count: 5 });
+            mockClient.unsafe.mockResolvedValue(mockResult);
 
             const result = await executor.execute('UPDATE users SET name = "test"');
 
@@ -99,10 +92,7 @@ describe('PostgresExecutor', () => {
         });
 
         it('should handle empty result', async () => {
-            mockClient.query.mockResolvedValue({
-                rows: [],
-                rowCount: null
-            });
+            mockClient.unsafe.mockResolvedValue([]);
 
             const result = await executor.execute('SET timezone = "UTC"');
 
@@ -111,24 +101,17 @@ describe('PostgresExecutor', () => {
         });
 
         it('should allow DDL statements (warnings handled at submission)', async () => {
-            // DDL queries are now allowed through the executor
-            // Security warnings are generated at submission time, not execution time
-            mockClient.query.mockResolvedValue({
-                rows: [],
-                rowCount: 0
-            });
+            mockClient.unsafe.mockResolvedValue([]);
 
             const result = await executor.execute('DROP TABLE test_table');
 
             expect(result.success).toBe(true);
-            expect(mockClient.query).toHaveBeenCalledWith('DROP TABLE test_table');
+            expect(mockClient.unsafe).toHaveBeenCalledWith('DROP TABLE test_table');
         });
 
         it('should execute valid DELETE queries (DML)', async () => {
-            mockClient.query.mockResolvedValue({
-                rows: [],
-                rowCount: 1
-            });
+            const mockResult = Object.assign([], { count: 1 });
+            mockClient.unsafe.mockResolvedValue(mockResult);
 
             const result = await executor.execute('DELETE FROM users WHERE id = 1');
 
@@ -137,7 +120,7 @@ describe('PostgresExecutor', () => {
         });
 
         it('should handle query error', async () => {
-            mockClient.query.mockRejectedValue(new Error('Syntax error'));
+            mockClient.unsafe.mockRejectedValue(new Error('Syntax error'));
 
             const result = await executor.execute('INVALID SQL');
 
@@ -146,40 +129,70 @@ describe('PostgresExecutor', () => {
         });
 
         it('should set search path when schema provided', async () => {
-            mockClient.query.mockResolvedValue({
-                rows: [],
-                rowCount: 0
-            });
+            // Mock: 1. search_path, 2. COUNT query, 3. actual query
+            mockClient.unsafe
+                .mockResolvedValueOnce(undefined)  // SET search_path
+                .mockResolvedValueOnce([{ cnt: '0' }])  // COUNT returns 0
+                .mockResolvedValueOnce([]);  // actual SELECT
 
             await executor.execute('SELECT * FROM users', 'my_schema');
 
-            expect(mockClient.query).toHaveBeenCalledWith('SET search_path TO my_schema, public');
-            expect(mockClient.query).toHaveBeenCalledWith('SELECT * FROM users');
+            // First call sets search_path
+            expect(mockClient.unsafe).toHaveBeenNthCalledWith(1, 'SET search_path TO my_schema, public');
+            // Second call is the COUNT
+            expect(mockClient.unsafe).toHaveBeenNthCalledWith(2, expect.stringContaining('SELECT COUNT'));
+            // Third call is the actual query
+            expect(mockClient.unsafe).toHaveBeenNthCalledWith(3, 'SELECT * FROM users');
         });
+        it('should handle null/undefined result from driver', async () => {
+            // Mock COUNT returning 0, then null for actual result
+            mockClient.unsafe
+                .mockResolvedValueOnce([{ cnt: '0' }])  // COUNT
+                .mockResolvedValueOnce(null as any);    // actual query
 
-        it('should release client after execution', async () => {
-            mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-
-            await executor.execute('SELECT 1');
-
-            expect(mockClient.release).toHaveBeenCalled();
-        });
-        it('should handle undefined rows gracefully', async () => {
-            mockClient.query.mockResolvedValue({
-                rowCount: 1,
-                // rows undefined
-            });
-
-            const result = await executor.execute('INSERT INTO users ...');
-
+            const result = await executor.execute('SELECT 1');
             expect(result.success).toBe(true);
-            expect(result.output).toBe('1 row(s) affected');
+            expect(result.rowCount).toBe(0);
+            expect(result.output).toBe('Query executed successfully');
+        });
+
+        it('should handle non-Error exception', async () => {
+            const errorString = 'Database exploded';
+            mockClient.unsafe.mockRejectedValue(errorString);
+
+            const result = await executor.execute('SELECT 1');
+            expect(result.success).toBe(false);
+            expect(result.error).toBe(errorString);
+        });
+
+        it('should handle result with missing count/length', async () => {
+            // Mock result compatible with array but without length/count? 
+            // Actually, [] has length 0. 
+            // We want lines 94: `rowCount: result.count ?? result.length ?? 0`
+            // If we return an object { } (not array), it has no length.
+            mockClient.unsafe.mockResolvedValue({} as any);
+
+            const result = await executor.execute('CMD');
+            expect(result.rowCount).toBe(0);
+        });
+
+        it('should block query that exceeds row limit', async () => {
+            // Mock COUNT returning more than MAX_ROWS (10000)
+            mockClient.unsafe.mockResolvedValueOnce([{ cnt: '50000' }]);
+
+            const result = await executor.execute('SELECT * FROM large_table');
+
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('exceeds the maximum limit');
+            expect(result.error).toContain('50,000');
+            // Should only call unsafe once (for COUNT), not for actual query
+            expect(mockClient.unsafe).toHaveBeenCalledTimes(1);
         });
     });
 
     describe('testConnection', () => {
         it('should return true for valid connection', async () => {
-            mockClient.query.mockResolvedValue({ rows: [] });
+            mockClient.mockResolvedValue([{ '?column?': 1 }]);
 
             const result = await executor.testConnection();
 
@@ -187,9 +200,19 @@ describe('PostgresExecutor', () => {
         });
 
         it('should return false for failed connection', async () => {
-            mockPool.connect.mockRejectedValue(new Error('Connection refused'));
+            (postgres as unknown as jest.Mock).mockImplementation(() => {
+                throw new Error('Connection refused');
+            });
 
-            const result = await executor.testConnection();
+            const executor2 = new PostgresExecutor({
+                host: 'invalid',
+                port: 5432,
+                database: 'test',
+                user: 'postgres',
+                password: 'password'
+            });
+
+            const result = await executor2.testConnection();
 
             expect(result).toBe(false);
         });
@@ -210,22 +233,29 @@ describe('PostgresExecutor', () => {
     });
 
     describe('constructor', () => {
-        it('should configure ssl by default', () => {
-            const executor = new PostgresExecutor({ user: 'u', database: 'd', password: 'p', host: 'h', port: 5432 });
-            const config = (executor as any).config;
-            expect(config.ssl).toEqual({ rejectUnauthorized: false });
+        it('should configure connection string with ssl by default', () => {
+            const executor = new PostgresExecutor({
+                user: 'u',
+                database: 'd',
+                password: 'p',
+                host: 'h',
+                port: 5432
+            });
+            const connString = (executor as any).connectionString;
+            expect(connString).toContain('sslmode=require');
         });
 
         it('should disable ssl when explicitly set to false', () => {
-            const executor = new PostgresExecutor({ user: 'u', database: 'd', password: 'p', host: 'h', port: 5432, ssl: false });
-            const config = (executor as any).config;
-            expect(config.ssl).toBeUndefined();
-        });
-
-        it('should enable ssl by default', () => {
-            const executor = new PostgresExecutor({ user: 'u', database: 'd', password: 'p', host: 'h', port: 5432 });
-            const config = (executor as any).config;
-            expect(config.ssl).toEqual({ rejectUnauthorized: false });
+            const executor = new PostgresExecutor({
+                user: 'u',
+                database: 'd',
+                password: 'p',
+                host: 'h',
+                port: 5432,
+                ssl: false
+            });
+            const connString = (executor as any).connectionString;
+            expect(connString).not.toContain('sslmode');
         });
     });
 });

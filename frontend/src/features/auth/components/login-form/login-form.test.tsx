@@ -120,6 +120,28 @@ describe('LoginForm', () => {
         });
     });
 
+    it('redirects manager to approvals page', async () => {
+        mockMutateAsync.mockResolvedValue({
+            accessToken: 'token',
+            refreshToken: 'refresh',
+            user: { role: UserRole.MANAGER }
+        });
+
+        render(
+            <MemoryRouter>
+                <LoginForm />
+            </MemoryRouter>
+        );
+
+        await userEvent.type(screen.getByLabelText(/Email/), 'manager@example.com');
+        await userEvent.type(screen.getByLabelText(/Password/), 'password123');
+        fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+        await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith('/approvals', expect.anything());
+        });
+    });
+
     it('handles login failure', async () => {
         mockMutateAsync.mockRejectedValue({
             response: { data: { error: 'Invalid credentials' } }
@@ -138,6 +160,25 @@ describe('LoginForm', () => {
         await waitFor(() => {
             expect(mockLogin).not.toHaveBeenCalled();
             // Toast would satisfy specific error call check if we mocked it to spy
+        });
+    });
+
+    it('falls back to default error message when no response error provided', async () => {
+        // Error without response.data.error property
+        mockMutateAsync.mockRejectedValue({ message: 'Network error' });
+
+        render(
+            <MemoryRouter>
+                <LoginForm />
+            </MemoryRouter>
+        );
+
+        await userEvent.type(screen.getByLabelText(/Email/), 'fail@example.com');
+        await userEvent.type(screen.getByLabelText(/Password/), 'password123');
+        fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+        await waitFor(() => {
+            expect(mockLogin).not.toHaveBeenCalled();
         });
     });
 });

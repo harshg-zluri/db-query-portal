@@ -1,104 +1,99 @@
-import { Pool, PoolConfig } from 'pg';
+import { MikroORM, EntityManager, RequestContext } from '@mikro-orm/core';
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
+import { Pool } from 'pg';
 import { config } from './environment';
+import mikroOrmConfig from './mikro-orm.config';
 
-// Parse DATABASE_URL into pool config
-function parseConnectionString(url: string): PoolConfig {
-    // Support both postgres:// and postgresql:// and handle query params
-    const regex = /postgres(?:ql)?:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)(?:\?(.*))?/;
-    const match = url.match(regex);
+// ===== MikroORM Instance =====
+let orm: MikroORM<PostgreSqlDriver> | null = null;
 
-    if (!match) {
-        throw new Error('Invalid DATABASE_URL format');
+// ===== pg Pool for pg-boss queue =====
+let pgBossPool: Pool | null = null;
+
+/**
+ * Initialize MikroORM connection
+ */
+export async function initDatabase(): Promise<MikroORM<PostgreSqlDriver>> {
+    if (!orm) {
+        orm = await MikroORM.init<PostgreSqlDriver>(mikroOrmConfig);
+        // Explicitly connect
+        await orm.connect();
+        console.log('📦 MikroORM connected to database');
     }
-
-    const poolConfig: PoolConfig = {
-        user: match[1],
-        password: match[2],
-        host: match[3],
-        port: parseInt(match[4], 10),
-        database: match[5],
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000
-    };
-
-    // Handle SSL mode from query params
-    const queryParams = match[6];
-    if (queryParams && queryParams.includes('sslmode=require')) {
-        poolConfig.ssl = { rejectUnauthorized: false };
-    }
-
-    return poolConfig;
+    return orm;
 }
 
-// Connection pool for portal database
-let pool: Pool | null = null;
+/**
+ * Get MikroORM instance (throws if not initialized)
+ */
+export function getOrm(): MikroORM<PostgreSqlDriver> {
+    if (!orm) {
+        throw new Error('MikroORM not initialized. Call initDatabase() first.');
+    }
+    return orm;
+}
 
+/**
+ * Get EntityManager (always use for DB operations)
+ * Uses RequestContext if available (HTTP requests), otherwise creates a fork
+ */
+export function getEm(): EntityManager<PostgreSqlDriver> {
+    const orm = getOrm();
+    // Return forked EM if context is available (from middleware)
+    const contextEm = RequestContext.getEntityManager() as EntityManager<PostgreSqlDriver> | undefined;
+    if (contextEm) {
+        return contextEm;
+    }
+    // For operations outside HTTP context (worker, background jobs), fork the EntityManager
+    return orm.em.fork();
+}
+
+/**
+ * Get pg Pool for pg-boss (separate from ORM)
+ */
 export function getPool(): Pool {
-    if (!pool) {
-        pool = new Pool(parseConnectionString(config.database.url));
+    if (!pgBossPool) {
+        // Parse connection string for pool config
+        const regex = /postgres(?:ql)?:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)(?:\?(.*))?/;
+        const match = config.database.url.match(regex);
 
-        pool.on('error', (err) => {
-            console.error('Unexpected database pool error:', err);
-        });
-    }
-    return pool;
-}
+        if (!match) {
+            throw new Error('Invalid DATABASE_URL format');
+        }
 
-// Close pool gracefully
-export async function closePool(): Promise<void> {
-    if (pool) {
-        await pool.end();
-        pool = null;
-    }
-}
-
-// Execute query with parameterized inputs (SQL injection safe)
-export async function query<T = unknown>(
-    text: string,
-    params?: unknown[]
-): Promise<{ rows: T[]; rowCount: number }> {
-    const client = await getPool().connect();
-    try {
-        const result = await client.query(text, params);
-        return {
-            rows: result.rows as T[],
-            rowCount: result.rowCount || 0
+        const poolConfig: any = {
+            user: match[1],
+            password: match[2],
+            host: match[3],
+            port: parseInt(match[4], 10),
+            database: match[5],
+            max: 10, // Smaller pool for boss
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 5000
         };
-    } finally {
-        client.release();
+
+        // Handle SSL mode from query params
+        const queryParams = match[6];
+        if (queryParams && queryParams.includes('sslmode=require')) {
+            poolConfig.ssl = { rejectUnauthorized: false };
+        }
+
+        pgBossPool = new Pool(poolConfig);
+    }
+    return pgBossPool;
+}
+
+/**
+ * Close all connections
+ */
+export async function closeDatabase(): Promise<void> {
+    if (orm) {
+        await orm.close();
+        orm = null;
+    }
+    if (pgBossPool) {
+        await pgBossPool.end();
+        pgBossPool = null;
     }
 }
 
-// Transaction helper
-// Transaction helper type
-export type TransactionQuery = <R = unknown>(text: string, params?: unknown[]) => Promise<{ rows: R[]; rowCount: number }>;
-
-export async function withTransaction<T>(
-    callback: (query: TransactionQuery) => Promise<T>
-): Promise<T> {
-    const client = await getPool().connect();
-
-    const transactionQuery: TransactionQuery = async <R = unknown>(
-        text: string,
-        params?: unknown[]
-    ): Promise<{ rows: R[]; rowCount: number }> => {
-        const result = await client.query(text, params);
-        return {
-            rows: result.rows as R[],
-            rowCount: result.rowCount || 0
-        };
-    };
-
-    try {
-        await client.query('BEGIN');
-        const result = await callback(transactionQuery);
-        await client.query('COMMIT');
-        return result;
-    } catch (error) {
-        await client.query('ROLLBACK');
-        throw error;
-    } finally {
-        client.release();
-    }
-}

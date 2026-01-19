@@ -89,4 +89,36 @@ describe('SubmissionTable', () => {
         // Only 1 clone button should exist (req-2 is rejected, req-1 is pending)
         expect(screen.getAllByTitle('Clone & resubmit')).toHaveLength(1);
     });
+
+    it('shows script file name for script submissions', () => {
+        const scriptRequest = {
+            ...mockRequests[0],
+            submissionType: 'script',
+            scriptFileName: 'migration.js',
+            query: undefined,
+        };
+        render(<SubmissionTable {...defaultProps} requests={[scriptRequest as any]} />);
+        expect(screen.getByText('migration.js')).toBeInTheDocument();
+    });
+
+    it('shows fallback for script without filename', () => {
+        const scriptRequest = {
+            ...mockRequests[0],
+            submissionType: 'script',
+            scriptFileName: undefined,
+            query: undefined,
+        };
+        render(<SubmissionTable {...defaultProps} requests={[scriptRequest as any]} />);
+        expect(screen.getByText('Script file')).toBeInTheDocument();
+    });
+
+    it('truncates long queries', () => {
+        const longQueryRequest = {
+            ...mockRequests[0],
+            query: 'SELECT * FROM users WHERE id = 123 AND status = active AND name LIKE pattern'
+        };
+        render(<SubmissionTable {...defaultProps} requests={[longQueryRequest as any]} />);
+        // Should be truncated with ...
+        expect(screen.getByText(/SELECT \* FROM users WHERE id = 123 AND s\.\.\./)).toBeInTheDocument();
+    });
 });

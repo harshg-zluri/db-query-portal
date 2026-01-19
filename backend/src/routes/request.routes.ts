@@ -5,7 +5,6 @@ import { requireMinRole } from '../middleware/rbac.middleware';
 import { validate } from '../middleware/validation.middleware';
 import { upload } from '../middleware/upload.middleware';
 import { createRequestSchema, listRequestsSchema, myRequestsSchema } from '../validators/request.schema';
-import { paginationSchema } from '../validators/common.schema';
 import { UserRole } from '../types';
 
 const router = Router();
@@ -39,6 +38,13 @@ router.get(
     RequestController.getById
 );
 
+// Download execution result (decompresses if needed)
+router.get(
+    '/:id/download-result',
+    authenticate,
+    RequestController.downloadResult
+);
+
 // Withdraw a pending request (owner only)
 router.post(
     '/:id/withdraw',
@@ -47,3 +53,4 @@ router.post(
 );
 
 export default router;
+

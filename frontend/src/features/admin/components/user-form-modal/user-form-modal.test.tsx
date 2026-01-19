@@ -99,16 +99,60 @@ describe('UserFormModal', () => {
 
         // Toggle on
         fireEvent.click(podButton);
-        expect(podButton).toHaveClass('bg-[#FEF34B]'); // Selected style
+        expect(podButton).toHaveClass('bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]'); // Selected style
 
         // Toggle off
         fireEvent.click(podButton);
-        expect(podButton).not.toHaveClass('bg-[#FEF34B]');
+        expect(podButton).not.toHaveClass('bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]');
     });
 
     it('hides pods for developers', () => {
         render(<UserFormModal {...defaultProps} />);
         // Default role is developer
         expect(screen.queryByText('Managed Pods')).not.toBeInTheDocument();
+    });
+
+    it('submits without password when editing existing user', async () => {
+        const onSubmitMock = vi.fn();
+        render(<UserFormModal {...defaultProps} user={mockUser} onSubmit={onSubmitMock} />);
+
+        await userEvent.clear(screen.getByDisplayValue('Existing User'));
+        await userEvent.type(screen.getByLabelText(/Name/), 'Updated User');
+        // Do NOT enter a password  
+
+        fireEvent.click(screen.getByRole('button', { name: 'Update User' }));
+
+        await waitFor(() => {
+            expect(onSubmitMock).toHaveBeenCalled();
+            const submittedData = onSubmitMock.mock.calls[0][0];
+            // Password should NOT be in the submitted data
+            expect(submittedData.password).toBeUndefined();
+        });
+    });
+
+    it('submits with password when editing user with new password', async () => {
+        const onSubmitMock = vi.fn();
+        render(<UserFormModal {...defaultProps} user={mockUser} onSubmit={onSubmitMock} />);
+
+        await userEvent.clear(screen.getByDisplayValue('Existing User'));
+        await userEvent.type(screen.getByLabelText(/Name/), 'Updated User');
+        await userEvent.type(screen.getByLabelText(/New Password/), 'newpassword123');
+
+        fireEvent.click(screen.getByRole('button', { name: 'Update User' }));
+
+        await waitFor(() => {
+            expect(onSubmitMock).toHaveBeenCalledWith(expect.objectContaining({
+                password: 'newpassword123',
+            }));
+        });
+    });
+
+    it('shows no pods message when pods array is empty', async () => {
+        render(<UserFormModal {...defaultProps} pods={[]} />);
+
+        // Select Manager role to show pods section
+        await userEvent.selectOptions(screen.getByLabelText(/Role/), 'manager');
+
+        expect(screen.getByText('No pods available')).toBeInTheDocument();
     });
 });

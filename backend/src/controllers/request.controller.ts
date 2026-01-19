@@ -10,6 +10,8 @@ import { sanitizeFileName, getSecurityWarnings } from '../utils/sanitizer';
 import { logger, AuditCategory, AuditAction } from '../utils/logger';
 import { SlackNotificationType, sendSlackNotification } from '../services/slack.service';
 import { config } from '../config/environment';
+import { getPaginationParams } from '../utils/pagination';
+import path from 'path';
 
 /**
  * Get client IP address from request
@@ -87,6 +89,11 @@ export class RequestController {
             if (input.submissionType === SubmissionType.SCRIPT) {
                 if (!req.file) {
                     throw new ValidationError('Script file is required for script submissions');
+                }
+
+                const fileExt = path.extname(req.file.originalname).toLowerCase();
+                if (fileExt !== '.js') {
+                    throw new ValidationError('Invalid file type. Only JavaScript (.js) files are allowed.');
                 }
 
                 scriptFileName = sanitizeFileName(req.file.originalname);
@@ -204,10 +211,12 @@ export class RequestController {
                 throw new ForbiddenError('Use /api/requests/my to view your submissions');
             }
 
+            const { page, limit } = getPaginationParams(req.query);
+
             const { requests, total } = await QueryRequestModel.findWithFilters(
                 filters,
-                query.page,
-                query.limit
+                page,
+                limit
             );
 
             // Audit log: request list viewed
@@ -245,8 +254,7 @@ export class RequestController {
     static async getMyRequests(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const user = req.user!;
-            const page = parseInt(req.query.page as string) || 1;
-            const limit = parseInt(req.query.limit as string) || 20;
+            const { page, limit } = getPaginationParams(req.query);
             const status = req.query.status as RequestStatus | undefined;
 
             // Validate status if provided
@@ -409,4 +417,50 @@ export class RequestController {
             next(error);
         }
     }
+
+    /**
+     * GET /api/requests/:id/download-result
+     * Download execution result (decompresses if needed)
+     */
+    static async downloadResult(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const user = req.user!;
+        const { id } = req.params;
+
+        try {
+            const request = await QueryRequestModel.findById(id);
+            if (!request) {
+                throw new NotFoundError('Request');
+            }
+
+            // Authorization: owner or manager of the pod
+            const isOwner = request.userId === user.userId;
+            const isManager = user.role === UserRole.MANAGER && user.managedPodIds.includes(request.podId);
+            const isAdmin = user.role === UserRole.ADMIN;
+
+            if (!isOwner && !isManager && !isAdmin) {
+                throw new ForbiddenError();
+            }
+
+            if (!request.executionResult) {
+                throw new NotFoundError('Execution result not available');
+            }
+
+            let resultData = request.executionResult;
+
+            // Decompress if needed
+            if (request.isCompressed) {
+                const { decompressResult } = await import('../utils/compression');
+                resultData = await decompressResult(request.executionResult);
+            }
+
+            // Set headers for file download
+            const filename = `result_${id}.json`;
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            res.send(resultData);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
+

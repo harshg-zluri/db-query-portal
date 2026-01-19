@@ -35,6 +35,6 @@ describe('Button', () => {
     it('applies variant classes', () => {
         const { container } = render(<Button variant="danger">Delete</Button>);
         const button = container.firstChild as HTMLElement;
-        expect(button).toHaveClass('bg-[#ef4444]');
+        expect(button).toHaveClass('bg-[#EF4444]');
     });
 });

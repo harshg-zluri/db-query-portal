@@ -6,36 +6,36 @@ export interface StatusBadgeProps {
     className?: string;
 }
 
-const statusConfig: Record<RequestStatus, { label: string; className: string; icon: string }> = {
+const statusConfig: Record<RequestStatus, { label: string; icon: string; className: string }> = {
     [RequestStatus.PENDING]: {
         label: 'Pending',
-        className: 'bg-[#FEF3C7] text-[#92400E] border-[#F59E0B]',
         icon: '⏳',
+        className: 'bg-amber-100 text-amber-800 border-amber-200',
     },
     [RequestStatus.APPROVED]: {
         label: 'Approved',
-        className: 'bg-[#DBEAFE] text-[#1E40AF] border-[#3B82F6]',
-        icon: '✓',
+        icon: '✅',
+        className: 'bg-blue-100 text-blue-800 border-blue-200',
     },
     [RequestStatus.REJECTED]: {
         label: 'Rejected',
-        className: 'bg-[#FEE2E2] text-[#991B1B] border-[#EF4444]',
-        icon: '✗',
+        icon: '❌',
+        className: 'bg-red-100 text-red-800 border-red-200',
     },
     [RequestStatus.EXECUTED]: {
         label: 'Executed',
-        className: 'bg-[#DCFCE7] text-[#166534] border-[#22C55E]',
-        icon: '✓',
+        icon: '🚀',
+        className: 'bg-green-100 text-green-800 border-green-200',
     },
     [RequestStatus.FAILED]: {
         label: 'Failed',
-        className: 'bg-[#FEE2E2] text-[#991B1B] border-[#EF4444]',
-        icon: '⚠',
+        icon: '⚠️',
+        className: 'bg-red-100 text-red-800 border-red-200',
     },
     [RequestStatus.WITHDRAWN]: {
         label: 'Withdrawn',
-        className: 'bg-[#F3F4F6] text-[#374151] border-[#6B7280]',
-        icon: '↩',
+        icon: '🚫',
+        className: 'bg-zinc-100 text-zinc-800 border-zinc-200',
     },
 };
 
@@ -45,15 +45,15 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     return (
         <span
             className={cn(
-                'inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold uppercase tracking-wide',
-                'rounded-md border-2 shadow-[2px_2px_0_#000]',
-                'transition-all duration-150 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0_#000]',
+                'inline-flex items-center px-2 py-0.5 text-xs font-medium',
+                'rounded border',
                 config.className,
                 className
             )}
         >
-            <span>{config.icon}</span>
-            {config.label}
+
+            <span>{config.label}</span>
+            <span className="ml-1">{config.icon}</span>
         </span>
     );
 }

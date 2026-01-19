@@ -1,59 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 /* ================================
-   Neo-Brutalist Theme Variables
+   Clean Enterprise SaaS Theme
    ================================ */
 :root {
-  /* Background colors */
-  --bg-base: #F3F0E6;
+  /* Background - Clean neutrals */
+  --bg-base: #FAFAFA;
   --bg-surface: #FFFFFF;
-  --bg-surface-2: #FAF9F6;
+  --bg-surface-2: #F4F4F5;
   --bg-elevated: #FFFFFF;
-  --bg-sidebar: #FDFCFA;
+  --bg-sidebar: #FFFFFF;
+  --bg-sidebar-hover: #F4F4F5;
 
-  /* Border colors */
-  --border-default: #000000;
-  --border-hover: #000000;
-  --border-focus: #FEF34B;
-  --border-width: 2px;
+  /* Border - Subtle */
+  --border-default: #E4E4E7;
+  --border-hover: #D4D4D8;
+  --border-focus: #18181B;
 
-  /* Primary colors - Yellow accent */
-  --primary: #FEF34B;
-  --primary-hover: #FDE500;
-  --primary-active: #E5CE00;
-  --primary-text: #000000;
+  /* Primary - Clean dark */
+  --primary: #18181B;
+  --primary-hover: #27272A;
+  --primary-active: #3F3F46;
+  --primary-text: #FFFFFF;
 
-  /* Secondary colors - Blue accent */
-  --secondary: #5791FF;
-  --secondary-hover: #3D7BFF;
+  /* Secondary */
+  --secondary: #71717A;
+  --secondary-hover: #52525B;
   --secondary-text: #FFFFFF;
 
-  /* Semantic colors */
-  --success: #22c55e;
-  --success-bg: #DCFCE7;
-  --warning: #f59e0b;
-  --warning-bg: #FEF3C7;
-  --error: #ef4444;
-  --error-bg: #FEE2E2;
-  --info: #06b6d4;
-  --info-bg: #CFFAFE;
+  /* Semantic - Muted */
+  --success: #22C55E;
+  --success-bg: #F0FDF4;
+  --warning: #EAB308;
+  --warning-bg: #FEFCE8;
+  --error: #EF4444;
+  --error-bg: #FEF2F2;
+  --info: #3B82F6;
+  --info-bg: #EFF6FF;
 
-  /* Text colors */
-  --text-primary: #000000;
-  --text-secondary: #404040;
-  --text-muted: #6B6B6B;
-  --text-disabled: #9CA3AF;
+  /* Text */
+  --text-primary: #18181B;
+  --text-secondary: #52525B;
+  --text-muted: #A1A1AA;
+  --text-disabled: #D4D4D8;
 
-  /* Shadows */
-  --shadow-neo: 4px 4px 0 #000000;
-  --shadow-neo-sm: 2px 2px 0 #000000;
-  --shadow-neo-lg: 6px 6px 0 #000000;
+  /* Shadows - Subtle only */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  --shadow-md: 0 1px 3px 0 rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.05);
 
-  /* Animation */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* Animation - Minimal */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+
+  /* Radius - Slightly smaller */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
 }
 
 /* ================================
@@ -64,11 +68,10 @@
 }
 
 html {
-  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -86,60 +89,8 @@ body {
 }
 
 /* ================================
-   Neo-Brutalist Utilities
+   Animations - Subtle only
    ================================ */
-
-/* Hard shadows */
-.shadow-neo {
-  box-shadow: var(--shadow-neo);
-}
-
-.shadow-neo-sm {
-  box-shadow: var(--shadow-neo-sm);
-}
-
-.shadow-neo-lg {
-  box-shadow: var(--shadow-neo-lg);
-}
-
-/* Interactive shadow - removes on hover/press */
-.shadow-neo-interactive {
-  box-shadow: var(--shadow-neo);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.shadow-neo-interactive:hover {
-  transform: translate(2px, 2px);
-  box-shadow: none;
-}
-
-.shadow-neo-interactive:active {
-  transform: translate(4px, 4px);
-  box-shadow: none;
-}
-
-/* Thick borders */
-.border-neo {
-  border: var(--border-width) solid var(--border-default);
-}
-
-.border-neo-thick {
-  border: 3px solid var(--border-default);
-}
-
-/* Grid background pattern */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* ================================
-   Animations
-   ================================ */
-
-/* Subtle fade in */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -151,14 +102,13 @@ body {
 }
 
 .animate-fade-in {
-  animation: fadeIn var(--transition-base) ease-out;
+  animation: fadeIn var(--transition-base);
 }
 
-/* Slide up animation */
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(4px);
   }
 
   to {
@@ -168,28 +118,49 @@ body {
 }
 
 .animate-slide-up {
-  animation: slideUp var(--transition-slow) ease-out;
+  animation: slideUp var(--transition-base);
 }
 
-/* Scale in animation */
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* ================================
+   Scrollbar
+   ================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.animate-scale-in {
-  animation: scaleIn var(--transition-base) ease-out;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* Subtle pulse for loading states */
-@keyframes subtlePulse {
+::-webkit-scrollbar-thumb {
+  background: #D4D4D8;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A1A1AA;
+}
+
+/* ================================
+   Code Font
+   ================================ */
+.font-mono {
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+}
+
+/* ================================
+   Focus States
+   ================================ */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-surface), 0 0 0 4px var(--primary);
+}
+
+/* ================================
+   Skeleton
+   ================================ */
+@keyframes skeleton-pulse {
 
   0%,
   100% {
@@ -197,217 +168,80 @@ body {
   }
 
   50% {
-    opacity: 0.7;
-  }
-}
-
-.animate-subtle-pulse {
-  animation: subtlePulse 2s ease-in-out infinite;
-}
-
-/* Bounce on hover */
-.hover-bounce {
-  transition: transform var(--transition-fast);
-}
-
-.hover-bounce:hover {
-  transform: translateY(-2px);
-}
-
-/* Lift effect */
-.hover-lift {
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-/* Glow effect for focus */
-.focus-glow:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--primary), var(--shadow-neo);
-}
-
-/* ================================
-   Scrollbar Styles
-   ================================ */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-surface-2);
-  border-left: var(--border-width) solid var(--border-default);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--bg-base);
-  border: var(--border-width) solid var(--border-default);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #E5E2D8;
-}
-
-/* ================================
-   Code & Mono Font
-   ================================ */
-.font-mono {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-}
-
-/* ================================
-   Focus Styles
-   ================================ */
-.focus-ring {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--primary), 0 0 0 5px #000000;
-}
-
-/* ================================
-   Skeleton Animation
-   ================================ */
-@keyframes skeleton-slide {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
+    opacity: 0.5;
   }
 }
 
 .skeleton {
-  background: linear-gradient(90deg,
-      var(--bg-surface-2) 25%,
-      var(--bg-base) 50%,
-      var(--bg-surface-2) 75%);
-  background-size: 200% 100%;
-  animation: skeleton-slide 1.5s ease-in-out infinite;
-  border-radius: 4px;
-  border: var(--border-width) solid var(--border-default);
+  background: var(--bg-surface-2);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
 }
 
 /* ================================
-   Highlight.js Theme (Light Mode)
+   Code Highlighting
    ================================ */
 .hljs {
-  background: var(--bg-surface) !important;
-  color: var(--text-primary) !important;
+  background: #FAFAFA !important;
+  color: #18181B !important;
   padding: 1rem !important;
-  border-radius: 6px;
-  border: var(--border-width) solid var(--border-default);
-  font-size: 0.875rem;
+  border-radius: var(--radius-md);
+  font-size: 13px;
   line-height: 1.6;
+  border: 1px solid var(--border-default);
 }
 
 .hljs-keyword,
 .hljs-selector-tag {
-  color: #AF00DB;
-  font-weight: 600;
+  color: #0369A1;
+  font-weight: 500;
 }
 
 .hljs-string,
 .hljs-attr {
-  color: #067D17;
+  color: #BE123C;
 }
 
 .hljs-number {
-  color: #1750EB;
+  color: #0D9488;
 }
 
 .hljs-comment {
-  color: #6A737D;
+  color: #71717A;
   font-style: italic;
 }
 
 .hljs-function,
 .hljs-title {
-  color: #0000FF;
-}
-
-.hljs-variable,
-.hljs-params {
-  color: #E36209;
-}
-
-.hljs-built_in {
-  color: #005CC5;
+  color: #7C3AED;
 }
 
 /* ================================
-   Toast Overrides
-   ================================ */
-.toast-custom {
-  background: var(--bg-surface) !important;
-  color: var(--text-primary) !important;
-  border: var(--border-width) solid var(--border-default) !important;
-  box-shadow: var(--shadow-neo-sm) !important;
-}
-
-/* ================================
-   Card Animations on Load
-   ================================ */
-.card-animated {
-  animation: slideUp var(--transition-slow) ease-out;
-  animation-fill-mode: backwards;
-}
-
-.card-animated:nth-child(1) {
-  animation-delay: 0ms;
-}
-
-.card-animated:nth-child(2) {
-  animation-delay: 50ms;
-}
-
-.card-animated:nth-child(3) {
-  animation-delay: 100ms;
-}
-
-.card-animated:nth-child(4) {
-  animation-delay: 150ms;
-}
-
-.card-animated:nth-child(5) {
-  animation-delay: 200ms;
-}
-
-/* ================================
-   Form Element Transitions
+   Form Elements
    ================================ */
 input,
 select,
 textarea,
 button {
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast),
-    background-color var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 /* ================================
-   Link Styles
+   Links
    ================================ */
 a {
   color: var(--text-primary);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color var(--transition-fast);
+  text-decoration: none;
 }
 
 a:hover {
-  color: var(--secondary);
+  text-decoration: underline;
 }
 
 /* ================================
-   Selection Styles
+   Selection
    ================================ */
 ::selection {
-  background: var(--primary);
-  color: var(--text-primary);
+  background: #18181B;
+  color: #FFFFFF;
 }

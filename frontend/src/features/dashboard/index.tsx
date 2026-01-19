@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -82,9 +82,14 @@ export function DashboardPage() {
         },
     });
 
+    // Track if we've already processed this clone request to prevent double toasts in StrictMode
+    const processedCloneRef = useRef<string | null>(null);
+
     // Prefill form with cloned request data
     useEffect(() => {
-        if (clonedRequest) {
+        if (clonedRequest && processedCloneRef.current !== clonedRequest.id) {
+            processedCloneRef.current = clonedRequest.id;
+
             // Set form values from cloned request
             setValue('databaseType', clonedRequest.databaseType as 'postgresql' | 'mongodb');
             setValue('instanceId', clonedRequest.instanceId);
@@ -149,8 +154,8 @@ export function DashboardPage() {
     return (
         <div className="max-w-4xl mx-auto animate-fade-in">
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-black uppercase tracking-tight">Submit Query Request</h1>
-                <p className="text-[#6B6B6B] mt-1">
+                <h1 className="text-2xl font-semibold text-[#0F172A]">Submit Query Request</h1>
+                <p className="text-[#64748B] mt-1">
                     Create a new database query or script execution request
                 </p>
             </div>
@@ -195,7 +200,7 @@ export function DashboardPage() {
                             control={control}
                             render={({ field }) => (
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-semibold text-black uppercase tracking-wide">
+                                    <label className="block text-sm font-semibold text-[#0F172A] ">
                                         Submission Type <span className="text-[#ef4444]">*</span>
                                     </label>
                                     <div className="flex gap-4">
@@ -208,9 +213,9 @@ export function DashboardPage() {
                                                     field.onChange('query');
                                                     setValue('script', null);
                                                 }}
-                                                className="w-5 h-5 text-[#FEF34B] bg-white border-2 border-black focus:ring-[#FEF34B] focus:ring-offset-0 cursor-pointer"
+                                                className="w-5 h-5 text-[#6366F1] bg-white border border-[#E2E8F0] focus:ring-[#6366F1] focus:ring-offset-0 cursor-pointer"
                                             />
-                                            <span className="text-sm font-medium text-black group-hover:text-[#5791FF] transition-colors">Query</span>
+                                            <span className="text-sm font-medium text-[#0F172A] group-hover:text-[#5791FF] transition-colors">Query</span>
                                         </label>
                                         <label className="flex items-center gap-2 cursor-pointer group">
                                             <input
@@ -220,9 +225,9 @@ export function DashboardPage() {
                                                 onChange={() => {
                                                     field.onChange('script');
                                                 }}
-                                                className="w-5 h-5 text-[#FEF34B] bg-white border-2 border-black focus:ring-[#FEF34B] focus:ring-offset-0 cursor-pointer"
+                                                className="w-5 h-5 text-[#6366F1] bg-white border border-[#E2E8F0] focus:ring-[#6366F1] focus:ring-offset-0 cursor-pointer"
                                             />
-                                            <span className="text-sm font-medium text-black group-hover:text-[#5791FF] transition-colors">Script</span>
+                                            <span className="text-sm font-medium text-[#0F172A] group-hover:text-[#5791FF] transition-colors">Script</span>
                                         </label>
                                     </div>
                                 </div>
@@ -251,13 +256,13 @@ export function DashboardPage() {
                             control={control}
                             render={({ field }) => (
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-semibold text-black uppercase tracking-wide">
+                                    <label className="block text-sm font-semibold text-[#0F172A] ">
                                         Comments <span className="text-[#ef4444]">*</span>
                                     </label>
                                     <textarea
                                         {...field}
                                         placeholder="Describe what this query does and why it's needed..."
-                                        className={`w-full px-3 py-2.5 bg-white border-2 rounded-md text-black placeholder-[#6B6B6B] focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1 transition-all duration-150 resize-none h-24 hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000] ${errors.comments ? 'border-[#ef4444]' : 'border-black'
+                                        className={`w-full px-3 py-2.5 bg-white border-2 rounded-md text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:ring-offset-1 transition-all duration-150 resize-none h-24 hover: focus: ${errors.comments ? 'border-[#ef4444]' : 'border-[#E2E8F0]'
                                             }`}
                                     />
                                     {errors.comments && (

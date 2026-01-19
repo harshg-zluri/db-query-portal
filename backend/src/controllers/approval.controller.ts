@@ -7,6 +7,7 @@ import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors'
 import { RejectRequestInput } from '../validators/request.schema';
 import { logger, AuditCategory, AuditAction } from '../utils/logger';
 import { SlackService, SlackNotificationType, sendSlackNotification } from '../services/slack.service';
+import { getPaginationParams } from '../utils/pagination';
 
 /**
  * Get client IP address from request
@@ -144,7 +145,9 @@ export class ApprovalController {
                     success: executionResult.success,
                     rowCount: executionResult.rowCount,
                     output: executionResult.output,
-                    error: executionResult.error
+                    error: executionResult.error,
+                    isCompressed: executionResult.isCompressed,
+                    originalSize: executionResult.originalSize
                 }
             });
 
@@ -256,8 +259,7 @@ export class ApprovalController {
     static async getPending(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const user = req.user!;
-            const page = parseInt(req.query.page as string) || 1;
-            const limit = parseInt(req.query.limit as string) || 20;
+            const { page, limit } = getPaginationParams(req.query);
 
             // Build filters
             const filters: { status: RequestStatus; allowedPodIds?: string[] } = {

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { PodController } from '../../../src/controllers/pod.controller';
+import * as PodController from '../../../src/controllers/pod.controller';
 import { PodModel } from '../../../src/models/Pod';
 import { logger } from '../../../src/utils/logger';
 

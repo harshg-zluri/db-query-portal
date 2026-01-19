@@ -1,0 +1,3681 @@
+
+> frontend@0.0.0 test:coverage
+> vitest run --coverage
+
+
+[1m[46m RUN [49m[22m [36mv4.0.16 [39m[90m/Users/harshgoyal/Desktop/db-query-portal/frontend[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+[90mstderr[2m | src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22m[2mDatabaseSelector[2m > [22m[2mrenders selects
+[22m[39mReact does not recognize the `isLoading` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `isloading` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
+
+ [31m❯[39m src/features/dashboard/components/database-selector/database-selector.test.tsx [2m([22m[2m11 tests[22m[2m | [22m[31m11 failed[39m[2m)[22m[32m 129[2mms[22m[39m
+[31m     [31m×[31m renders selects[39m[32m 74[2mms[22m[39m
+[31m     [31m×[31m disabled dependent selects initially[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m enables instance select when type selected[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m enables database select when instance selected[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m calls handlers on change[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m calls instance change handler[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m calls database change handler[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m shows empty options when instances are loading[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m shows empty options when databases are loading[39m[32m 8[2mms[22m[39m
+[31m     [31m×[31m handles null instances data[39m[32m 8[2mms[22m[39m
+[31m     [31m×[31m handles non-string database values[39m[32m 5[2mms[22m[39m
+ [31m❯[39m src/components/button/button.test.tsx [2m([22m[2m5 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 217[2mms[22m[39m
+     [32m✓[39m renders children correctly[32m 59[2mms[22m[39m
+     [32m✓[39m handles onClick[32m 9[2mms[22m[39m
+     [32m✓[39m does not fire onClick when disabled[32m 2[2mms[22m[39m
+     [32m✓[39m shows loading state[32m 142[2mms[22m[39m
+[31m     [31m×[31m applies variant classes[39m[32m 3[2mms[22m[39m
+[90mstderr[2m | src/components/select/select.test.tsx[2m > [22m[2mSelect[2m > [22m[2mshows loading state
+[22m[39mReact does not recognize the `isLoading` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `isloading` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
+
+ [31m❯[39m src/components/input/input.test.tsx [2m([22m[2m6 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 239[2mms[22m[39m
+     [32m✓[39m renders correctly[32m 26[2mms[22m[39m
+[31m     [31m×[31m displays label[39m[32m 36[2mms[22m[39m
+     [32m✓[39m handles onChange[32m 150[2mms[22m[39m
+[31m     [31m×[31m displays error message[39m[32m 18[2mms[22m[39m
+[31m     [31m×[31m displays hint[39m[32m 5[2mms[22m[39m
+     [32m✓[39m shows required asterisk[32m 2[2mms[22m[39m
+ [31m❯[39m src/components/select/select.test.tsx [2m([22m[2m6 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 245[2mms[22m[39m
+[31m     [31m×[31m renders with label and options[39m[32m 72[2mms[22m[39m
+     [32m✓[39m renders placeholder[32m 6[2mms[22m[39m
+     [32m✓[39m handles change events[32m 124[2mms[22m[39m
+[31m     [31m×[31m displays error message[39m[32m 26[2mms[22m[39m
+[31m     [31m×[31m shows loading state[39m[32m 14[2mms[22m[39m
+[31m     [31m×[31m renders required asterisk[39m[32m 2[2mms[22m[39m
+ [31m❯[39m src/features/auth/components/login-form/login-form.test.tsx [2m([22m[2m7 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 237[2mms[22m[39m
+[31m     [31m×[31m renders login form[39m[32m 57[2mms[22m[39m
+     [32m✓[39m validates required fields[32m 160[2mms[22m[39m
+[31m     [31m×[31m submits successfully and redirects developer[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m redirects admin to admin dashboard[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m redirects manager to approvals page[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m handles login failure[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m falls back to default error message when no response error provided[39m[32m 4[2mms[22m[39m
+ [31m❯[39m src/features/admin/components/user-form-modal/user-form-modal.test.tsx [2m([22m[2m10 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[33m 341[2mms[22m[39m
+[31m     [31m×[31m renders create mode correctly[39m[32m 79[2mms[22m[39m
+     [32m✓[39m renders edit mode correctly[32m 13[2mms[22m[39m
+     [32m✓[39m validates required fields[32m 178[2mms[22m[39m
+[31m     [31m×[31m validates password length for new users[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m submits valid data for new user[39m[32m 8[2mms[22m[39m
+[31m     [31m×[31m toggles pod assignment for managers[39m[32m 6[2mms[22m[39m
+     [32m✓[39m hides pods for developers[32m 11[2mms[22m[39m
+[31m     [31m×[31m submits without password when editing existing user[39m[32m 17[2mms[22m[39m
+[31m     [31m×[31m submits with password when editing user with new password[39m[32m 15[2mms[22m[39m
+[31m     [31m×[31m shows no pods message when pods array is empty[39m[32m 5[2mms[22m[39m
+ [31m❯[39m src/features/submissions/components/submission-detail-modal/submission-detail-modal.test.tsx [2m([22m[2m16 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 483[2mms[22m[39m
+     [32m✓[39m renders nothing if request is null[32m 12[2mms[22m[39m
+     [32m✓[39m renders details correctly[32m 56[2mms[22m[39m
+     [32m✓[39m renders warnings[32m 11[2mms[22m[39m
+     [32m✓[39m shows execution result[32m 13[2mms[22m[39m
+     [32m✓[39m shows rejection reason[32m 5[2mms[22m[39m
+     [32m✓[39m allows withdrawal for pending requests[32m 171[2mms[22m[39m
+     [32m✓[39m hides withdraw button for non-pending requests[32m 31[2mms[22m[39m
+     [32m✓[39m renders script submission type correctly[32m 4[2mms[22m[39m
+[31m     [31m×[31m renders compressed result with download link[39m[32m 146[2mms[22m[39m
+     [32m✓[39m renders execution error[32m 4[2mms[22m[39m
+     [32m✓[39m renders approver info for approved request[32m 5[2mms[22m[39m
+     [32m✓[39m renders rejector info for rejected request[32m 4[2mms[22m[39m
+     [32m✓[39m handles MongoDB database type correctly[32m 3[2mms[22m[39m
+     [32m✓[39m hides withdraw button when onWithdraw is not provided[32m 11[2mms[22m[39m
+     [32m✓[39m shows fallback for missing script content[32m 3[2mms[22m[39m
+     [32m✓[39m shows fallback for missing query[32m 3[2mms[22m[39m
+ [31m❯[39m src/components/card/card.test.tsx [2m([22m[2m9 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 187[2mms[22m[39m
+     [32m✓[39m renders with default props[32m 150[2mms[22m[39m
+     [32m✓[39m renders with custom class[32m 4[2mms[22m[39m
+     [32m✓[39m renders with different padding variants[32m 11[2mms[22m[39m
+[31m     [31m×[31m renders with animation[39m[32m 7[2mms[22m[39m
+     [32m✓[39m renders CardHeader[32m 1[2mms[22m[39m
+[31m     [31m×[31m renders CardTitle[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m renders CardDescription[39m[32m 4[2mms[22m[39m
+     [32m✓[39m renders CardContent[32m 1[2mms[22m[39m
+     [32m✓[39m renders CardFooter[32m 3[2mms[22m[39m
+ [31m❯[39m src/components/status-badge/status-badge.test.tsx [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 149[2mms[22m[39m
+[31m     [31m×[31m renders each status correctly[39m[32m 136[2mms[22m[39m
+     [32m✓[39m renders with custom class[32m 11[2mms[22m[39m
+ [31m❯[39m src/layouts/sidebar.test.tsx [2m([22m[2m7 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 168[2mms[22m[39m
+     [32m✓[39m renders user info[32m 120[2mms[22m[39m
+     [32m✓[39m renders accessible nav items for DEVELOPER[32m 7[2mms[22m[39m
+     [32m✓[39m renders accessible nav items for MANAGER[32m 5[2mms[22m[39m
+     [32m✓[39m renders accessible nav items for ADMIN[32m 7[2mms[22m[39m
+     [32m✓[39m renders default icon or null for unknown icon types[32m 5[2mms[22m[39m
+[31m     [31m×[31m highlights active nav item[39m[32m 8[2mms[22m[39m
+     [32m✓[39m uses default role when user is undefined[32m 9[2mms[22m[39m
+[90mstderr[2m | src/features/approvals/components/approval-table/approval-table.test.tsx[2m > [22m[2mApprovalTable[2m > [22m[2mrenders table rows correctly
+[22m[39mEach child in a list should have a unique "key" prop.
+
+Check the render method of `ApprovalTable`. See https://react.dev/link/warning-keys for more information.
+
+ [32m✓[39m src/features/submissions/components/submission-table/submission-table.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 335[2mms[22m[39m
+ [32m✓[39m src/features/dashboard/components/query-form/query-form.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 337[2mms[22m[39m
+ [32m✓[39m src/features/approvals/components/approval-table/approval-table.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 408[2mms[22m[39m
+ [32m✓[39m src/features/approvals/components/approval-actions/approval-actions.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 546[2mms[22m[39m
+ [32m✓[39m src/components/modal/modal.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m src/features/admin/components/user-table/user-table.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 276[2mms[22m[39m
+ [32m✓[39m src/components/file-upload/file-upload.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 142[2mms[22m[39m
+ [32m✓[39m src/features/dashboard/components/script-form/script-form.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 146[2mms[22m[39m
+ [32m✓[39m src/components/code-viewer/code-viewer.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 427[2mms[22m[39m
+ [32m✓[39m src/components/empty-state/empty-state.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m src/components/skeleton/skeleton.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32m✓[39m src/features/approvals/components/warnings-display/warnings-display.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/utils/dummy.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/components/loading-spinner/loading-spinner.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/stores/auth-store.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/utils/utils.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 38 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/layouts/sidebar.test.tsx[2m > [22mSidebar[2m > [22mhighlights active nav item
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"bg-linear-to-r from-[#6366F1] to-[#8B5CF6]"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  bg-linear-to-r from-[#6366F1] to-[#8B5CF6][31m
+Received:
+[31m  flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors duration-150 bg-zinc-100 text-zinc-900 font-medium[31m[39m
+[36m [2m❯[22m src/layouts/sidebar.test.tsx:[2m94:31[22m[39m
+    [90m 92| [39m
+    [90m 93| [39m        const dashboardLink = screen.getByText('Dashboard').closest('a…
+    [90m 94| [39m        expect(dashboardLink).toHaveClass('bg-linear-to-r from-[#6366F…
+    [90m   | [39m                              [31m^[39m
+    [90m 95| [39m
+    [90m 96| [39m        const submissionsLink = screen.getByText('Submissions').closes…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/button/button.test.tsx[2m > [22mButton[2m > [22mapplies variant classes
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"bg-[#EF4444]"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  bg-[#EF4444][31m
+Received:
+[31m  inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-red-600 text-white hover:bg-red-700 focus:ring-red-600 px-4 py-2 text-sm[31m[39m
+[36m [2m❯[22m src/components/button/button.test.tsx:[2m38:24[22m[39m
+    [90m 36| [39m        const { container } = render(<Button variant="danger">Delete</…
+    [90m 37| [39m        [35mconst[39m button [33m=[39m container[33m.[39mfirstChild [35mas[39m [33mHTMLElement[39m[33m;[39m
+    [90m 38| [39m        [34mexpect[39m(button)[33m.[39m[34mtoHaveClass[39m([32m'bg-[#EF4444]'[39m)[33m;[39m
+    [90m   | [39m                       [31m^[39m
+    [90m 39| [39m    })[33m;[39m
+    [90m 40| [39m})[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/card/card.test.tsx[2m > [22mCard Component[2m > [22mrenders with animation
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"animate-slide-up"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  animate-slide-up[31m
+Received:
+[31m  bg-white rounded-lg border border-zinc-200 p-5 animate-fade-in[31m[39m
+[36m [2m❯[22m src/components/card/card.test.tsx:[2m35:22[22m[39m
+    [90m 33| [39m        [34mrender[39m([33m<[39m[33mCard[39m [33manimated[39m[33m=[39m[33m{[39m[35mtrue[39m[33m}[39m[33m>[39mContent[33m<[39m[33m/[39m[33mCard[39m[33m>[39m)[33m;[39m
+    [90m 34| [39m        [35mconst[39m card [33m=[39m screen[33m.[39m[34mgetByText[39m([32m'Content'[39m)[33m;[39m
+    [90m 35| [39m        [34mexpect[39m(card)[33m.[39m[34mtoHaveClass[39m([32m'animate-slide-up'[39m)[33m;[39m
+    [90m   | [39m                     [31m^[39m
+    [90m 36| [39m    })[33m;[39m
+    [90m 37| [39m})[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/card/card.test.tsx[2m > [22mCard Subcomponents[2m > [22mrenders CardTitle
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"text-lg font-semibold"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  text-lg font-semibold[31m
+Received:
+[31m  text-base font-semibold text-zinc-900[31m[39m
+[36m [2m❯[22m src/components/card/card.test.tsx:[2m49:23[22m[39m
+    [90m 47| [39m        [35mconst[39m title [33m=[39m screen[33m.[39m[34mgetByText[39m([32m'Title'[39m)[33m;[39m
+    [90m 48| [39m        [34mexpect[39m(title[33m.[39mtagName)[33m.[39m[34mtoBe[39m([32m'H3'[39m)[33m;[39m
+    [90m 49| [39m        [34mexpect[39m(title)[33m.[39m[34mtoHaveClass[39m([32m'text-lg font-semibold'[39m)[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m 50| [39m    })[33m;[39m
+    [90m 51| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/card/card.test.tsx[2m > [22mCard Subcomponents[2m > [22mrenders CardDescription
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"text-sm text-[#64748B]"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  text-sm text-[#64748B][31m
+Received:
+[31m  text-sm text-zinc-500 mt-0.5[31m[39m
+[36m [2m❯[22m src/components/card/card.test.tsx:[2m56:22[22m[39m
+    [90m 54| [39m        [35mconst[39m desc [33m=[39m screen[33m.[39m[34mgetByText[39m([32m'Description'[39m)[33m;[39m
+    [90m 55| [39m        [34mexpect[39m(desc[33m.[39mtagName)[33m.[39m[34mtoBe[39m([32m'P'[39m)[33m;[39m
+    [90m 56| [39m        [34mexpect[39m(desc)[33m.[39m[34mtoHaveClass[39m([32m'text-sm text-[#64748B]'[39m)[33m;[39m
+    [90m   | [39m                     [31m^[39m
+    [90m 57| [39m    })[33m;[39m
+    [90m 58| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/input/input.test.tsx[2m > [22mInput[2m > [22mdisplays label
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: Email Address, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-1.5"[31m
+    [36m>[31m
+      [36m<label[31m
+        [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+      [36m>[31m
+        [0mEmail Address[0m
+      [36m</label>[31m
+      [36m<input[31m
+        [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [33mtype[31m=[32m"text"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/input/input.test.tsx:[2m14:23[22m[39m
+    [90m 12| [39m        [34mrender[39m([33m<[39m[33mInput[39m [33mlabel[39m[33m=[39m[32m"Email Address"[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 13| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Email Address'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 14| [39m        expect(screen.getByLabelText('Email Address')).toBeInTheDocume…
+    [90m   | [39m                      [31m^[39m
+    [90m 15| [39m    })[33m;[39m
+    [90m 16| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/input/input.test.tsx[2m > [22mInput[2m > [22mdisplays error message
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"border-[#EF4444]"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  border-[#EF4444][31m
+Received:
+[31m  w-full px-3 py-2 bg-white text-zinc-900 border rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150 border-red-500 focus:ring-red-500[31m[39m
+[36m [2m❯[22m src/components/input/input.test.tsx:[2m32:23[22m[39m
+    [90m 30| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Invalid email'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 31| [39m        [35mconst[39m input [33m=[39m screen[33m.[39m[34mgetByRole[39m([32m'textbox'[39m)[33m;[39m
+    [90m 32| [39m        [34mexpect[39m(input)[33m.[39m[34mtoHaveClass[39m([32m'border-[#EF4444]'[39m)[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m 33| [39m    })[33m;[39m
+    [90m 34| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/input/input.test.tsx[2m > [22mInput[2m > [22mdisplays hint
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: Enter your work email. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-1.5"[31m
+    [36m>[31m
+      [36m<input[31m
+        [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [33mhint[31m=[32m"Enter your work email"[31m
+        [33mtype[31m=[32m"text"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/input/input.test.tsx:[2m37:23[22m[39m
+    [90m 35| [39m    [34mit[39m([32m'displays hint'[39m[33m,[39m () [33m=>[39m {
+    [90m 36| [39m        [34mrender[39m([33m<[39m[33mInput[39m [33mhint[39m[33m=[39m[32m"Enter your work email"[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 37| [39m        expect(screen.getByText('Enter your work email')).toBeInTheDoc…
+    [90m   | [39m                      [31m^[39m
+    [90m 38| [39m    })[33m;[39m
+    [90m 39| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/select/select.test.tsx[2m > [22mSelect[2m > [22mrenders with label and options
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: Test Select, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-1.5"[31m
+    [36m>[31m
+      [36m<label[31m
+        [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+      [36m>[31m
+        [0mTest Select[0m
+      [36m</label>[31m
+      [36m<select[31m
+        [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+      [36m>[31m
+        [36m<option[31m
+          [33mvalue[31m=[32m"1"[31m
+        [36m>[31m
+          [0mOption 1[0m
+        [36m</option>[31m
+        [36m<option[31m
+          [33mvalue[31m=[32m"2"[31m
+        [36m>[31m
+          [0mOption 2[0m
+        [36m</option>[31m
+      [36m</select>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/select/select.test.tsx:[2m13:23[22m[39m
+    [90m 11| [39m    [34mit[39m([32m'renders with label and options'[39m[33m,[39m () [33m=>[39m {
+    [90m 12| [39m        [34mrender[39m([33m<[39m[33mSelect[39m [33mlabel[39m[33m=[39m[32m"Test Select"[39m [33moptions[39m[33m=[39m[33m{[39moptions[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 13| [39m        expect(screen.getByLabelText('Test Select')).toBeInTheDocument…
+    [90m   | [39m                      [31m^[39m
+    [90m 14| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByRole[39m([32m'combobox'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 15| [39m        [34mexpect[39m(screen[33m.[39m[34mgetAllByRole[39m([32m'option'[39m)[33m.[39mlength)[33m.[39m[34mtoBe[39m([34m2[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/select/select.test.tsx[2m > [22mSelect[2m > [22mdisplays error message
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"border-[#EF4444]"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  border-[#EF4444][31m
+Received:
+[31m  w-full px-3 py-2 bg-white text-zinc-900 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150 border-red-500 focus:ring-red-500[31m[39m
+[36m [2m❯[22m src/components/select/select.test.tsx:[2m37:46[22m[39m
+    [90m 35| [39m        [34mrender[39m([33m<[39m[33mSelect[39m [33moptions[39m[33m=[39m[33m{[39moptions[33m}[39m [33merror[39m[33m=[39m[32m"Invalid selection"[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 36| [39m        expect(screen.getByText('Invalid selection')).toBeInTheDocumen…
+    [90m 37| [39m        expect(screen.getByRole('combobox')).toHaveClass('border-[#EF4…
+    [90m   | [39m                                             [31m^[39m
+    [90m 38| [39m    })[33m;[39m
+    [90m 39| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/select/select.test.tsx[2m > [22mSelect[2m > [22mshows loading state
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toBeDisabled()[22m
+
+Received element is not disabled:
+  [31m<select
+  class="w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"
+/>[31m[39m
+[36m [2m❯[22m src/components/select/select.test.tsx:[2m44:24[22m[39m
+    [90m 42| [39m
+    [90m 43| [39m        [35mconst[39m select [33m=[39m screen[33m.[39m[34mgetByRole[39m([32m'combobox'[39m)[33m;[39m
+    [90m 44| [39m        [34mexpect[39m(select)[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+    [90m   | [39m                       [31m^[39m
+    [90m 45| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Loading...'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 46| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/select/select.test.tsx[2m > [22mSelect[2m > [22mrenders required asterisk
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveClass([22m[32m[32m"text-[#EF4444]"[32m[31m[2m)[22m
+
+Expected the element to have class:
+[32m  text-[#EF4444][31m
+Received:
+[31m  text-red-500 ml-0.5[31m[39m
+[36m [2m❯[22m src/components/select/select.test.tsx:[2m54:39[22m[39m
+    [90m 52| [39m    [34mit[39m([32m'renders required asterisk'[39m[33m,[39m () [33m=>[39m {
+    [90m 53| [39m        render(<Select options={options} label="Required Field" requir…
+    [90m 54| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'*'[39m))[33m.[39m[34mtoHaveClass[39m([32m'text-[#EF4444]'[39m)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m 55| [39m    })[33m;[39m
+    [90m 56| [39m})[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/status-badge/status-badge.test.tsx[2m > [22mStatusBadge[2m > [22mrenders each status correctly
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: ⏳. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<span[31m
+      [33mclass[31m=[32m"inline-flex items-center px-2 py-0.5 text-xs font-medium rounded border bg-amber-50 text-amber-700 border-amber-200"[31m
+    [36m>[31m
+      [0mPending[0m
+    [36m</span>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/status-badge/status-badge.test.tsx:[2m10:23[22m[39m
+    [90m  8| [39m        const { rerender } = render(<StatusBadge status={RequestStatus…
+    [90m  9| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Pending'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 10| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'⏳'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m 11| [39m        [90m// The badge is the container that has the class.[39m
+    [90m 12| [39m        // Since the component structure is <span class="badge"><span>…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/admin/components/user-form-modal/user-form-modal.test.tsx[2m > [22mUserFormModal[2m > [22mrenders create mode correctly
+[31m[1mTestingLibraryElementError[22m[39m: Found a label with the text of: /Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-50 overflow-y-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed inset-0 bg-zinc-900/50 transition-opacity"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-full items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative w-full bg-white rounded-lg shadow-lg animate-fade-in max-w-lg"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between px-5 py-4 border-b border-zinc-200"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+            [36m>[39m
+              [0mCreate New User[0m
+            [36m</h2>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-4 h-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 18L18 6M6 6l12 12"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"px-5 py-4"[39m
+          [36m>[39m
+            [36m<form[39m
+              [33mclass[39m=[32m"space-y-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mName[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"name"[39m
+                  [33mplaceholder[39m=[32m"John Doe"[39m
+                  [33mtype[39m=[32m"text"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mEmail[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"email"[39m
+                  [33mplaceholder[39m=[32m"john@example.com"[39m
+                  [33mtype[39m=[32m"email"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mPassword (min 8 characters)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"password"[39m
+                  [33mplaceholder[39m=[32m"••••••••"[39m
+                  [33mtype[39m=[32m"password"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mRole[0m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"role"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"developer"[39m
+                  [36m>[39m
+                    [0mDeveloper[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"manager"[39m
+                  [36m>[39m
+                    [0mManager[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"admin"[39m
+                  [36m>[39m
+                    [0mAdmin[0m
+                  [36m</option>[39m
+                [36m</select>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mCancel[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0mCreate User[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/admin/components/user-form-modal/user-form-modal.test.tsx:[2m34:23[22m[39m
+    [90m 32| [39m        [34mrender[39m([33m<[39m[33mUserFormModal[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 33| [39m        expect(screen.getByText('Create New User')).toBeInTheDocument(…
+    [90m 34| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/Name/[39m))[33m.[39m[34mtoHaveValue[39m([32m''[39m)[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m 35| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/Email/[39m))[33m.[39m[34mtoHaveValue[39m([32m''[39m)[33m;[39m
+    [90m 36| [39m        [90m// Password required check implicitly via validation test[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/admin/components/user-form-modal/user-form-modal.test.tsx[2m > [22mUserFormModal[2m > [22mvalidates password length for new users
+[31m[1mTestingLibraryElementError[22m[39m: Found a label with the text of: /Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-50 overflow-y-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed inset-0 bg-zinc-900/50 transition-opacity"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-full items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative w-full bg-white rounded-lg shadow-lg animate-fade-in max-w-lg"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between px-5 py-4 border-b border-zinc-200"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+            [36m>[39m
+              [0mCreate New User[0m
+            [36m</h2>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-4 h-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 18L18 6M6 6l12 12"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"px-5 py-4"[39m
+          [36m>[39m
+            [36m<form[39m
+              [33mclass[39m=[32m"space-y-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mName[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"name"[39m
+                  [33mplaceholder[39m=[32m"John Doe"[39m
+                  [33mtype[39m=[32m"text"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mEmail[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"email"[39m
+                  [33mplaceholder[39m=[32m"john@example.com"[39m
+                  [33mtype[39m=[32m"email"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mPassword (min 8 characters)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"password"[39m
+                  [33mplaceholder[39m=[32m"••••••••"[39m
+                  [33mtype[39m=[32m"password"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mRole[0m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"role"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"developer"[39m
+                  [36m>[39m
+                    [0mDeveloper[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"manager"[39m
+                  [36m>[39m
+                    [0mManager[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"admin"[39m
+                  [36m>[39m
+                    [0mAdmin[0m
+                  [36m</option>[39m
+                [36m</select>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mCancel[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0mCreate User[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/admin/components/user-form-modal/user-form-modal.test.tsx:[2m61:37[22m[39m
+    [90m 59| [39m        [34mrender[39m([33m<[39m[33mUserFormModal[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 60| [39m
+    [90m 61| [39m        await userEvent.type(screen.getByLabelText(/Name/), 'New User'…
+    [90m   | [39m                                    [31m^[39m
+    [90m 62| [39m        await userEvent.type(screen.getByLabelText(/Email/), 'new@exam…
+    [90m 63| [39m        await userEvent.type(screen.getByLabelText(/Password \(min 8 c…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/admin/components/user-form-modal/user-form-modal.test.tsx[2m > [22mUserFormModal[2m > [22msubmits valid data for new user
+[31m[1mTestingLibraryElementError[22m[39m: Found a label with the text of: /Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-50 overflow-y-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed inset-0 bg-zinc-900/50 transition-opacity"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-full items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative w-full bg-white rounded-lg shadow-lg animate-fade-in max-w-lg"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between px-5 py-4 border-b border-zinc-200"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+            [36m>[39m
+              [0mCreate New User[0m
+            [36m</h2>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-4 h-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 18L18 6M6 6l12 12"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"px-5 py-4"[39m
+          [36m>[39m
+            [36m<form[39m
+              [33mclass[39m=[32m"space-y-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mName[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"name"[39m
+                  [33mplaceholder[39m=[32m"John Doe"[39m
+                  [33mtype[39m=[32m"text"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mEmail[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"email"[39m
+                  [33mplaceholder[39m=[32m"john@example.com"[39m
+                  [33mtype[39m=[32m"email"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mPassword (min 8 characters)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"password"[39m
+                  [33mplaceholder[39m=[32m"••••••••"[39m
+                  [33mtype[39m=[32m"password"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mRole[0m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"role"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"developer"[39m
+                  [36m>[39m
+                    [0mDeveloper[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"manager"[39m
+                  [36m>[39m
+                    [0mManager[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"admin"[39m
+                  [36m>[39m
+                    [0mAdmin[0m
+                  [36m</option>[39m
+                [36m</select>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mCancel[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0mCreate User[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/admin/components/user-form-modal/user-form-modal.test.tsx:[2m75:37[22m[39m
+    [90m 73| [39m        [34mrender[39m([33m<[39m[33mUserFormModal[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 74| [39m
+    [90m 75| [39m        await userEvent.type(screen.getByLabelText(/Name/), 'New User'…
+    [90m   | [39m                                    [31m^[39m
+    [90m 76| [39m        await userEvent.type(screen.getByLabelText(/Email/), 'new@exam…
+    [90m 77| [39m        await userEvent.type(screen.getByLabelText(/Password/), 'passw…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/admin/components/user-form-modal/user-form-modal.test.tsx[2m > [22mUserFormModal[2m > [22mtoggles pod assignment for managers
+[31m[1mTestingLibraryElementError[22m[39m: Found a label with the text of: /Role/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-50 overflow-y-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed inset-0 bg-zinc-900/50 transition-opacity"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-full items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative w-full bg-white rounded-lg shadow-lg animate-fade-in max-w-lg"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between px-5 py-4 border-b border-zinc-200"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+            [36m>[39m
+              [0mCreate New User[0m
+            [36m</h2>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-4 h-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 18L18 6M6 6l12 12"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"px-5 py-4"[39m
+          [36m>[39m
+            [36m<form[39m
+              [33mclass[39m=[32m"space-y-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mName[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"name"[39m
+                  [33mplaceholder[39m=[32m"John Doe"[39m
+                  [33mtype[39m=[32m"text"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mEmail[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"email"[39m
+                  [33mplaceholder[39m=[32m"john@example.com"[39m
+                  [33mtype[39m=[32m"email"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mPassword (min 8 characters)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"password"[39m
+                  [33mplaceholder[39m=[32m"••••••••"[39m
+                  [33mtype[39m=[32m"password"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mRole[0m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"role"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"developer"[39m
+                  [36m>[39m
+                    [0mDeveloper[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"manager"[39m
+                  [36m>[39m
+                    [0mManager[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"admin"[39m
+                  [36m>[39m
+                    [0mAdmin[0m
+                  [36m</option>[39m
+                [36m</select>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mCancel[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0mCreate User[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/admin/components/user-form-modal/user-form-modal.test.tsx:[2m95:46[22m[39m
+    [90m 93| [39m
+    [90m 94| [39m        [90m// Select Manager role to show pods[39m
+    [90m 95| [39m        await userEvent.selectOptions(screen.getByLabelText(/Role/), '…
+    [90m   | [39m                                             [31m^[39m
+    [90m 96| [39m
+    [90m 97| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Managed Pods'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/admin/components/user-form-modal/user-form-modal.test.tsx[2m > [22mUserFormModal[2m > [22msubmits without password when editing existing user
+[31m[1mTestingLibraryElementError[22m[39m: Found a label with the text of: /Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-50 overflow-y-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed inset-0 bg-zinc-900/50 transition-opacity"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-full items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative w-full bg-white rounded-lg shadow-lg animate-fade-in max-w-lg"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between px-5 py-4 border-b border-zinc-200"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+            [36m>[39m
+              [0mEdit User[0m
+            [36m</h2>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-4 h-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 18L18 6M6 6l12 12"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"px-5 py-4"[39m
+          [36m>[39m
+            [36m<form[39m
+              [33mclass[39m=[32m"space-y-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mName[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"name"[39m
+                  [33mplaceholder[39m=[32m"John Doe"[39m
+                  [33mtype[39m=[32m"text"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mEmail[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mname[39m=[32m"email"[39m
+                  [33mplaceholder[39m=[32m"john@example.com"[39m
+                  [33mtype[39m=[32m"email"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mNew Password (leave blank to keep current)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"password"[39m
+                  [33mplaceholder[39m=[32m"••••••••"[39m
+                  [33mtype[39m=[32m"password"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mRole[0m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"role"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"developer"[39m
+                  [36m>[39m
+                    [0mDeveloper[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"manager"[39m
+                  [36m>[39m
+                    [0mManager[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"admin"[39m
+                  [36m>[39m
+                    [0mAdmin[0m
+                  [36m</option>[39m
+                [36m</select>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-2"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-semibold text-[#0F172A] "[39m
+                [36m>[39m
+                  [0mManaged Pods[0m
+                [36m</label>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex flex-wrap gap-2"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"px-3 py-1.5 text-sm font-semibold border-2 rounded-md transition-all duration-150 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] border-[#E2E8F0] text-[#0F172A] "[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mAlpha Pod[0m
+                  [36m</button>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"px-3 py-1.5 text-sm font-semibold border-2 rounded-md transition-all duration-150 bg-white border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mBeta Pod[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mCancel[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0mUpdate User[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/admin/components/user-form-modal/user-form-modal.test.tsx:[2m120:37[22m[39m
+    [90m118| [39m
+    [90m119| [39m        await userEvent.clear(screen.getByDisplayValue('Existing User'…
+    [90m120| [39m        await userEvent.type(screen.getByLabelText(/Name/), 'Updated U…
+    [90m   | [39m                                    [31m^[39m
+    [90m121| [39m        [90m// Do NOT enter a password  [39m
+    [90m122| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/admin/components/user-form-modal/user-form-modal.test.tsx[2m > [22mUserFormModal[2m > [22msubmits with password when editing user with new password
+[31m[1mTestingLibraryElementError[22m[39m: Found a label with the text of: /Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-50 overflow-y-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed inset-0 bg-zinc-900/50 transition-opacity"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-full items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative w-full bg-white rounded-lg shadow-lg animate-fade-in max-w-lg"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between px-5 py-4 border-b border-zinc-200"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+            [36m>[39m
+              [0mEdit User[0m
+            [36m</h2>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-4 h-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 18L18 6M6 6l12 12"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"px-5 py-4"[39m
+          [36m>[39m
+            [36m<form[39m
+              [33mclass[39m=[32m"space-y-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mName[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"name"[39m
+                  [33mplaceholder[39m=[32m"John Doe"[39m
+                  [33mtype[39m=[32m"text"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mEmail[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mname[39m=[32m"email"[39m
+                  [33mplaceholder[39m=[32m"john@example.com"[39m
+                  [33mtype[39m=[32m"email"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mNew Password (leave blank to keep current)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"password"[39m
+                  [33mplaceholder[39m=[32m"••••••••"[39m
+                  [33mtype[39m=[32m"password"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mRole[0m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"role"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"developer"[39m
+                  [36m>[39m
+                    [0mDeveloper[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"manager"[39m
+                  [36m>[39m
+                    [0mManager[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"admin"[39m
+                  [36m>[39m
+                    [0mAdmin[0m
+                  [36m</option>[39m
+                [36m</select>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-2"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-semibold text-[#0F172A] "[39m
+                [36m>[39m
+                  [0mManaged Pods[0m
+                [36m</label>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex flex-wrap gap-2"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"px-3 py-1.5 text-sm font-semibold border-2 rounded-md transition-all duration-150 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] border-[#E2E8F0] text-[#0F172A] "[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mAlpha Pod[0m
+                  [36m</button>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"px-3 py-1.5 text-sm font-semibold border-2 rounded-md transition-all duration-150 bg-white border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mBeta Pod[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mCancel[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0mUpdate User[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/admin/components/user-form-modal/user-form-modal.test.tsx:[2m138:37[22m[39m
+    [90m136| [39m
+    [90m137| [39m        await userEvent.clear(screen.getByDisplayValue('Existing User'…
+    [90m138| [39m        await userEvent.type(screen.getByLabelText(/Name/), 'Updated U…
+    [90m   | [39m                                    [31m^[39m
+    [90m139| [39m        await userEvent.type(screen.getByLabelText(/New Password/), 'n…
+    [90m140| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/admin/components/user-form-modal/user-form-modal.test.tsx[2m > [22mUserFormModal[2m > [22mshows no pods message when pods array is empty
+[31m[1mTestingLibraryElementError[22m[39m: Found a label with the text of: /Role/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-50 overflow-y-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed inset-0 bg-zinc-900/50 transition-opacity"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-full items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative w-full bg-white rounded-lg shadow-lg animate-fade-in max-w-lg"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between px-5 py-4 border-b border-zinc-200"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+            [36m>[39m
+              [0mCreate New User[0m
+            [36m</h2>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-4 h-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 18L18 6M6 6l12 12"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"px-5 py-4"[39m
+          [36m>[39m
+            [36m<form[39m
+              [33mclass[39m=[32m"space-y-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mName[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"name"[39m
+                  [33mplaceholder[39m=[32m"John Doe"[39m
+                  [33mtype[39m=[32m"text"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mEmail[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"email"[39m
+                  [33mplaceholder[39m=[32m"john@example.com"[39m
+                  [33mtype[39m=[32m"email"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mPassword (min 8 characters)[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"password"[39m
+                  [33mplaceholder[39m=[32m"••••••••"[39m
+                  [33mtype[39m=[32m"password"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium text-zinc-700"[39m
+                [36m>[39m
+                  [0mRole[0m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33mclass[39m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[39m
+                  [33mname[39m=[32m"role"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"developer"[39m
+                  [36m>[39m
+                    [0mDeveloper[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"manager"[39m
+                  [36m>[39m
+                    [0mManager[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"admin"[39m
+                  [36m>[39m
+                    [0mAdmin[0m
+                  [36m</option>[39m
+                [36m</select>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mCancel[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0mCreate User[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/admin/components/user-form-modal/user-form-modal.test.tsx:[2m154:46[22m[39m
+    [90m152| [39m
+    [90m153| [39m        [90m// Select Manager role to show pods section[39m
+    [90m154| [39m        await userEvent.selectOptions(screen.getByLabelText(/Role/), '…
+    [90m   | [39m                                             [31m^[39m
+    [90m155| [39m
+    [90m156| [39m        expect(screen.getByText('No pods available')).toBeInTheDocumen…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/auth/components/login-form/login-form.test.tsx[2m > [22mLoginForm[2m > [22mrenders login form
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Email/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form[31m
+      [33mclass[31m=[32m"space-y-5"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"email"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mplaceholder[31m=[32m"you@example.com"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"current-password"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mplaceholder[31m=[32m"••••••••"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm w-full"[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mSign in[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/auth/components/login-form/login-form.test.tsx:[2m53:23[22m[39m
+    [90m 51| [39m            [33m<[39m[33m/[39m[33mMemoryRouter[39m[33m>[39m
+    [90m 52| [39m        )[33m;[39m
+    [90m 53| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/Email/[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m 54| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/Password/[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 55| [39m        expect(screen.getByRole('button', { name: 'Sign in' })).toBeIn…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/auth/components/login-form/login-form.test.tsx[2m > [22mLoginForm[2m > [22msubmits successfully and redirects developer
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Email/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form[31m
+      [33mclass[31m=[32m"space-y-5"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"email"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mplaceholder[31m=[32m"you@example.com"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"current-password"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mplaceholder[31m=[32m"••••••••"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm w-full"[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mSign in[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/auth/components/login-form/login-form.test.tsx:[2m87:37[22m[39m
+    [90m 85| [39m        )[33m;[39m
+    [90m 86| [39m
+    [90m 87| [39m        await userEvent.type(screen.getByLabelText(/Email/), 'dev@exam…
+    [90m   | [39m                                    [31m^[39m
+    [90m 88| [39m        await userEvent.type(screen.getByLabelText(/Password/), 'passw…
+    [90m 89| [39m        fireEvent.click(screen.getByRole('button', { name: 'Sign in' }…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/auth/components/login-form/login-form.test.tsx[2m > [22mLoginForm[2m > [22mredirects admin to admin dashboard
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Email/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form[31m
+      [33mclass[31m=[32m"space-y-5"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"email"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mplaceholder[31m=[32m"you@example.com"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"current-password"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mplaceholder[31m=[32m"••••••••"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm w-full"[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mSign in[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/auth/components/login-form/login-form.test.tsx:[2m114:37[22m[39m
+    [90m112| [39m        )[33m;[39m
+    [90m113| [39m
+    [90m114| [39m        await userEvent.type(screen.getByLabelText(/Email/), 'admin@ex…
+    [90m   | [39m                                    [31m^[39m
+    [90m115| [39m        await userEvent.type(screen.getByLabelText(/Password/), 'passw…
+    [90m116| [39m        fireEvent.click(screen.getByRole('button', { name: 'Sign in' }…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/auth/components/login-form/login-form.test.tsx[2m > [22mLoginForm[2m > [22mredirects manager to approvals page
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Email/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form[31m
+      [33mclass[31m=[32m"space-y-5"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"email"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mplaceholder[31m=[32m"you@example.com"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"current-password"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mplaceholder[31m=[32m"••••••••"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm w-full"[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mSign in[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/auth/components/login-form/login-form.test.tsx:[2m136:37[22m[39m
+    [90m134| [39m        )[33m;[39m
+    [90m135| [39m
+    [90m136| [39m        await userEvent.type(screen.getByLabelText(/Email/), 'manager@…
+    [90m   | [39m                                    [31m^[39m
+    [90m137| [39m        await userEvent.type(screen.getByLabelText(/Password/), 'passw…
+    [90m138| [39m        fireEvent.click(screen.getByRole('button', { name: 'Sign in' }…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/auth/components/login-form/login-form.test.tsx[2m > [22mLoginForm[2m > [22mhandles login failure
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Email/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form[31m
+      [33mclass[31m=[32m"space-y-5"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"email"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mplaceholder[31m=[32m"you@example.com"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"current-password"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mplaceholder[31m=[32m"••••••••"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm w-full"[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mSign in[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/auth/components/login-form/login-form.test.tsx:[2m156:37[22m[39m
+    [90m154| [39m        )[33m;[39m
+    [90m155| [39m
+    [90m156| [39m        await userEvent.type(screen.getByLabelText(/Email/), 'fail@exa…
+    [90m   | [39m                                    [31m^[39m
+    [90m157| [39m        await userEvent.type(screen.getByLabelText(/Password/), 'passw…
+    [90m158| [39m        fireEvent.click(screen.getByRole('button', { name: 'Sign in' }…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/auth/components/login-form/login-form.test.tsx[2m > [22mLoginForm[2m > [22mfalls back to default error message when no response error provided
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Email/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<form[31m
+      [33mclass[31m=[32m"space-y-5"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mEmail[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"email"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"email"[31m
+          [33mplaceholder[31m=[32m"you@example.com"[31m
+          [33mtype[31m=[32m"email"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mPassword[0m
+        [36m</label>[31m
+        [36m<input[31m
+          [33mautocomplete[31m=[32m"current-password"[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mname[31m=[32m"password"[31m
+          [33mplaceholder[31m=[32m"••••••••"[31m
+          [33mtype[31m=[32m"password"[31m
+        [36m/>[31m
+      [36m</div>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-900 text-white hover:bg-zinc-700 focus:ring-zinc-900 px-4 py-2 text-sm w-full"[31m
+        [33mtype[31m=[32m"submit"[31m
+      [36m>[31m
+        [0mSign in[0m
+      [36m</button>[31m
+    [36m</form>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/auth/components/login-form/login-form.test.tsx:[2m176:37[22m[39m
+    [90m174| [39m        )[33m;[39m
+    [90m175| [39m
+    [90m176| [39m        await userEvent.type(screen.getByLabelText(/Email/), 'fail@exa…
+    [90m   | [39m                                    [31m^[39m
+    [90m177| [39m        await userEvent.type(screen.getByLabelText(/Password/), 'passw…
+    [90m178| [39m        fireEvent.click(screen.getByRole('button', { name: 'Sign in' }…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22mrenders selects
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Database Type/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst1"[31m
+          [36m>[31m
+            [0mInstance 1 (postgresql)[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst2"[31m
+          [36m>[31m
+            [0mInstance 2 (postgresql)[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db1"[31m
+          [36m>[31m
+            [0mdb1[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db2"[31m
+          [36m>[31m
+            [0mdb2[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m43:23[22m[39m
+    [90m 41| [39m    [34mit[39m([32m'renders selects'[39m[33m,[39m () [33m=>[39m {
+    [90m 42| [39m        [34mrender[39m([33m<[39m[33mDatabaseSelector[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 43| [39m        expect(screen.getByLabelText(/Database Type/)).toBeInTheDocume…
+    [90m   | [39m                      [31m^[39m
+    [90m 44| [39m        expect(screen.getByLabelText(/Instance Name/)).toBeInTheDocume…
+    [90m 45| [39m        expect(screen.getByLabelText(/Database Name/)).toBeInTheDocume…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22mdisabled dependent selects initially
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Instance Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst1"[31m
+          [36m>[31m
+            [0mInstance 1 (postgresql)[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst2"[31m
+          [36m>[31m
+            [0mInstance 2 (postgresql)[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db1"[31m
+          [36m>[31m
+            [0mdb1[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db2"[31m
+          [36m>[31m
+            [0mdb2[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m50:23[22m[39m
+    [90m 48| [39m    [34mit[39m([32m'disabled dependent selects initially'[39m[33m,[39m () [33m=>[39m {
+    [90m 49| [39m        [34mrender[39m([33m<[39m[33mDatabaseSelector[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 50| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/Instance Name/[39m))[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m 51| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/Database Name/[39m))[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+    [90m 52| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22menables instance select when type selected
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Instance Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst1"[31m
+          [36m>[31m
+            [0mInstance 1 (postgresql)[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst2"[31m
+          [36m>[31m
+            [0mInstance 2 (postgresql)[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db1"[31m
+          [36m>[31m
+            [0mdb1[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db2"[31m
+          [36m>[31m
+            [0mdb2[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m56:23[22m[39m
+    [90m 54| [39m    [34mit[39m([32m'enables instance select when type selected'[39m[33m,[39m () [33m=>[39m {
+    [90m 55| [39m        render(<DatabaseSelector {...defaultProps} databaseType={Datab…
+    [90m 56| [39m        expect(screen.getByLabelText(/Instance Name/)).not.toBeDisable…
+    [90m   | [39m                      [31m^[39m
+    [90m 57| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/Database Name/[39m))[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+    [90m 58| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22menables database select when instance selected
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Instance Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst1"[31m
+          [36m>[31m
+            [0mInstance 1 (postgresql)[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst2"[31m
+          [36m>[31m
+            [0mInstance 2 (postgresql)[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db1"[31m
+          [36m>[31m
+            [0mdb1[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db2"[31m
+          [36m>[31m
+            [0mdb2[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m68:23[22m[39m
+    [90m 66| [39m            [33m/[39m[33m>[39m
+    [90m 67| [39m        )[33m;[39m
+    [90m 68| [39m        expect(screen.getByLabelText(/Instance Name/)).not.toBeDisable…
+    [90m   | [39m                      [31m^[39m
+    [90m 69| [39m        expect(screen.getByLabelText(/Database Name/)).not.toBeDisable…
+    [90m 70| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22mcalls handlers on change
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Database Type/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst1"[31m
+          [36m>[31m
+            [0mInstance 1 (postgresql)[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst2"[31m
+          [36m>[31m
+            [0mInstance 2 (postgresql)[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db1"[31m
+          [36m>[31m
+            [0mdb1[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db2"[31m
+          [36m>[31m
+            [0mdb2[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m75:33[22m[39m
+    [90m 73| [39m        [34mrender[39m([33m<[39m[33mDatabaseSelector[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 74| [39m
+    [90m 75| [39m        fireEvent.change(screen.getByLabelText(/Database Type/), { tar…
+    [90m   | [39m                                [31m^[39m
+    [90m 76| [39m        expect(defaultProps.onDatabaseTypeChange).toHaveBeenCalledWith…
+    [90m 77| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22mcalls instance change handler
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Instance Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst1"[31m
+          [36m>[31m
+            [0mInstance 1 (postgresql)[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst2"[31m
+          [36m>[31m
+            [0mInstance 2 (postgresql)[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db1"[31m
+          [36m>[31m
+            [0mdb1[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db2"[31m
+          [36m>[31m
+            [0mdb2[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m87:33[22m[39m
+    [90m 85| [39m        )[33m;[39m
+    [90m 86| [39m
+    [90m 87| [39m        fireEvent.change(screen.getByLabelText(/Instance Name/), { tar…
+    [90m   | [39m                                [31m^[39m
+    [90m 88| [39m        expect(defaultProps.onInstanceChange).toHaveBeenCalledWith('in…
+    [90m 89| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22mcalls database change handler
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Database Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst1"[31m
+          [36m>[31m
+            [0mInstance 1 (postgresql)[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst2"[31m
+          [36m>[31m
+            [0mInstance 2 (postgresql)[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db1"[31m
+          [36m>[31m
+            [0mdb1[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"db2"[31m
+          [36m>[31m
+            [0mdb2[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m100:33[22m[39m
+    [90m 98| [39m        )[33m;[39m
+    [90m 99| [39m
+    [90m100| [39m        fireEvent.change(screen.getByLabelText(/Database Name/), { tar…
+    [90m   | [39m                                [31m^[39m
+    [90m101| [39m        expect(defaultProps.onDatabaseChange).toHaveBeenCalledWith('db…
+    [90m102| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22mshows empty options when instances are loading
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Instance Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m117:23[22m[39m
+    [90m115| [39m
+    [90m116| [39m        [90m// Instance select should be showing loading indicator[39m
+    [90m117| [39m        expect(screen.getByLabelText(/Instance Name/)).toBeInTheDocume…
+    [90m   | [39m                      [31m^[39m
+    [90m118| [39m    })[33m;[39m
+    [90m119| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22mshows empty options when databases are loading
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Database Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst1"[31m
+          [36m>[31m
+            [0mInstance 1 (postgresql)[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m139:23[22m[39m
+    [90m137| [39m
+    [90m138| [39m        [90m// Database select should show loading indicator[39m
+    [90m139| [39m        expect(screen.getByLabelText(/Database Name/)).toBeInTheDocume…
+    [90m   | [39m                      [31m^[39m
+    [90m140| [39m    })[33m;[39m
+    [90m141| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22mhandles null instances data
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Instance Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+          [33mdisabled[31m=[32m""[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m155:23[22m[39m
+    [90m153| [39m
+    [90m154| [39m        [90m// Should render without crashing[39m
+    [90m155| [39m        expect(screen.getByLabelText(/Instance Name/)).toBeInTheDocume…
+    [90m   | [39m                      [31m^[39m
+    [90m156| [39m    })[33m;[39m
+    [90m157| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/dashboard/components/database-selector/database-selector.test.tsx[2m > [22mDatabaseSelector[2m > [22mhandles non-string database values
+[31m[1mTestingLibraryElementError[22m: Found a label with the text of: /Database Name/, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Type[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database type[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"postgresql"[31m
+          [36m>[31m
+            [0mPostgreSQL[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"mongodb"[31m
+          [36m>[31m
+            [0mMongoDB[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mInstance Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect instance[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"inst1"[31m
+          [36m>[31m
+            [0mInstance 1 (postgresql)[0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"space-y-1.5"[31m
+      [36m>[31m
+        [36m<label[31m
+          [33mclass[31m=[32m"block text-sm font-medium text-zinc-700"[31m
+        [36m>[31m
+          [0mDatabase Name[0m
+          [36m<span[31m
+            [33mclass[31m=[32m"text-red-500 ml-0.5"[31m
+          [36m>[31m
+            [0m*[0m
+          [36m</span>[31m
+        [36m</label>[31m
+        [36m<select[31m
+          [33mclass[31m=[32m"w-full px-3 py-2 bg-white text-zinc-900 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-1 disabled:bg-zinc-50 disabled:text-zinc-500 transition-shadow duration-150"[31m
+        [36m>[31m
+          [36m<option[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mvalue[31m=[32m""[31m
+          [36m>[31m
+            [0mSelect database[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"123"[31m
+          [36m>[31m
+            [0m123[0m
+          [36m</option>[31m
+          [36m<option[31m
+            [33mvalue[31m=[32m"[object Object]"[31m
+          [36m>[31m
+            [0m[object Object][0m
+          [36m</option>[31m
+        [36m</select>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/dashboard/components/database-selector/database-selector.test.tsx:[2m177:23[22m[39m
+    [90m175| [39m
+    [90m176| [39m        [90m// Should convert to strings and render[39m
+    [90m177| [39m        expect(screen.getByLabelText(/Database Name/)).toBeInTheDocume…
+    [90m   | [39m                      [31m^[39m
+    [90m178| [39m    })[33m;[39m
+    [90m179| [39m})[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/38]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/submissions/components/submission-detail-modal/submission-detail-modal.test.tsx[2m > [22mSubmissionDetailModal[2m > [22mrenders compressed result with download link
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "link" and name `/Download Result/`
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Request Details":
+  [36m<h2[39m
+    [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "":
+  [36m<button[39m
+    [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+  [36m/>[39m
+
+  Name "Download Result":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white font-semibold text-sm rounded-md hover:bg-[#1D4ED8] transition-colors shadow-sm"[39m
+  [36m/>[39m
+
+  Name "Close":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#64748B] font-mono"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#64748B] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#0F172A] bg-[#F8FAFC] border border-[#E2E8F0] p-3 rounded-md "[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-[#64748B] mb-3"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m"overflow: hidden;"[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"fixed inset-0 z-50 overflow-y-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed inset-0 bg-zinc-900/50 transition-opacity"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-full items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"relative w-full bg-white rounded-lg shadow-lg animate-fade-in max-w-2xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between px-5 py-4 border-b border-zinc-200"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-base font-semibold text-zinc-900"[39m
+            [36m>[39m
+              [0mRequest Details[0m
+            [36m</h2>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"p-1.5 text-zinc-400 rounded hover:bg-zinc-100 hover:text-zinc-600 transition-colors"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-4 h-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 18L18 6M6 6l12 12"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"px-5 py-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"space-y-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start justify-between"[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#64748B] font-mono"[39m
+                  [36m>[39m
+                    [0mID: [0m
+                    [0mreq-1[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#64748B] mt-1"[39m
+                  [36m>[39m
+                    [0mSubmitted on [0m
+                    [0mJan 1, 2023, 05:30 AM[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex items-center px-2 py-0.5 text-xs font-medium rounded border bg-green-50 text-green-700 border-green-200"[39m
+                [36m>[39m
+                  [0mExecuted[0m
+                [36m</span>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"grid grid-cols-2 gap-4 p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md "[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+                  [36m>[39m
+                    [0mDatabase Type[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+                  [36m>[39m
+                    [0mpostgresql[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+                  [36m>[39m
+                    [0mInstance[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+                  [36m>[39m
+                    [0mProd DB[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+                  [36m>[39m
+                    [0mDatabase[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+                  [36m>[39m
+                    [0mdb1[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold "[39m
+                  [36m>[39m
+                    [0mPOD[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#0F172A] mt-1"[39m
+                  [36m>[39m
+                    [0mAlpha[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+                [36m>[39m
+                  [0mQuery[0m
+                [36m</p>[39m
+                [36m<div[39m
+                  [33mdata-testid[39m=[32m"code-viewer"[39m
+                [36m>[39m
+                  [0mSELECT * FROM users[0m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+                [36m>[39m
+                  [0mComments[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-sm text-[#0F172A] bg-[#F8FAFC] border border-[#E2E8F0] p-3 rounded-md "[39m
+                [36m>[39m
+                  [0mJust checking[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs text-[#0F172A] font-semibold  mb-2"[39m
+                [36m>[39m
+                  [0mExecution Result[0m
+                [36m</p>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md "[39m
+                [36m>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-[#64748B] mb-3"[39m
+                  [36m>[39m
+                    [0mResult is large and stored compressed. Click to download.[0m
+                  [36m</p>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white font-semibold text-sm rounded-md hover:bg-[#1D4ED8] transition-colors shadow-sm"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"w-4 h-4"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"[39m
+                        [33mstroke-linecap[39m=[32m"round"[39m
+                        [33mstroke-linejoin[39m=[32m"round"[39m
+                        [33mstroke-width[39m=[32m"2"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [0mDownload Result[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex justify-end gap-2 pt-4 mt-4 border-t border-zinc-200"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md cursor-pointer transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-50 focus:ring-zinc-400 px-4 py-2 text-sm"[39m
+              [36m>[39m
+                [0mClose[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/submissions/components/submission-detail-modal/submission-detail-modal.test.tsx:[2m117:23[22m[39m
+    [90m115| [39m        expect(screen.getByText('Execution Result')).toBeInTheDocument…
+    [90m116| [39m        expect(screen.getByText(/Result is large and stored compressed…
+    [90m117| [39m        expect(screen.getByRole('link', { name: /Download Result/ })).…
+    [90m   | [39m                      [31m^[39m
+    [90m118| [39m    })[33m;[39m
+    [90m119| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/38]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m10 failed[39m[22m[2m | [22m[1m[32m16 passed[39m[22m[90m (26)[39m
+[2m      Tests [22m [1m[31m38 failed[39m[22m[2m | [22m[1m[32m154 passed[39m[22m[90m (192)[39m
+[2m   Start at [22m 12:05:43
+[2m   Duration [22m 5.98s[2m (transform 1.58s, setup 5.30s, import 3.08s, tests 5.50s, environment 18.29s)[22m
+

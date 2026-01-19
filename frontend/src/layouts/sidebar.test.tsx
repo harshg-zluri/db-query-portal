@@ -91,10 +91,10 @@ describe('Sidebar', () => {
         renderSidebar('/dashboard');
 
         const dashboardLink = screen.getByText('Dashboard').closest('a');
-        expect(dashboardLink).toHaveClass('bg-[#FEF34B]');
+        expect(dashboardLink).toHaveClass('bg-linear-to-r from-[#6366F1] to-[#8B5CF6]');
 
         const submissionsLink = screen.getByText('Submissions').closest('a');
-        expect(submissionsLink).not.toHaveClass('bg-[#FEF34B]');
+        expect(submissionsLink).not.toHaveClass('bg-linear-to-r from-[#6366F1] to-[#8B5CF6]');
     });
 
     it('uses default role when user is undefined', () => {

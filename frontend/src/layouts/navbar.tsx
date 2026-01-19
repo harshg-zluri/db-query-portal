@@ -21,7 +21,6 @@ export function Navbar() {
         } catch {
             // Ignore logout errors
         } finally {
-            // Clear React Query cache to prevent stale data from previous user
             queryClient.clear();
             logout();
             toast.success('Logged out successfully');
@@ -30,22 +29,22 @@ export function Navbar() {
     };
 
     return (
-        <header className="h-16 bg-white border-b-2 border-black flex items-center justify-between px-6">
-            <div className="flex items-center gap-3 justify-center">
-                <img src={Logo} alt="Zluri" className="h-8" />
-                <h2 className="text-lg font-bold text-black uppercase tracking-wide pt-3">
+        <header className="h-14 bg-white border-b border-zinc-200 flex items-center justify-between px-5">
+            <div className="flex items-center gap-2.5">
+                <img src={Logo} alt="Zluri" className="h-6" />
+                <span className="text-sm font-semibold text-zinc-900">
                     Database Query Portal
-                </h2>
+                </span>
             </div>
 
             <div className="flex items-center gap-4">
                 <div className="text-right">
-                    <p className="text-sm font-semibold text-black">{user?.name}</p>
-                    <p className="text-xs text-[#6B6B6B] uppercase tracking-wide">{user?.role}</p>
+                    <p className="text-sm font-medium text-zinc-900">{user?.name}</p>
+                    <p className="text-xs text-zinc-500 capitalize">{user?.role}</p>
                 </div>
 
                 <Button
-                    variant="secondary"
+                    variant="ghost"
                     size="sm"
                     onClick={handleLogout}
                     disabled={isLoggingOut}
@@ -53,7 +52,7 @@ export function Navbar() {
                     {isLoggingOut ? (
                         <>
                             <svg
-                                className="w-4 h-4 mr-2 animate-spin"
+                                className="w-4 h-4 mr-1.5 animate-spin"
                                 fill="none"
                                 viewBox="0 0 24 24"
                             >
@@ -76,7 +75,7 @@ export function Navbar() {
                     ) : (
                         <>
                             <svg
-                                className="w-4 h-4 mr-2"
+                                className="w-4 h-4 mr-1.5"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -84,7 +83,7 @@ export function Navbar() {
                                 <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
-                                    strokeWidth={2}
+                                    strokeWidth={1.5}
                                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                                 />
                             </svg>

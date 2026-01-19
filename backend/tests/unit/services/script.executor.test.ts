@@ -1,52 +1,62 @@
-import { ScriptExecutor } from '../../../src/services/script.executor';
+// Mock isolated-vm
+const mockLogs: string[] = [];
+const mockErrors: string[] = [];
 
-// Mock child_process
-jest.mock('child_process', () => ({
-    spawn: jest.fn()
-}));
-
-// Mock fs/promises
-jest.mock('fs/promises', () => ({
-    writeFile: jest.fn().mockResolvedValue(undefined),
-    unlink: jest.fn().mockResolvedValue(undefined),
-    mkdtemp: jest.fn().mockResolvedValue('/tmp/test-script'),
-    rm: jest.fn().mockResolvedValue(undefined)
-}));
-
-// Mock fs/promises
-jest.mock('fs/promises', () => ({
-    writeFile: jest.fn().mockResolvedValue(undefined),
-    unlink: jest.fn().mockResolvedValue(undefined),
-    mkdtemp: jest.fn().mockResolvedValue('/tmp/test-script'),
-    rm: jest.fn().mockResolvedValue(undefined)
-}));
+jest.mock('isolated-vm', () => {
+    return {
+        Isolate: jest.fn().mockImplementation(() => ({
+            createContext: jest.fn().mockResolvedValue({
+                global: {
+                    set: jest.fn().mockImplementation(async (name: string, value: unknown) => {
+                        // Capture log/error callbacks for testing
+                        if (name === '_log' && value && typeof (value as { call?: unknown }).call === 'function') {
+                            (global as Record<string, unknown>).__testLog = value;
+                        }
+                        if (name === '_error' && value && typeof (value as { call?: unknown }).call === 'function') {
+                            (global as Record<string, unknown>).__testError = value;
+                        }
+                    }),
+                    derefInto: jest.fn()
+                }
+            }),
+            compileScript: jest.fn().mockResolvedValue({
+                run: jest.fn().mockResolvedValue(undefined)
+            }),
+            getHeapStatisticsSync: jest.fn().mockReturnValue({ used_heap_size: 1024 }),
+            dispose: jest.fn()
+        })),
+        Callback: jest.fn().mockImplementation((fn) => ({ call: fn })),
+        ExternalCopy: jest.fn().mockImplementation((data) => ({
+            copyInto: () => data
+        }))
+    };
+});
 
 // Mock config
 jest.mock('../../../src/config/environment', () => ({
     config: {
         scriptExecution: {
-            timeoutMs: 50, // Short timeout for testing
+            timeoutMs: 5000,
             maxMemoryMb: 128
-        },
-        // We need other config parts if accessed, but ScriptExecutor only uses scriptExecution
-        requestLimits: { maxPendingPerUser: 5 }
+        }
     }
 }));
 
-import { spawn } from 'child_process';
-import { writeFile, mkdtemp, rm } from 'fs/promises';
+import { ScriptExecutor } from '../../../src/services/script.executor';
 
 describe('ScriptExecutor', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockLogs.length = 0;
+        mockErrors.length = 0;
     });
 
     describe('validate', () => {
         it('should pass valid script', () => {
             const script = `
-        const result = await db.find({});
-        console.log(result);
-      `;
+                const x = 1 + 1;
+                console.log('Result:', x);
+            `;
 
             const result = ScriptExecutor.validate(script);
 
@@ -54,22 +64,49 @@ describe('ScriptExecutor', () => {
             expect(result.errors).toHaveLength(0);
         });
 
-        it('should reject child_process', () => {
-            const script = `const exec = require('child_process');`;
+        it('should reject require()', () => {
+            const script = `const fs = require('fs');`;
 
             const result = ScriptExecutor.validate(script);
 
             expect(result.valid).toBe(false);
-            expect(result.errors).toContain('child_process module is not allowed');
+            expect(result.errors[0]).toContain('require()');
         });
 
-        it('should reject cluster', () => {
-            const script = `const cluster = require('cluster');`;
+        it('should reject ES imports', () => {
+            const script = `import fs from 'fs';`;
 
             const result = ScriptExecutor.validate(script);
 
             expect(result.valid).toBe(false);
-            expect(result.errors).toContain('cluster module is not allowed');
+            expect(result.errors[0]).toContain('ES imports');
+        });
+
+        it('should reject process access', () => {
+            const script = `process.exit(0);`;
+
+            const result = ScriptExecutor.validate(script);
+
+            expect(result.valid).toBe(false);
+            expect(result.errors[0]).toContain('process');
+        });
+
+        it('should reject child_process', () => {
+            const script = `child_process.exec('ls');`;
+
+            const result = ScriptExecutor.validate(script);
+
+            expect(result.valid).toBe(false);
+            expect(result.errors[0]).toContain('child_process');
+        });
+
+        it('should reject fs access', () => {
+            const script = `fs.readFileSync('/etc/passwd');`;
+
+            const result = ScriptExecutor.validate(script);
+
+            expect(result.valid).toBe(false);
+            expect(result.errors[0]).toContain('File system');
         });
 
         it('should reject eval', () => {
@@ -78,7 +115,7 @@ describe('ScriptExecutor', () => {
             const result = ScriptExecutor.validate(script);
 
             expect(result.valid).toBe(false);
-            expect(result.errors).toContain('eval() is not allowed');
+            expect(result.errors[0]).toContain('eval()');
         });
 
         it('should reject Function constructor', () => {
@@ -87,57 +124,15 @@ describe('ScriptExecutor', () => {
             const result = ScriptExecutor.validate(script);
 
             expect(result.valid).toBe(false);
-            expect(result.errors).toContain('Function constructor is not allowed');
-        });
-
-        it('should reject process.exit', () => {
-            const script = `process.exit(0);`;
-
-            const result = ScriptExecutor.validate(script);
-
-            expect(result.valid).toBe(false);
-            expect(result.errors).toContain('process.exit() is not allowed');
-        });
-
-        it('should reject direct fs usage', () => {
-            const script = `const fs = require('fs');`;
-
-            const result = ScriptExecutor.validate(script);
-
-            expect(result.valid).toBe(false);
-            expect(result.errors).toContain('Direct fs module usage is restricted');
-        });
-
-        it('should allow DDL statements (warnings handled at submission)', () => {
-            // DDL statements are now allowed through validation
-            // Warnings are generated at request submission time, not script validation
-            const script = `
-                await client.query('DROP TABLE users');
-            `;
-
-            const result = ScriptExecutor.validate(script);
-
-            expect(result.valid).toBe(true);
-        });
-
-        it('should allow MongoDB methods (warnings handled at submission)', () => {
-            // MongoDB destructive methods are now allowed through validation
-            // Warnings are generated at request submission time
-            const script = `
-                await db.collection('users').drop();
-            `;
-
-            const result = ScriptExecutor.validate(script);
-
-            expect(result.valid).toBe(true);
+            expect(result.errors[0]).toContain('Function constructor');
         });
 
         it('should collect multiple errors', () => {
             const script = `
-        const exec = require('child_process');
-        eval('code');
-        process.exit(1);
-      `;
+                require('child_process');
+                eval('code');
+                process.exit(1);
+            `;
 
             const result = ScriptExecutor.validate(script);
 
@@ -148,181 +143,154 @@ describe('ScriptExecutor', () => {
 
     describe('execute', () => {
         it('should execute script successfully', async () => {
-            const mockProcess = {
-                stdout: {
-                    on: jest.fn((event, cb) => {
-                        if (event === 'data') cb('Script output');
-                    })
-                },
-                stderr: {
-                    on: jest.fn()
-                },
-                on: jest.fn((event, cb) => {
-                    if (event === 'close') setTimeout(() => cb(0), 10);
-                }),
-                killed: false,
-                kill: jest.fn()
-            };
-
-            (spawn as jest.Mock).mockReturnValue(mockProcess);
-
             const result = await ScriptExecutor.execute('console.log("test")', {
                 databaseName: 'test_db',
                 databaseType: 'postgres'
             });
 
             expect(result.success).toBe(true);
-            expect(result.output).toBe('Script output');
-            expect(writeFile).toHaveBeenCalled();
-            expect(rm).toHaveBeenCalled();
+            expect(result.executedAt).toBeDefined();
         });
 
-        it('should handle script failure', async () => {
-            const mockProcess = {
-                stdout: {
-                    on: jest.fn()
-                },
-                stderr: {
-                    on: jest.fn((event, cb) => {
-                        if (event === 'data') cb('Error occurred');
-                    })
-                },
-                on: jest.fn((event, cb) => {
-                    if (event === 'close') setTimeout(() => cb(1), 10);
-                }),
-                killed: false,
-                kill: jest.fn()
-            };
-
-            (spawn as jest.Mock).mockReturnValue(mockProcess);
-
-            const result = await ScriptExecutor.execute('throw new Error()', {
-                databaseName: 'test_db',
-                databaseType: 'postgres'
-            });
-
-            expect(result.success).toBe(false);
-            expect(result.error).toBe('Error occurred');
-        });
-
-        it('should handle spawn error', async () => {
-            const mockProcess = {
-                stdout: { on: jest.fn() },
-                stderr: { on: jest.fn() },
-                on: jest.fn((event, cb) => {
-                    if (event === 'error') setTimeout(() => cb(new Error('Spawn failed')), 10);
-                }),
-                killed: false,
-                kill: jest.fn()
-            };
-
-            (spawn as jest.Mock).mockReturnValue(mockProcess);
-
-            const result = await ScriptExecutor.execute('console.log()', {
-                databaseName: 'test_db',
-                databaseType: 'postgres'
-            });
-
-            expect(result.success).toBe(false);
-            expect(result.error).toBe('Spawn failed');
-        });
-
-        it('should pass database config to script', async () => {
-            const mockProcess = {
-                stdout: { on: jest.fn((e, cb) => { if (e === 'data') cb('ok'); }) },
-                stderr: { on: jest.fn() },
-                on: jest.fn((e, cb) => { if (e === 'close') setTimeout(() => cb(0), 10); }),
-                killed: false,
-                kill: jest.fn()
-            };
-
-            (spawn as jest.Mock).mockReturnValue(mockProcess);
-
-            await ScriptExecutor.execute('script', {
+        it('should pass database config', async () => {
+            const result = await ScriptExecutor.execute('console.log(DB_CONFIG)', {
                 postgresUrl: 'postgresql://localhost:5432/test',
                 mongoUrl: 'mongodb://localhost:27017',
                 databaseName: 'test_db',
                 databaseType: 'postgres'
             });
 
-            expect(spawn).toHaveBeenCalled();
-            const spawnCall = (spawn as jest.Mock).mock.calls[0];
-            expect(spawnCall[1].some((arg: string) => arg.includes('script.js'))).toBe(true);
-        });
-
-        it('should cleanup temp directory on error', async () => {
-            (mkdtemp as jest.Mock).mockRejectedValue(new Error('Failed to create temp'));
-
-            const result = await ScriptExecutor.execute('script', {
-                databaseName: 'test_db',
-                databaseType: 'postgres'
-            });
-
-            expect(result.error).toBe('Failed to create temp');
-        });
-
-        it('should capture stderr when script succeeds but logs errors', async () => {
-            (mkdtemp as jest.Mock).mockResolvedValue('/tmp/test-script-valid');
-
-            const mockProcess = {
-                stdout: {
-                    on: jest.fn((event, cb) => {
-                        if (event === 'data') cb('Success output');
-                    })
-                },
-                stderr: {
-                    on: jest.fn((event, cb) => {
-                        if (event === 'data') cb('Warning message');
-                    })
-                },
-                on: jest.fn((event, cb) => {
-                    if (event === 'close') setTimeout(() => cb(0), 10);
-                }),
-                killed: false,
-                kill: jest.fn()
-            };
-
-            (spawn as jest.Mock).mockReturnValue(mockProcess);
-
-            const result = await ScriptExecutor.execute('console.log("test")', {
-                databaseName: 'test_db',
-                databaseType: 'postgres'
-            });
-
-            if (!result.success) {
-                console.error('Test failed with error:', result.error);
-            }
             expect(result.success).toBe(true);
-            expect(result.output).toContain('Success output');
-            expect(result.output).toContain('--- STDERR ---');
-            expect(result.output).toContain('Warning message');
         });
 
-        it('should kill process on timeout', async () => {
-            const mockKill = jest.fn();
-            const mockProcess = {
-                stdout: { on: jest.fn() },
-                stderr: { on: jest.fn() },
-                on: jest.fn(), // Never calls close
-                killed: false,
-                kill: mockKill
-            };
+        it('should handle script timeout', async () => {
+            const ivm = require('isolated-vm');
+            const mockRun = jest.fn().mockRejectedValue(new Error('Script execution timed out'));
+            ivm.Isolate.mockImplementationOnce(() => ({
+                createContext: jest.fn().mockResolvedValue({
+                    global: { set: jest.fn(), derefInto: jest.fn() }
+                }),
+                compileScript: jest.fn().mockResolvedValue({ run: mockRun }),
+                getHeapStatisticsSync: jest.fn().mockReturnValue({ used_heap_size: 0 }),
+                dispose: jest.fn()
+            }));
 
-            (spawn as jest.Mock).mockReturnValue(mockProcess);
-
-            const executionPromise = ScriptExecutor.execute('while(true);', {
-                databaseName: 'test',
+            const result = await ScriptExecutor.execute('while(true){}', {
+                databaseName: 'test_db',
                 databaseType: 'postgres'
             });
-
-            // Wait for timeout (50ms configured + buffer)
-            await new Promise(resolve => setTimeout(resolve, 100));
-
-            const result = await executionPromise;
 
             expect(result.success).toBe(false);
             expect(result.error).toContain('timed out');
-            expect(mockKill).toHaveBeenCalledWith('SIGTERM');
+        });
+
+        it('should handle memory limit exceeded', async () => {
+            const ivm = require('isolated-vm');
+            const mockRun = jest.fn().mockRejectedValue(new Error('Isolate was disposed'));
+            ivm.Isolate.mockImplementationOnce(() => ({
+                createContext: jest.fn().mockResolvedValue({
+                    global: { set: jest.fn(), derefInto: jest.fn() }
+                }),
+                compileScript: jest.fn().mockResolvedValue({ run: mockRun }),
+                getHeapStatisticsSync: jest.fn().mockReturnValue({ used_heap_size: 0 }),
+                dispose: jest.fn()
+            }));
+
+            const result = await ScriptExecutor.execute('const arr = new Array(1e9);', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
+
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('memory limit');
+        });
+
+        it('should handle script errors', async () => {
+            const ivm = require('isolated-vm');
+            const mockRun = jest.fn().mockRejectedValue(new Error('ReferenceError: foo is not defined'));
+            ivm.Isolate.mockImplementationOnce(() => ({
+                createContext: jest.fn().mockResolvedValue({
+                    global: { set: jest.fn(), derefInto: jest.fn() }
+                }),
+                compileScript: jest.fn().mockResolvedValue({ run: mockRun }),
+                getHeapStatisticsSync: jest.fn().mockReturnValue({ used_heap_size: 0 }),
+                dispose: jest.fn()
+            }));
+
+            const result = await ScriptExecutor.execute('foo.bar()', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
+
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('foo is not defined');
+        });
+
+        it('should always dispose isolate', async () => {
+            const ivm = require('isolated-vm');
+            const mockDispose = jest.fn();
+            ivm.Isolate.mockImplementationOnce(() => ({
+                createContext: jest.fn().mockResolvedValue({
+                    global: { set: jest.fn(), derefInto: jest.fn() }
+                }),
+                compileScript: jest.fn().mockResolvedValue({
+                    run: jest.fn().mockResolvedValue(undefined)
+                }),
+                getHeapStatisticsSync: jest.fn().mockReturnValue({ used_heap_size: 0 }),
+                dispose: mockDispose
+            }));
+
+            await ScriptExecutor.execute('1+1', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
+
+            expect(mockDispose).toHaveBeenCalled();
+        });
+        it('should handle complex log and error outputs', async () => {
+            const ivm = require('isolated-vm');
+            const mockRun = jest.fn().mockImplementation(async () => {
+                // Manually trigger the captured callbacks
+                // The global.__testLog is the { call: fn } object created by new ivm.Callback
+                const globalScope = global as any;
+
+                if (globalScope.__testLog) {
+                    // Simulate console.log({ foo: 'bar' }, 'text')
+                    globalScope.__testLog.call({ foo: 'bar' }, 'text');
+                }
+
+                if (globalScope.__testError) {
+                    // Simulate console.error('Error obj', { err: true })
+                    globalScope.__testError.call('Error obj', { err: true });
+                }
+            });
+
+            ivm.Isolate.mockImplementationOnce(() => ({
+                createContext: jest.fn().mockResolvedValue({
+                    global: {
+                        set: jest.fn().mockImplementation(async (name: string, value: any) => {
+                            if (name === '_log') (global as any).__testLog = value;
+                            if (name === '_error') (global as any).__testError = value;
+                        }),
+                        derefInto: jest.fn()
+                    }
+                }),
+                compileScript: jest.fn().mockResolvedValue({ run: mockRun }),
+                getHeapStatisticsSync: jest.fn().mockReturnValue({ used_heap_size: 0 }),
+                dispose: jest.fn()
+            }));
+
+            const result = await ScriptExecutor.execute('console.log(...)', {
+                databaseName: 'test_db',
+                databaseType: 'postgres'
+            });
+
+            expect(result.success).toBe(true);
+            // Verify logs formatted correctly
+            expect(result.output).toContain('{"foo":"bar"} text');
+            // Verify errors included
+            expect(result.output).toContain('--- STDERR ---');
+            expect(result.output).toContain('Error obj {"err":true}');
         });
     });
 });

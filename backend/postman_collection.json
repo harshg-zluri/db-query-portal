@@ -534,6 +534,32 @@
                         "description": "Get detailed information about a specific database instance."
                     },
                     "response": []
+                },
+                {
+                    "name": "Debug Discovery",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/databases/debug-discovery?instanceId=prod-postgres-main",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "databases",
+                                "debug-discovery"
+                            ],
+                            "query": [
+                                {
+                                    "key": "instanceId",
+                                    "value": "prod-postgres-main",
+                                    "description": "Optional: specific instance ID to debug"
+                                }
+                            ]
+                        },
+                        "description": "Debug dynamic discovery process. Traces detailed execution logic for validation."
+                    },
+                    "response": []
                 }
             ]
         },

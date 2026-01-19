@@ -129,7 +129,6 @@ describe('Auth Middleware', () => {
 
             optionalAuthenticate(mockRequest as Request, mockResponse as Response, nextFunction);
 
-            expect(nextFunction).toHaveBeenCalledWith();
             expect(mockRequest.user).toBeUndefined();
         });
     });

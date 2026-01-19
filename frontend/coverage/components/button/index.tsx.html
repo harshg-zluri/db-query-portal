@@ -138,7 +138,23 @@
 <a name='L73'></a><a href='#L73'>73</a>
 <a name='L74'></a><a href='#L74'>74</a>
 <a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -149,7 +165,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">169x</span>
+<span class="cline-any cline-yes">257x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">257x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -160,21 +183,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">169x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">169x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">169x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">257x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">257x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -217,7 +249,7 @@
 import { cn } from '@utils/cn';
 &nbsp;
 export interface ButtonProps extends ButtonHTMLAttributes&lt;HTMLButtonElement&gt; {
-    variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+    variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
     size?: 'sm' | 'md' | 'lg';
     isLoading?: boolean;
 }
@@ -225,27 +257,44 @@ export interface ButtonProps extends ButtonHTMLAttributes&lt;HTMLButtonElement&g
 export const Button = forwardRef&lt;HTMLButtonElement, ButtonProps&gt;(
     ({ className, variant = 'primary', size = 'md', isLoading, disabled, children, ...props }, ref) =&gt; {
         const baseStyles = cn(
-            'inline-flex items-center justify-center font-semibold rounded-md',
-            'border-2 border-black',
-            'shadow-[4px_4px_0_#000] hover:shadow-none',
-            'hover:translate-x-[2px] hover:translate-y-[2px]',
-            'active:translate-x-[4px] active:translate-y-[4px]',
-            'transition-all duration-150 ease-out',
-            'focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-2',
-            'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0_#000]'
+            'inline-flex items-center justify-center font-medium rounded-md cursor-pointer',
+            'transition-colors duration-150',
+            'focus:outline-none focus:ring-2 focus:ring-offset-1',
+            'disabled:opacity-50 disabled:cursor-not-allowed'
         );
 &nbsp;
         const variants = {
-            primary: 'bg-[#FEF34B] text-black hover:bg-[#FDE500]',
-            secondary: 'bg-white text-black hover:bg-[#FAF9F6]',
-            danger: 'bg-[#ef4444] text-white hover:bg-[#dc2626] border-black',
-            ghost: 'bg-transparent text-black border-transparent shadow-none hover:bg-[#FAF9F6] hover:border-black hover:shadow-[4px_4px_0_#000]',
+            primary: cn(
+                'bg-zinc-900 text-white',
+                'hover:bg-zinc-700',
+                'focus:ring-zinc-900'
+            ),
+            secondary: cn(
+                'bg-white text-zinc-700 border border-zinc-300',
+                'hover:bg-zinc-50',
+                'focus:ring-zinc-400'
+            ),
+            success: cn(
+                'bg-green-600 text-white',
+                'hover:bg-green-700',
+                'focus:ring-green-600'
+            ),
+            danger: cn(
+                'bg-[#EF4444] text-white',
+                'hover:bg-red-700',
+                'focus:ring-red-600'
+            ),
+            ghost: cn(
+                'bg-transparent text-zinc-600',
+                'hover:bg-zinc-100 hover:text-zinc-900',
+                'focus:ring-zinc-400'
+            ),
         };
 &nbsp;
         const sizes = {
             sm: 'px-3 py-1.5 text-sm',
             md: 'px-4 py-2 text-sm',
-            lg: 'px-6 py-3 text-base',
+            lg: 'px-5 py-2.5 text-sm',
         };
 &nbsp;
         return (
@@ -259,7 +308,6 @@ export const Button = forwardRef&lt;HTMLButtonElement, ButtonProps&gt;(
                     &lt;&gt;
                         &lt;svg
                             className="animate-spin -ml-1 mr-2 h-4 w-4"
-                            xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
                         &gt;
@@ -295,7 +343,7 @@ Button.displayName = 'Button';
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-09T10:50:46.120Z
+                at 2026-01-19T06:52:08.825Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

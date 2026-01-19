@@ -1,52 +1,42 @@
+import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 import { QueryRequestModel } from '../../../src/models/QueryRequest';
 import { DatabaseType, SubmissionType, RequestStatus } from '../../../src/types';
+import { getEm } from '../../../src/config/database';
+import { QueryRequest } from '../../../src/entities/QueryRequest';
 
-// Mock database query
-jest.mock('../../../src/config/database', () => ({
-    query: jest.fn()
-}));
+// Mock database
+jest.mock('../../../src/config/database');
 
 // Mock uuid
 jest.mock('uuid', () => ({
     v4: jest.fn(() => 'test-uuid-123')
 }));
 
-import { query } from '../../../src/config/database';
-
 describe('QueryRequestModel', () => {
+    let mockEm: any;
+
     beforeEach(() => {
         jest.clearAllMocks();
+        mockEm = {
+            persistAndFlush: jest.fn(),
+            findOne: jest.fn(),
+            findAndCount: jest.fn(),
+            flush: jest.fn(),
+            nativeUpdate: jest.fn(),
+            count: jest.fn(),
+        };
+        (getEm as jest.Mock).mockReturnValue(mockEm);
     });
 
-    const mockRequestRow = {
+    const mockRequest = {
         id: 'req-1',
-        user_id: 'user-1',
-        user_email: 'user@example.com',
-        database_type: 'postgresql',
-        instance_id: 'db-1',
-        instance_name: 'Production DB',
-        database_name: 'app_db',
-        submission_type: 'query',
-        query: 'SELECT * FROM users',
-        script_file_name: null,
-        script_content: null,
-        comments: 'Test query',
-        pod_id: 'pod-1',
-        pod_name: 'Engineering',
-        status: 'pending',
-        approver_email: null,
-        rejection_reason: null,
-        execution_result: null,
-        execution_error: null,
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z',
-        executed_at: null
+        userId: 'user-1',
+        status: RequestStatus.PENDING,
+        toJSON: () => ({ id: 'req-1', status: RequestStatus.PENDING })
     };
 
     describe('create', () => {
         it('should create a new query request', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRequestRow] });
-
             const result = await QueryRequestModel.create({
                 userId: 'user-1',
                 userEmail: 'user@example.com',
@@ -61,16 +51,12 @@ describe('QueryRequestModel', () => {
                 podName: 'Engineering'
             });
 
-            expect(result.id).toBe('req-1');
+            expect(mockEm.persistAndFlush).toHaveBeenCalled();
+            expect(result.id).toBe('test-uuid-123');
             expect(result.status).toBe('pending');
-            expect(query).toHaveBeenCalled();
         });
-
-        it('should create script submission request', async () => {
-            const scriptRow = { ...mockRequestRow, submission_type: 'script', query: null, script_file_name: 'script.js', script_content: 'console.log(1)' };
-            (query as jest.Mock).mockResolvedValue({ rows: [scriptRow] });
-
-            const result = await QueryRequestModel.create({
+        it('should create a new query request with optional fields', async () => {
+            const data: any = {
                 userId: 'user-1',
                 userEmail: 'user@example.com',
                 databaseType: DatabaseType.POSTGRESQL,
@@ -78,87 +64,81 @@ describe('QueryRequestModel', () => {
                 instanceName: 'Production DB',
                 databaseName: 'app_db',
                 submissionType: SubmissionType.SCRIPT,
-                scriptFileName: 'script.js',
-                scriptContent: 'console.log(1)',
+                scriptFileName: 'test.js',
+                scriptContent: 'console.log("test")',
                 comments: 'Test script',
                 podId: 'pod-1',
-                podName: 'Engineering'
-            });
+                podName: 'Engineering',
+                warnings: ['Warning 1']
+            };
 
-            expect(result.submissionType).toBe('script');
+            await QueryRequestModel.create(data);
+
+            expect(mockEm.persistAndFlush).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    scriptFileName: 'test.js',
+                    scriptContent: 'console.log("test")',
+                    warnings: ['Warning 1']
+                })
+            );
         });
     });
 
     describe('findById', () => {
         it('should return request when found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [mockRequestRow] });
+            mockEm.findOne.mockResolvedValue(mockRequest);
 
             const result = await QueryRequestModel.findById('req-1');
 
-            expect(result).not.toBeNull();
-            expect(result?.id).toBe('req-1');
-            expect(result?.query).toBe('SELECT * FROM users');
+            expect(result).toEqual(mockRequest);
+            expect(mockEm.findOne).toHaveBeenCalledWith(QueryRequest, { id: 'req-1' });
         });
 
         it('should return null when not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
+            mockEm.findOne.mockResolvedValue(null);
             const result = await QueryRequestModel.findById('nonexistent');
-
             expect(result).toBeNull();
-        });
-
-        it('should handle executed_at field', async () => {
-            const executedRow = { ...mockRequestRow, executed_at: '2024-01-02T00:00:00Z' };
-            (query as jest.Mock).mockResolvedValue({ rows: [executedRow] });
-
-            const result = await QueryRequestModel.findById('req-1');
-
-            expect(result?.executedAt).toBeInstanceOf(Date);
         });
     });
 
     describe('findByUserId', () => {
         it('should return paginated results', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [mockRequestRow] })
-                .mockResolvedValueOnce({ rows: [{ total: '5' }] });
+            mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
             const result = await QueryRequestModel.findByUserId('user-1', 1, 10);
 
             expect(result.requests).toHaveLength(1);
-            expect(result.total).toBe(5);
+            expect(result.total).toBe(1);
         });
 
         it('should use default pagination', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [] })
-                .mockResolvedValueOnce({ rows: [{ total: '0' }] });
+            mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-            const result = await QueryRequestModel.findByUserId('user-1');
+            await QueryRequestModel.findByUserId('user-1');
 
-            expect(result.requests).toHaveLength(0);
-            expect(result.total).toBe(0);
+            expect(mockEm.findAndCount).toHaveBeenCalledWith(
+                QueryRequest,
+                { userId: 'user-1' },
+                expect.objectContaining({ limit: 20, offset: 0 })
+            );
         });
 
         it('should filter by status', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [mockRequestRow] })
-                .mockResolvedValueOnce({ rows: [{ total: '1' }] });
+            mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-            const result = await QueryRequestModel.findByUserId('user-1', 1, 10, RequestStatus.PENDING);
+            await QueryRequestModel.findByUserId('user-1', 1, 10, RequestStatus.PENDING);
 
-            expect(result.requests).toHaveLength(1);
-            expect(result.total).toBe(1);
-            expect(query).toHaveBeenCalledWith(expect.stringContaining('WHERE'), expect.any(Array));
+            expect(mockEm.findAndCount).toHaveBeenCalledWith(
+                QueryRequest,
+                { userId: 'user-1', status: RequestStatus.PENDING },
+                expect.any(Object)
+            );
         });
     });
 
     describe('findWithFilters', () => {
         it('should filter by status', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [mockRequestRow] })
-                .mockResolvedValueOnce({ rows: [{ total: '1' }] });
+            mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
             const result = await QueryRequestModel.findWithFilters(
                 { status: RequestStatus.PENDING },
@@ -167,142 +147,187 @@ describe('QueryRequestModel', () => {
             );
 
             expect(result.requests).toHaveLength(1);
+            expect(mockEm.findAndCount).toHaveBeenCalledWith(
+                QueryRequest,
+                expect.objectContaining({ status: RequestStatus.PENDING }),
+                expect.any(Object)
+            );
         });
 
-        it('should handle all filter options', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [] })
-                .mockResolvedValueOnce({ rows: [{ total: '0' }] });
+        it('should filter by date range', async () => {
+            mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
+            const fromDate = new Date('2024-01-01');
+            const toDate = new Date('2024-01-31');
 
-            const result = await QueryRequestModel.findWithFilters({
+            await QueryRequestModel.findWithFilters({
+                dateFrom: fromDate,
+                dateTo: toDate
+            });
+
+            expect(mockEm.findAndCount).toHaveBeenCalledWith(
+                QueryRequest,
+                expect.objectContaining({
+                    createdAt: {
+                        $gte: fromDate,
+                        $lte: toDate
+                    }
+                }),
+                expect.any(Object)
+            );
+        });
+
+        it('should filter by date range and status', async () => {
+            mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
+            const fromDate = new Date('2024-01-01');
+            const toDate = new Date('2024-01-31');
+
+            await QueryRequestModel.findWithFilters({
                 status: RequestStatus.APPROVED,
+                dateFrom: fromDate,
+                dateTo: toDate
+            });
+
+            expect(mockEm.findAndCount).toHaveBeenCalledWith(
+                QueryRequest,
+                expect.objectContaining({
+                    status: RequestStatus.APPROVED,
+                    createdAt: {
+                        $gte: fromDate,
+                        $lte: toDate
+                    }
+                }),
+                expect.any(Object)
+            );
+        });
+
+        it('should filter by specific fields (podId, approverEmail, allowedPodIds)', async () => {
+            mockEm.findAndCount.mockResolvedValue([[mockRequest], 1]);
+
+            await QueryRequestModel.findWithFilters({
                 podId: 'pod-1',
-                approverEmail: 'approver@example.com',
-                dateFrom: new Date('2024-01-01'),
-                dateTo: new Date('2024-12-31'),
+                approverEmail: 'admin@example.com',
                 allowedPodIds: ['pod-1', 'pod-2']
             });
 
-            expect(result.requests).toHaveLength(0);
-        });
-
-        it('should use default pagination', async () => {
-            (query as jest.Mock)
-                .mockResolvedValueOnce({ rows: [] })
-                .mockResolvedValueOnce({ rows: [{ total: '0' }] });
-
-            await QueryRequestModel.findWithFilters({});
-
-            expect(query).toHaveBeenCalled();
+            expect(mockEm.findAndCount).toHaveBeenCalledWith(
+                QueryRequest,
+                expect.objectContaining({
+                    podId: { $in: ['pod-1', 'pod-2'] },
+                    approverEmail: 'admin@example.com'
+                }),
+                expect.any(Object)
+            );
         });
     });
 
     describe('approve', () => {
         it('should approve request', async () => {
-            const approvedRow = { ...mockRequestRow, status: 'approved', approver_email: 'approver@example.com' };
-            (query as jest.Mock).mockResolvedValue({ rows: [approvedRow] });
+            mockEm.findOne.mockResolvedValue(mockRequest);
 
             const result = await QueryRequestModel.approve('req-1', 'approver@example.com');
 
-            expect(result).not.toBeNull();
+            expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('approved');
+            expect(result?.approverEmail).toBe('approver@example.com');
         });
+        // ... (rest of the file remains same, just verify context matching)
+        // Wait, I shouldn't replace lines if I can avoid large chunks. 
+        // I will split this into two calls or just target specific blocks.
+
+        // Actually, I'll use multi_replace to be precise.
+
 
         it('should return null when request not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
+            mockEm.findOne.mockResolvedValue(null);
             const result = await QueryRequestModel.approve('nonexistent', 'approver@example.com');
-
             expect(result).toBeNull();
         });
     });
 
+
+
     describe('reject', () => {
         it('should reject request with reason', async () => {
-            const rejectedRow = { ...mockRequestRow, status: 'rejected', rejection_reason: 'Not allowed' };
-            (query as jest.Mock).mockResolvedValue({ rows: [rejectedRow] });
+            mockEm.findOne.mockResolvedValue(mockRequest);
 
             const result = await QueryRequestModel.reject('req-1', 'approver@example.com', 'Not allowed');
 
-            expect(result).not.toBeNull();
+            expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('rejected');
-        });
-
-        it('should reject request without reason', async () => {
-            const rejectedRow = { ...mockRequestRow, status: 'rejected' };
-            (query as jest.Mock).mockResolvedValue({ rows: [rejectedRow] });
-
-            const result = await QueryRequestModel.reject('req-1', 'approver@example.com');
-
-            expect(result).not.toBeNull();
+            expect(result?.rejectionReason).toBe('Not allowed');
         });
 
         it('should return null when request not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
+            mockEm.findOne.mockResolvedValue(null);
             const result = await QueryRequestModel.reject('nonexistent', 'approver@example.com');
-
             expect(result).toBeNull();
         });
     });
 
     describe('setExecutionResult', () => {
         it('should set successful execution result', async () => {
-            const executedRow = { ...mockRequestRow, status: 'executed', execution_result: '{"rows": []}', executed_at: '2024-01-02T00:00:00Z' };
-            (query as jest.Mock).mockResolvedValue({ rows: [executedRow] });
+            mockEm.findOne.mockResolvedValue(mockRequest);
 
-            const result = await QueryRequestModel.setExecutionResult('req-1', true, '{"rows": []}');
+            const result = await QueryRequestModel.setExecutionResult('req-1', true, '[]');
 
-            expect(result).not.toBeNull();
+            expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('executed');
+            expect(result?.executionResult).toBe('[]');
         });
 
-        it('should set failed execution result', async () => {
-            const failedRow = { ...mockRequestRow, status: 'failed', execution_error: 'Connection failed' };
-            (query as jest.Mock).mockResolvedValue({ rows: [failedRow] });
+        it('should set failed execution result with error', async () => {
+            mockEm.findOne.mockResolvedValue(mockRequest);
 
-            const result = await QueryRequestModel.setExecutionResult('req-1', false, undefined, 'Connection failed');
+            const result = await QueryRequestModel.setExecutionResult('req-1', false, undefined, 'Syntax error');
 
-            expect(result).not.toBeNull();
+            expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('failed');
+            expect(result?.executionError).toBe('Syntax error');
         });
 
-        it('should return null when request not found', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
+        it('should set compressed flag', async () => {
+            mockEm.findOne.mockResolvedValue(mockRequest);
 
+            const result = await QueryRequestModel.setExecutionResult('req-1', true, '[]', undefined, true);
+
+            expect(result?.isCompressed).toBe(true);
+        });
+
+        it('should return null if request not found', async () => {
+            mockEm.findOne.mockResolvedValue(null);
             const result = await QueryRequestModel.setExecutionResult('nonexistent', true);
-
             expect(result).toBeNull();
         });
     });
 
     describe('withdraw', () => {
         it('should withdraw request', async () => {
-            const withdrawnRow = { ...mockRequestRow, status: 'withdrawn' };
-            (query as jest.Mock).mockResolvedValue({ rows: [withdrawnRow] });
+            mockEm.findOne.mockResolvedValue(mockRequest);
 
             const result = await QueryRequestModel.withdraw('req-1', 'user-1');
 
-            expect(result).not.toBeNull();
+            expect(mockEm.flush).toHaveBeenCalled();
             expect(result?.status).toBe('withdrawn');
         });
 
-        it('should return null when request not found or not owned by user', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [] });
-
+        it('should return null if request not found', async () => {
+            mockEm.findOne.mockResolvedValue(null);
             const result = await QueryRequestModel.withdraw('nonexistent', 'user-1');
-
             expect(result).toBeNull();
         });
     });
 
     describe('countPendingByUser', () => {
         it('should return pending count', async () => {
-            (query as jest.Mock).mockResolvedValue({ rows: [{ total: '5' }] });
+            mockEm.count.mockResolvedValue(5);
 
             const count = await QueryRequestModel.countPendingByUser('user-1');
 
             expect(count).toBe(5);
+            expect(mockEm.count).toHaveBeenCalledWith(QueryRequest, {
+                userId: 'user-1',
+                status: { $in: [RequestStatus.PENDING, RequestStatus.APPROVED] }
+            });
         });
     });
 });

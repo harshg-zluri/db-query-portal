@@ -7,7 +7,7 @@ describe('Card Component', () => {
         render(<Card>Card Content</Card>);
         const card = screen.getByText('Card Content');
         expect(card).toBeInTheDocument();
-        expect(card).toHaveClass('p-4'); // Default padding md
+        expect(card).toHaveClass('p-5'); // Default padding md
     });
 
     it('renders with custom class', () => {
@@ -23,7 +23,7 @@ describe('Card Component', () => {
         expect(screen.getByText('Content')).not.toHaveClass('p-6');
 
         rerender(<Card padding="sm">Content</Card>);
-        expect(screen.getByText('Content')).toHaveClass('p-3');
+        expect(screen.getByText('Content')).toHaveClass('p-4');
 
         rerender(<Card padding="lg">Content</Card>);
         expect(screen.getByText('Content')).toHaveClass('p-6');
@@ -39,21 +39,21 @@ describe('Card Component', () => {
 describe('Card Subcomponents', () => {
     it('renders CardHeader', () => {
         render(<CardHeader>Header</CardHeader>);
-        expect(screen.getByText('Header')).toHaveClass('pb-4 border-b-2');
+        expect(screen.getByText('Header')).toHaveClass('pb-4 border-b');
     });
 
     it('renders CardTitle', () => {
         render(<CardTitle>Title</CardTitle>);
         const title = screen.getByText('Title');
         expect(title.tagName).toBe('H3');
-        expect(title).toHaveClass('text-lg font-bold');
+        expect(title).toHaveClass('text-lg font-semibold');
     });
 
     it('renders CardDescription', () => {
         render(<CardDescription>Description</CardDescription>);
         const desc = screen.getByText('Description');
         expect(desc.tagName).toBe('P');
-        expect(desc).toHaveClass('text-sm text-[#404040]');
+        expect(desc).toHaveClass('text-sm text-[#64748B]');
     });
 
     it('renders CardContent', () => {
@@ -63,6 +63,6 @@ describe('Card Subcomponents', () => {
 
     it('renders CardFooter', () => {
         render(<CardFooter>Footer</CardFooter>);
-        expect(screen.getByText('Footer')).toHaveClass('pt-4 border-t-2');
+        expect(screen.getByText('Footer')).toHaveClass('pt-4 border-t');
     });
 });

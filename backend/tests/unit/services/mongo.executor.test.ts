@@ -1,7 +1,7 @@
 import { MongoExecutor, createMongoExecutor } from '../../../src/services/mongo.executor';
 
-// Mock mongodb
-jest.mock('mongodb', () => {
+// Mock mongoose
+jest.mock('mongoose', () => {
     const mockCollection = {
         find: jest.fn().mockReturnValue({ toArray: jest.fn() }),
         findOne: jest.fn(),
@@ -18,13 +18,16 @@ jest.mock('mongodb', () => {
         collection: jest.fn().mockReturnValue(mockCollection),
         command: jest.fn()
     };
-    const mockClient = {
-        connect: jest.fn().mockResolvedValue(undefined),
+    const mockConnection = {
         close: jest.fn().mockResolvedValue(undefined),
-        db: jest.fn().mockReturnValue(mockDb)
+        db: mockDb,
+        asPromise: jest.fn().mockResolvedValue(null)
     };
+
     return {
-        MongoClient: jest.fn(() => mockClient)
+        createConnection: jest.fn().mockReturnValue({
+            asPromise: jest.fn().mockResolvedValue(mockConnection)
+        })
     };
 });
 
@@ -38,12 +41,12 @@ jest.mock('../../../src/utils/sanitizer', () => ({
     })
 }));
 
-import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 import { sanitizeMongoInput } from '../../../src/utils/sanitizer';
 
 describe('MongoExecutor', () => {
     let executor: MongoExecutor;
-    let mockClient: any;
+    let mockConnection: any;
     let mockDb: any;
     let mockCollection: any;
 
@@ -66,26 +69,28 @@ describe('MongoExecutor', () => {
             collection: jest.fn().mockReturnValue(mockCollection),
             command: jest.fn().mockResolvedValue({ ok: 1 })
         };
-        mockClient = {
-            connect: jest.fn().mockResolvedValue(undefined),
+        mockConnection = {
             close: jest.fn().mockResolvedValue(undefined),
-            db: jest.fn().mockReturnValue(mockDb)
+            db: mockDb
         };
-        (MongoClient as unknown as jest.Mock).mockImplementation(() => mockClient);
+
+        (mongoose.createConnection as jest.Mock).mockReturnValue({
+            asPromise: jest.fn().mockResolvedValue(mockConnection)
+        });
 
         executor = new MongoExecutor('mongodb://localhost:27017', 'testdb');
     });
 
     describe('connect', () => {
-        it('should connect to MongoDB', async () => {
+        it('should connect to MongoDB via Mongoose', async () => {
             await executor.connect();
-            expect(mockClient.connect).toHaveBeenCalled();
+            expect(mongoose.createConnection).toHaveBeenCalled();
         });
 
         it('should reuse connection', async () => {
             await executor.connect();
             await executor.connect();
-            expect(mockClient.connect).toHaveBeenCalledTimes(1);
+            expect(mongoose.createConnection).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -93,7 +98,7 @@ describe('MongoExecutor', () => {
         it('should close connection', async () => {
             await executor.connect();
             await executor.close();
-            expect(mockClient.close).toHaveBeenCalled();
+            expect(mockConnection.close).toHaveBeenCalled();
         });
 
         it('should handle close without connect', async () => {
@@ -111,7 +116,6 @@ describe('MongoExecutor', () => {
         });
 
         it('should execute find query (dot notation)', async () => {
-            // Covers regex group `dotName`
             const result = await executor.execute('db.users.find({})');
 
             expect(result.success).toBe(true);
@@ -119,7 +123,6 @@ describe('MongoExecutor', () => {
         });
 
         it('should execute find query (single quote bracket)', async () => {
-            // Covers regex group `bracketName` with single quotes
             const result = await executor.execute("db['users'].find({})");
 
             expect(result.success).toBe(true);
@@ -229,7 +232,6 @@ describe('MongoExecutor', () => {
         });
 
         it('should handle single JSON object argument (fallback parsing)', async () => {
-            // This triggers the fallback JSON parsing path (line 126-127)
             const result = await executor.execute('db["users"].findOne({"name": "test"})');
 
             expect(result.success).toBe(true);
@@ -237,7 +239,6 @@ describe('MongoExecutor', () => {
         });
 
         it('should reject invalid JSON arguments', async () => {
-            // This triggers the error path when JSON parsing fails (line 128-129)
             const result = await executor.execute('db["users"].find({invalid json})');
 
             expect(result.success).toBe(false);
@@ -245,21 +246,18 @@ describe('MongoExecutor', () => {
         });
 
         it('should execute find query with empty args', async () => {
-            // Covers default args branch `|| {}`
             const result = await executor.execute('db.users.find()');
             expect(result.success).toBe(true);
             expect(mockCollection.find).toHaveBeenCalledWith({});
         });
 
         it('should execute aggregate with empty args', async () => {
-            // Covers default args branch `|| []`
             const result = await executor.execute('db.users.aggregate()');
             expect(result.success).toBe(true);
             expect(mockCollection.aggregate).toHaveBeenCalledWith([]);
         });
 
         it('should execute countDocuments with empty args', async () => {
-            // Covers default args branch `|| {}`
             const result = await executor.execute('db.users.countDocuments()');
             expect(result.success).toBe(true);
             expect(mockCollection.countDocuments).toHaveBeenCalledWith({});
@@ -290,29 +288,39 @@ describe('MongoExecutor', () => {
         });
 
         it('should fail if getDb called without connection', async () => {
-            // Spy on connect to simulate successful return but no client outcome
             jest.spyOn(executor, 'connect').mockResolvedValueOnce(undefined);
-            (executor as any).client = null;
+            (executor as any).connection = null;
 
             const result = await executor.execute('db.users.find({})');
 
             expect(result.success).toBe(false);
             expect(result.error).toContain('Not connected to MongoDB');
+        });
 
-            // Restore implementation is not strictly needed as it was mockResolvedValueOnce
-            // But good practice
-            jest.restoreAllMocks();
+        it('should fail if db is not available after connection', async () => {
+            // Mock connection exists but db property is undefined
+            const mockConnectionWithoutDb = {
+                close: jest.fn().mockResolvedValue(undefined),
+                db: undefined
+            };
+            (mongoose.createConnection as jest.Mock).mockReturnValue({
+                asPromise: jest.fn().mockResolvedValue(mockConnectionWithoutDb)
+            });
+
+            const executor2 = new MongoExecutor('mongodb://localhost:27017', 'testdb');
+            const result = await executor2.execute('db.users.find({})');
+
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('Database not available');
         });
 
         it('should execute findOne with empty args', async () => {
-            // Covers default args branch `|| {}` for findOne
             const result = await executor.execute('db.users.findOne()');
             expect(result.success).toBe(true);
             expect(mockCollection.findOne).toHaveBeenCalledWith({});
         });
 
         it('should handle non-Error exceptions', async () => {
-            // Mock sanitize to throw a string (non-Error)
             (sanitizeMongoInput as jest.Mock).mockImplementationOnce(() => {
                 throw 'Critical Failure';
             });
@@ -322,6 +330,43 @@ describe('MongoExecutor', () => {
             expect(result.success).toBe(false);
             expect(result.error).toBe('Unknown error');
         });
+
+        it('should block find query that exceeds MAX_ROWS limit', async () => {
+            // Mock countDocuments returning more than MAX_ROWS (10000)
+            mockCollection.countDocuments.mockResolvedValueOnce(50000);
+
+            const result = await executor.execute('db.users.find({})');
+
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('50,000 documents');
+            expect(result.error).toContain('exceeds the maximum limit');
+            expect(mockCollection.find).not.toHaveBeenCalled(); // Should not call find after count check
+        });
+
+        it('should block aggregate query that exceeds MAX_ROWS limit', async () => {
+            // Mock aggregate returning more than MAX_ROWS documents
+            const largeResults = new Array(15000).fill({ id: 1 });
+            mockCollection.aggregate.mockReturnValue({ toArray: jest.fn().mockResolvedValue(largeResults) });
+
+            const result = await executor.execute('db.users.aggregate([{"$match": {}}])');
+
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('15,000 documents');
+            expect(result.error).toContain('exceeds the maximum limit');
+        });
+
+        it('should block insertMany that exceeds MAX_ROWS batch limit', async () => {
+            // Create an array with more than MAX_ROWS documents
+            const manyDocs = new Array(12000).fill({ name: 'test' });
+            const query = `db.users.insertMany(${JSON.stringify(manyDocs)})`;
+
+            const result = await executor.execute(query);
+
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('12,000 documents');
+            expect(result.error).toContain('Maximum batch size');
+            expect(mockCollection.insertMany).not.toHaveBeenCalled();
+        });
     });
 
     describe('testConnection', () => {
@@ -330,10 +375,37 @@ describe('MongoExecutor', () => {
             expect(result).toBe(true);
         });
 
-        it('should return false for failed connection', async () => {
-            mockClient.connect.mockRejectedValue(new Error('Connection failed'));
+        it('should return false if testConnection connects but db is missing', async () => {
+            // Mock connect success
+            (mongoose.createConnection as jest.Mock).mockReturnValue({
+                asPromise: jest.fn().mockResolvedValue({
+                    // Connection object WITHOUT db property
+                    close: jest.fn().mockResolvedValue(undefined)
+                })
+            });
+            // Need to create new executor to usage modified mock
+            const executor3 = new MongoExecutor('mongodb://localhost:27017', 'testdb');
 
-            const result = await executor.testConnection();
+            // Bypass the 'getDb' check in connect() if any? 
+            // Actually getDb() usually called inside execute/testConnection.
+            // testConnection calls connect(), then getDb().
+            // If getDb() throws, testConnection catches and returns false.
+            // But we want to hit line 192 "return false" INSIDE the try block.
+            // This happens if getDb() returns null/undefined but DOES NOT throw.
+            // Check getDb implementation:
+            // private getDb() { if (!this.connection) throw... return this.connection.db; }
+            // So if this.connection.db is undefined, it returns undefined.
+            const result = await executor3.testConnection();
+            expect(result).toBe(false);
+        });
+
+        it('should return false for failed connection', async () => {
+            (mongoose.createConnection as jest.Mock).mockReturnValue({
+                asPromise: jest.fn().mockRejectedValue(new Error('Connection failed'))
+            });
+
+            const executor2 = new MongoExecutor('mongodb://invalid:27017', 'testdb');
+            const result = await executor2.testConnection();
             expect(result).toBe(false);
         });
     });

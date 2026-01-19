@@ -7,6 +7,13 @@ import { UserRole } from '../types';
 const router = Router();
 
 router.get(
+    '/debug-discovery',
+    authenticate,
+    requireRole(UserRole.ADMIN),
+    DatabaseController.debugDiscovery
+);
+
+router.get(
     '/types',
     authenticate,
     DatabaseController.getTypes
@@ -30,5 +37,7 @@ router.get(
     requireRole(UserRole.ADMIN),
     DatabaseController.getInstanceById
 );
+
+
 
 export default router;

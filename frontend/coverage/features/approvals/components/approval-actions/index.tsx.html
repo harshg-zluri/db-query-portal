@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80.95% </span>
+                <span class="strong">90.47% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>17/21</span>
+                <span class='fraction'>19/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>3/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/10</span>
+                <span class='fraction'>8/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80.95% </span>
+                <span class="strong">90.47% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>17/21</span>
+                <span class='fraction'>19/21</span>
             </div>
         
             
@@ -225,30 +225,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -263,7 +263,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -302,7 +302,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -333,7 +333,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -384,7 +384,7 @@ export function ApprovalActions({
     };
 &nbsp;
     const handleReject = () =&gt; {
-        onReject(requestId, rejectReason || <span class="branch-1 cbranch-no" title="branch not covered" >undefined)</span>;
+        onReject(requestId, rejectReason || undefined);
         setShowRejectModal(false);
         setRejectReason('');
     };
@@ -393,7 +393,7 @@ export function ApprovalActions({
         &lt;&gt;
             &lt;div className="flex items-center gap-2"&gt;
                 &lt;Button
-                    variant="primary"
+                    variant="success"
                     size="sm"
                     onClick={handleApprove}
                     isLoading={isApproving}
@@ -420,7 +420,7 @@ export function ApprovalActions({
                 size="sm"
             &gt;
                 &lt;div className="space-y-4"&gt;
-                    &lt;div className="flex items-start gap-3 p-4 bg-[#FEF3C7] border-2 border-[#F59E0B] rounded-md shadow-[2px_2px_0_#000]"&gt;
+                    &lt;div className="flex items-start gap-3 p-4 bg-[#FEF3C7] border-2 border-[#F59E0B] rounded-md "&gt;
                         &lt;svg
                             className="w-6 h-6 text-[#92400E] flex-shrink-0"
                             fill="none"
@@ -435,7 +435,7 @@ export function ApprovalActions({
                             /&gt;
                         &lt;/svg&gt;
                         &lt;div&gt;
-                            &lt;p className="text-sm font-bold text-[#92400E] uppercase"&gt;Warning&lt;/p&gt;
+                            &lt;p className="text-sm font-semibold text-[#92400E] uppercase"&gt;Warning&lt;/p&gt;
                             &lt;p className="text-sm text-[#92400E] mt-1"&gt;
                                 This request has security warnings. Are you sure you want to approve it?
                             &lt;/p&gt;
@@ -443,7 +443,7 @@ export function ApprovalActions({
                     &lt;/div&gt;
 &nbsp;
                     &lt;ModalFooter&gt;
-                        &lt;Button variant="secondary" onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etShowApproveConfirm(false)}&gt;</span>
+                        &lt;Button variant="secondary" onClick={() =&gt; setShowApproveConfirm(false)}&gt;
                             Cancel
                         &lt;/Button&gt;
                         &lt;Button variant="primary" onClick={handleConfirmApprove} isLoading={isApproving}&gt;
@@ -462,19 +462,19 @@ export function ApprovalActions({
             &gt;
                 &lt;div className="space-y-4"&gt;
                     &lt;div&gt;
-                        &lt;label className="block text-sm font-bold text-black uppercase tracking-wide mb-2"&gt;
+                        &lt;label className="block text-sm font-semibold text-[#0F172A]  mb-2"&gt;
                             Rejection Reason (optional)
                         &lt;/label&gt;
                         &lt;textarea
                             value={rejectReason}
                             onChange={(e) =&gt; setRejectReason(e.target.value)}
                             placeholder="Provide a reason for rejection..."
-                            className="w-full px-3 py-2.5 bg-white border-2 border-black rounded-md text-black placeholder-[#6B6B6B] focus:outline-none focus:ring-2 focus:ring-[#FEF34B] focus:ring-offset-1 resize-none h-24 hover:shadow-[2px_2px_0_#000] focus:shadow-[2px_2px_0_#000] transition-all duration-150"
+                            className="w-full px-3 py-2.5 bg-white border border-[#E2E8F0] rounded-md text-[#0F172A] placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:ring-offset-1 resize-none h-24 hover: focus: transition-all duration-150"
                         /&gt;
                     &lt;/div&gt;
 &nbsp;
                     &lt;ModalFooter&gt;
-                        &lt;Button variant="secondary" onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etShowRejectModal(false)}&gt;</span>
+                        &lt;Button variant="secondary" onClick={() =&gt; setShowRejectModal(false)}&gt;
                             Cancel
                         &lt;/Button&gt;
                         &lt;Button variant="danger" onClick={handleReject} isLoading={isRejecting}&gt;
@@ -493,7 +493,7 @@ export function ApprovalActions({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-09T10:50:46.120Z
+                at 2026-01-19T06:52:08.825Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

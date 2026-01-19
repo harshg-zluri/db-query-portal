@@ -28,11 +28,11 @@ export function EmptyState({
             )}
         >
             {icon ? (
-                <div className="text-black mb-4">{icon}</div>
+                <div className="text-[#0F172A] mb-4">{icon}</div>
             ) : (
-                <div className="w-16 h-16 mb-4 rounded-md border-2 border-black bg-[#FAF9F6] flex items-center justify-center shadow-[2px_2px_0_#000]">
+                <div className="w-16 h-16 mb-4 rounded-md border border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-center ">
                     <svg
-                        className="w-8 h-8 text-black"
+                        className="w-8 h-8 text-[#0F172A]"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -47,10 +47,10 @@ export function EmptyState({
                 </div>
             )}
 
-            <h3 className="text-lg font-bold text-black uppercase tracking-tight mb-1">{title}</h3>
+            <h3 className="text-lg font-semibold text-[#0F172A] font-semibold mb-1">{title}</h3>
 
             {description && (
-                <p className="text-sm text-[#6B6B6B] max-w-sm mb-4">{description}</p>
+                <p className="text-sm text-[#64748B] max-w-sm mb-4">{description}</p>
             )}
 
             {action && (

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthController } from '../../../src/controllers/auth.controller';
+import * as AuthController from '../../../src/controllers/auth.controller';
 import { AuthService } from '../../../src/services/auth.service';
 import * as responseHelper from '../../../src/utils/responseHelper';
 import { UserRole } from '../../../src/types';

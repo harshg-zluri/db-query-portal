@@ -111,6 +111,10 @@ export class AuthService {
             throw new AuthenticationError('Invalid email or password');
         }
 
+        if (!user.password) {
+            throw new AuthenticationError('Invalid email or password');
+        }
+
         const isValid = await this.comparePassword(password, user.password);
 
         if (!isValid) {

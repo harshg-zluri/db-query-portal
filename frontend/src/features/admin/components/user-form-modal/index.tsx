@@ -146,7 +146,7 @@ export function UserFormModal({
                 {/* Pod Assignment */}
                 {(selectedRole === 'manager' || selectedRole === 'admin') && (
                     <div className="space-y-2">
-                        <label className="block text-sm font-bold text-black uppercase tracking-wide">
+                        <label className="block text-sm font-semibold text-[#0F172A] ">
                             Managed Pods
                         </label>
                         <div className="flex flex-wrap gap-2">
@@ -156,8 +156,8 @@ export function UserFormModal({
                                     type="button"
                                     onClick={() => togglePod(pod.id)}
                                     className={`px-3 py-1.5 text-sm font-semibold border-2 rounded-md transition-all duration-150 ${selectedPods.includes(pod.id)
-                                        ? 'bg-[#FEF34B] border-black text-black shadow-[2px_2px_0_#000]'
-                                        : 'bg-white border-black text-black hover:bg-[#FAF9F6]'
+                                        ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] border-[#E2E8F0] text-[#0F172A] '
+                                        : 'bg-white border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]'
                                         }`}
                                 >
                                     {pod.name}
@@ -165,7 +165,7 @@ export function UserFormModal({
                             ))}
                         </div>
                         {pods.length === 0 && (
-                            <p className="text-sm text-[#6B6B6B]">No pods available</p>
+                            <p className="text-sm text-[#64748B]">No pods available</p>
                         )}
                     </div>
                 )}
