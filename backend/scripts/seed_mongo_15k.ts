@@ -3,7 +3,7 @@
 
 import { MongoClient } from 'mongodb';
 
-const MONGO_URL = 'mongodb+srv://harshg_db_user:0xNn0u660PFpRc1a@cluster0.tv6pls6.mongodb.net/';
+const MONGO_URL = '';
 const DB_NAME = 'test_db';
 
 async function seed() {
