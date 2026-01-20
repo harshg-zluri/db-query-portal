@@ -3,7 +3,7 @@
 
 const { MongoClient } = require('mongodb');
 
-const MONGODB_URI = 'mongodb+srv://harshg_db_user:0xNn0u660PFpRc1a@cluster0.tv6pls6.mongodb.net/';
+const MONGODB_URI = '';
 
 async function seedMongoDB() {
     const client = new MongoClient(MONGODB_URI);
