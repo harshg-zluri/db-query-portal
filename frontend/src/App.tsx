@@ -2,6 +2,7 @@ import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { router } from '@/routes';
+import { DesktopGuard } from '@/wrappers/DesktopGuard';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -17,7 +18,9 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <DesktopGuard>
+        <RouterProvider router={router} />
+      </DesktopGuard>
       <Toaster
         position="top-right"
         toastOptions={{
