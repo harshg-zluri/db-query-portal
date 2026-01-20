@@ -17,20 +17,19 @@ export function OAuthCallbackPage() {
         if (processedRef.current) return;
 
         const accessToken = searchParams.get('accessToken');
-        const refreshToken = searchParams.get('refreshToken');
 
-        if (accessToken && refreshToken) {
+        if (accessToken) {
             processedRef.current = true;
 
             // Temporary user object until we fetch
-            login(accessToken, refreshToken, {} as any);
+            login(accessToken, {} as any);
 
             apiClient.get('/auth/me', {
                 headers: { Authorization: `Bearer ${accessToken}` }
             }).then(response => {
                 const user = response.data.data as SafeUser;
                 // Update store with user
-                login(accessToken, refreshToken, user);
+                login(accessToken, user);
                 toast.success('Login successful!');
                 navigate(ROUTES.DASHBOARD, { replace: true });
             }).catch(err => {
@@ -39,9 +38,8 @@ export function OAuthCallbackPage() {
                 navigate(ROUTES.LOGIN, { replace: true });
             });
 
-        } else if (!accessToken && !refreshToken) {
-            // Only redirect if BOTH are missing, to avoid race conditions with partial params? 
-            // Actually if either is missing it's invalid.
+        } else if (!accessToken) {
+            // Only redirect if missing
             processedRef.current = true;
             toast.error('Authentication failed');
             navigate(ROUTES.LOGIN, { replace: true });

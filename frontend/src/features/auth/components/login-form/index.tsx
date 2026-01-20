@@ -42,7 +42,7 @@ export function LoginForm() {
     const onSubmit = async (data: LoginFormData) => {
         try {
             const result = await loginMutation.mutateAsync(data);
-            login(result.accessToken, result.refreshToken, result.user);
+            login(result.accessToken, result.user);
             toast.success('Login successful!');
 
             // Check if there's a specific redirect location, otherwise use role-based redirect
