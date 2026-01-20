@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { config, validateConfig } from './config/environment';
 import routes from './routes';
 import { apiLimiter } from './middleware/rateLimiter.middleware';
@@ -37,6 +38,7 @@ app.use('/api', apiLimiter);
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 // Request logging (before routes)
 app.use(requestLogger);

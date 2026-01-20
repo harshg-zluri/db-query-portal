@@ -54,10 +54,17 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             }
         });
 
+        // Set refresh token as HTTP-only cookie
+        res.cookie('refreshToken', result.tokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
         sendSuccess(res, {
             user: result.user,
             accessToken: result.tokens.accessToken,
-            refreshToken: result.tokens.refreshToken,
             expiresIn: result.tokens.expiresIn
         }, 'Login successful');
     } catch (error) {
@@ -106,6 +113,13 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
         // 2. Clear any server-side session
         // For this implementation, logout is handled client-side
 
+        // Clear refresh token cookie
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
         sendSuccess(res, null, 'Logout successful');
     } catch (error) {
         next(error);
@@ -121,7 +135,11 @@ export async function refresh(req: Request, res: Response, next: NextFunction): 
     const userAgent = req.headers['user-agent'];
 
     try {
-        const { refreshToken } = req.body as RefreshTokenInput;
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            throw new Error('Refresh token not found');
+        }
 
         const tokens = await AuthService.refreshAccessToken(refreshToken);
 
@@ -136,9 +154,16 @@ export async function refresh(req: Request, res: Response, next: NextFunction): 
             outcome: 'SUCCESS'
         });
 
+        // Set new refresh token as HTTP-only cookie
+        res.cookie('refreshToken', tokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
         sendSuccess(res, {
             accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken,
             expiresIn: tokens.expiresIn
         }, 'Token refreshed');
     } catch (error) {
@@ -212,10 +237,17 @@ export function googleCallback(req: Request, res: Response, next: NextFunction):
 
         const { tokens } = data;
 
-        // Redirect to frontend with tokens
+        // Set refresh token as HTTP-only cookie
+        res.cookie('refreshToken', tokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        // Redirect to frontend with access token only
         const redirectUrl = new URL(`${config.google.frontendUrl}/oauth/callback`);
         redirectUrl.searchParams.set('accessToken', tokens.accessToken);
-        redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
         redirectUrl.searchParams.set('expiresIn', tokens.expiresIn);
 
         res.redirect(redirectUrl.toString());

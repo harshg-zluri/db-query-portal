@@ -61,11 +61,8 @@ apiClient.interceptors.response.use(
             const authStore = useAuthStore.getState();
 
             // Check if we have a refresh token
-            if (!authStore.refreshToken) {
-                authStore.logout();
-                window.location.href = '/login';
-                return Promise.reject(error);
-            }
+            // If we're unauthorized, try to refresh
+            // We don't check for failure here anymore because refreshToken is in cookie
 
             // If already refreshing, queue this request
             if (isRefreshing) {
@@ -88,13 +85,14 @@ apiClient.interceptors.response.use(
             try {
                 const response = await axios.post<ApiResponse<RefreshTokenResponse>>(
                     `${API_BASE_URL}/auth/refresh`,
-                    { refreshToken: authStore.refreshToken }
+                    {},
+                    { withCredentials: true }
                 );
 
-                const { accessToken, refreshToken } = response.data.data!;
+                const { accessToken } = response.data.data!;
 
                 // Update tokens in store
-                authStore.setTokens(accessToken, refreshToken);
+                authStore.setTokens(accessToken);
 
                 // Process queued requests with new token
                 processQueue(null, accessToken);

@@ -23,7 +23,6 @@ router.post(
 router.post(
     '/refresh',
     authLimiter,
-    validate(refreshTokenSchema),
     AuthController.refresh
 );
 

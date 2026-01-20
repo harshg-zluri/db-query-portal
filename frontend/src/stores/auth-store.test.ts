@@ -23,37 +23,33 @@ describe('useAuthStore', () => {
         const state = useAuthStore.getState();
         expect(state.user).toBeNull();
         expect(state.token).toBeNull();
-        expect(state.refreshToken).toBeNull();
         expect(state.isAuthenticated).toBe(false);
     });
 
     it('should login successfully', () => {
-        useAuthStore.getState().login('token', 'refresh', mockUser);
+        useAuthStore.getState().login('token', mockUser);
         const state = useAuthStore.getState();
 
         expect(state.user).toEqual(mockUser);
         expect(state.token).toBe('token');
-        expect(state.refreshToken).toBe('refresh');
         expect(state.isAuthenticated).toBe(true);
     });
 
     it('should logout successfully', () => {
-        useAuthStore.getState().login('token', 'refresh', mockUser);
+        useAuthStore.getState().login('token', mockUser);
         useAuthStore.getState().logout();
         const state = useAuthStore.getState();
 
         expect(state.user).toBeNull();
         expect(state.token).toBeNull();
-        expect(state.refreshToken).toBeNull();
         expect(state.isAuthenticated).toBe(false);
     });
 
     it('should set tokens only', () => {
-        useAuthStore.getState().setTokens('new-token', 'new-refresh');
+        useAuthStore.getState().setTokens('new-token');
         const state = useAuthStore.getState();
 
         expect(state.token).toBe('new-token');
-        expect(state.refreshToken).toBe('new-refresh');
         expect(state.user).toBeNull(); // Should not change user
     });
 
